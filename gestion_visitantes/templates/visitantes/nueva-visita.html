@@ -1,0 +1,215 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Nueva Visita {% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    .input-visita{
+        border: none;
+        border-bottom: 1px solid #000;
+        border-radius: 0px;
+        padding-left: 2px;
+    }
+</style>
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div>
+    <div class="mb-3 row" style="border-bottom: 1px solid #000;">
+        <h4>Datos de visita</h4>
+    </div>
+    <form method="post" action="">
+        <div class="mb-3 row">
+            <div class="mb-3 row">
+                <div class="col-4">
+                    <label for="exampleFormControlInput1" class="form-label">Motivo de Visita</label>
+                    <select class="form-select" aria-label="Default select example">
+                        <option selected>Open this select menu</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <label for="exampleFormControlInput1" class="form-label">A quien visita</label>
+                    <select class="form-select" aria-label="Default select example">
+                        <option selected>Open this select menu</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <label for="exampleFormControlInput1" class="form-label">Area/Departamento</label>
+                    <select class="form-select" aria-label="Default select example">
+                        <option selected>Open this select menu</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link d-flex active" data-bs-toggle="tab" href="#v_agendada" role="tab">
+                    <span><i class='bx bx-male-female'></i></span>
+                    <span class="d-none d-md-block ms-2">Visitante/Visitantes</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex" data-bs-toggle="tab" href="#v_dentro" role="tab">
+                    <span><i class='bx bx-id-card'></i></span>
+                    <span class="d-none d-md-block ms-2">Documento de Identificación</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex" data-bs-toggle="tab" href="#eventos_capacitaciones" role="tab">
+                    <span><i class='bx bx-package'></i></i> </span>
+                    <span class="d-none d-md-block ms-2">Materiales/Equipos/Articulos</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex" data-bs-toggle="tab" href="#lista_negra" role="tab">
+                    <span><i class='bx bx-barcode-reader'></i></span>
+                    <span class="d-none d-md-block ms-2">Pase</span>
+                </a>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div class="tab-pane active" id="v_agendada" role="tabpanel">
+                <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Documento de Identificación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="fila-nueva">
+                            <td class="col-6" contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>
+                            <td class="col-6" contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="text-center">
+                                <button class="btn btn-light btn-sm">
+                                    <span class="d-flex align-items-center">
+                                        <i class='bx bx-plus'></i> Agregar fila
+                                    </span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="tab-pane p-3" id="v_dentro" role="tabpanel">
+                <input class="form-control" type="file" id="formFile">
+                <p class="text-center mb-0">
+                    <small id="name45" class="badge badge-default text-secondary  bg-secondary-subtle form-text">
+                        Adjuntar DNI / Licencia de Conducir / Carnet de Residente / Pasaporte
+                    </small>
+                </p>
+            </div>
+            <div class="tab-pane" id="eventos_capacitaciones" role="tabpanel">
+                <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nombre Visitante</th>
+                            <th>Equipo / Material / Otros</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="fila-nueva">
+                            <td class="col-6" contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>
+                            <td class="col-6" contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="text-center">
+                                <button class="btn btn-light btn-sm">
+                                    <span class="d-flex align-items-center">
+                                        <i class='bx bx-plus'></i> Agregar fila
+                                    </span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="tab-pane" id="lista_negra" role="tabpanel">
+                <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Número Pase</th>
+                            <th>Lugares de Acceso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="fila-nueva">
+                            <td class="col-6" contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>
+                            <td class="col-6" contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

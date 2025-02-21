@@ -1,0 +1,404 @@
+{% extends 'layout/layout-users.html' %}
+{% block title %} Inicio {% endblock %}
+{% block content %}
+{% load static %}
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<style>
+/* Botón de login */
+.btn-edit {
+    border-radius: 50%;
+}
+
+.btn-delete {
+    border-radius: 50%;
+}
+
+.btn-pass {
+    border-radius: 20px;
+}
+
+.btn-custom {
+    background-color: #18314F;
+    color: white;
+}
+
+.btn-custom:hover {
+    background-color: #bababa;
+    color: #18314F;
+    border: 1px solid #18314F;
+}
+
+/* Links */
+.text-link {
+    color: #18314F;
+    text-decoration: none;
+}
+.text-link:hover {
+    text-decoration: underline;
+}
+
+/* Contenedor del input */
+.input-container {
+    position: relative;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Estilos del input */
+.input-container input {
+    width: 100%;
+    padding: 12px 10px;
+    border: 1px solid #d8d8d8;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+    background: transparent;
+    transition: border-color 0.3s ease;
+}
+
+/* Estilos del label */
+.input-container label {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #888;
+    background: white;
+    padding: 0 5px;
+    transition: all 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+/* Efecto flotante: cuando el input está enfocado o tiene contenido */
+.input-container input:focus + label,
+.input-container input:not(:placeholder-shown) + label {
+    top: 0; /* Se posiciona sobre el borde */
+    left: 10px;
+    font-size: 14px;
+    color: #18314F;
+}
+
+/* Remueve la sombra azul y el blur */
+.input-container input:focus {
+    border-color: #18314F;
+    outline: none;
+    box-shadow: none;
+}
+
+/* Ajuste del fondo del label */
+.input-container label::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    right: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: calc(100% + 10px);
+    height: 10px;
+    background: white;
+    z-index: -1;
+}
+
+/* Ajustes para el modal de SweetAlert2 */
+.swal2-container {
+    z-index: 2050 !important; /* Aseguramos que se muestre encima */
+}
+
+/* Estilos generales para el switch */
+.ios-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.ios-switch input {
+    opacity: 0; /* Ocultamos el checkbox real */
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.ios-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+/* Estilo del círculo del switch */
+.ios-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    border-radius: 50%;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+}
+
+/* Estilos cuando el switch está activado */
+.ios-switch input:checked + .slider {
+    background-color: #4CAF50; /* Color verde cuando está activado */
+}
+
+.ios-switch input:checked + .slider:before {
+    transform: translateX(26px); /* Mueve el círculo hacia la derecha */
+}
+
+/* Efecto de hover para mejorar la interacción */
+.ios-switch .slider:hover {
+    background-color: #45a049;
+}
+
+/* Estilos para el estado desactivado */
+.ios-switch input:not(:checked) + .slider {
+    background-color: #ccc; /* Color gris cuando está desactivado */
+}
+</style>
+    <div>
+        <h3 class="mb-3">Usuarios Registrados</h3>
+        <a href="{% url 'create_user' %}" class="btn btn-custom mb-3">Crear Usuario</a>
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>N.</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.first_name }} {{ user.last_name }}</td>
+                        <td>
+                            {% if user.groups.all %}
+                                {% for group in user.groups.all %}
+                                    {{ group.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                Sin grupo
+                            {% endif %}
+                        </td>
+        
+                        <!-- ✅ Super Admin puede cambiar el estado de cualquier usuario -->
+                        {% if is_super_admin_group %}
+                            <td>
+                                <label class="ios-switch">
+                                    <input type="checkbox" class="user-status" {% if user.is_active %}checked{% endif %} data-user-id="{{ user.id }}">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+        
+                        <!-- ✅ Admin puede cambiar el estado solo de usuarios estándar -->
+                        {% elif is_admin_group and user.is_estandar_group %}
+                            <td>
+                                <label class="ios-switch">
+                                    <input type="checkbox" class="user-status" {% if user.is_active %}checked{% endif %} data-user-id="{{ user.id }}">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                        
+                        <!-- ❌ Si es admin pero el usuario NO es estándar_group, no puede cambiar el estado -->
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+        
+                        <td>
+                            <!-- ✅ Super Admin puede editar, eliminar y resetear la contraseña -->
+                            {% if is_super_admin_group %}
+                                <a href="{% url 'edit_user' user.id %}" class="btn btn-custom btn-sm btn-edit"><i class='bx bx-edit-alt'></i></a>
+                                <button class="btn btn-danger btn-sm btn-delete" data-url="{% url 'delete_user' user.id %}" data-bs-toggle="modal" data-bs-target="#modalEliminarUsuario{{user.id}}">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                                <a href="{% url 'reset_user_password' user.id %}" class="btn btn-warning btn-sm btn-pass"><i class="bx bx-key"></i></a>
+                            
+                            <!-- ✅ Admin solo puede editar y resetear la contraseña de estándar_group -->
+                            {% elif is_admin_group and user.is_estandar_group %}
+                                <a href="{% url 'edit_user' user.id %}" class="btn btn-custom btn-sm btn-edit"><i class='bx bx-edit-alt'></i></a>
+                                <a href="{% url 'reset_user_password' user.id %}" class="btn btn-warning btn-sm btn-pass"><i class="bx bx-key"></i></a>
+                            
+                            {% endif %}
+                        </td>
+                    </tr>
+        
+                    <!-- Modal para eliminar usuario (solo visible si el usuario es Super Admin) -->
+                    {% if is_super_admin_group %}
+                        <div class="modal fade" id="modalEliminarUsuario{{user.id}}" tabindex="-1" aria-labelledby="modalEliminarUsuarioLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalEliminarUsuarioLabel">Confirmar Eliminación</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="text-center">¿Está seguro de que desea eliminar este usuario? <br>
+                                            <span style="color: red;">{{ user.username }} - {{ user.first_name }} {{ user.last_name }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="POST" action="{% url 'delete_user' user.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No hay usuarios registrados.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>        
+
+        <div class="row d-flex justify-content-center">
+            <a class="btn btn-dark col-auto" href="{% url 'inicio' %}">
+                <i class='bx bx-log-out'></i> Salir
+            </a>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.user-status').forEach(function(statusToggle) {
+            statusToggle.addEventListener('change', function() {
+                const userId = this.getAttribute('data-user-id');
+                const newStatus = this.checked;
+                const switchElement = this; // Guardamos la referencia
+    
+                // Obtener CSRF Token correctamente
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                                  document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+                if (!csrfToken) {
+                    console.error("CSRF token no encontrado.");
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'CSRF Token no encontrado, no se puede completar la solicitud.',
+                        icon: 'error'
+                    });
+                    switchElement.checked = !switchElement.checked;
+                    return;
+                }
+    
+                Swal.fire({
+                    title: 'Advertencia',
+                    text: `El usuario ahora está ${newStatus ? 'Activo' : 'Inactivo'}. ¿Desea continuar?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, continuar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/gestion/usuarios/cambiar_estado/${userId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrfToken
+                            },
+                            body: JSON.stringify({ is_active: newStatus })
+                        }).then(response => {
+                            if (!response.ok) {
+                                if (response.status === 403) {
+                                    throw new Error("No tienes permiso para cambiar este usuario.");
+                                } else if (response.status === 404) {
+                                    throw new Error("Usuario no encontrado.");
+                                }
+                                throw new Error("Error en el servidor.");
+                            }
+                            return response.json();
+                        }).then(data => {
+                            if (!data.success) throw new Error(data.message);
+    
+                            Swal.fire({
+                                title: 'Éxito',
+                                text: `El estado del usuario ha sido actualizado correctamente.`,
+                                icon: 'success',
+                                confirmButtonColor: "#FDBD15",
+                            });
+                        }).catch(error => {
+                            switchElement.checked = !switchElement.checked; // Revertir el cambio si hay error
+                            Swal.fire({
+                                title: 'Error',
+                                text: error.message,
+                                icon: 'error'
+                            });
+                        });
+                    } else {
+                        switchElement.checked = !switchElement.checked;  // Revertir el cambio si cancela
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

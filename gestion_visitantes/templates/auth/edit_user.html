@@ -1,0 +1,291 @@
+{% extends 'layout/layout-users.html' %}
+{% block title %} Inicio {% endblock %}
+{% block content %} 
+{% load static %} 
+{% if messages %}
+  {% for m in messages %}
+    {% if m.tags == 'success' %}
+      <script>
+        Swal.fire({
+          title: "LISTO!",
+          text: "{{m}}",
+          icon: "{{m.tags}}",
+          showConfirmButton: false,
+          timer: 2500,
+        });
+      </script>
+    {% elif m.tags == 'error' %}
+      <script>
+        Swal.fire({
+          title: "{{m.tags}}",
+          text: "{{m}}",
+          icon: "{{m.tags}}",
+          confirmButtonColor: "#57647D",
+          focusConfirm: false,
+        });
+      </script>
+    {% elif m.tags == 'warning' %}
+      <script>
+        Swal.fire({
+          title: "ADVERTENCIA",
+          text: "{{m}}",
+          icon: "{{m.tags}}",
+          confirmButtonColor: "#FDBD15",
+          focusConfirm: false,
+        });
+      </script>
+    {% elif m.tags == 'info' %}
+      <script>
+        Swal.fire({
+          title: "{{m.tags|upper}}",
+          text: "{{m}}",
+          icon: "{{m.tags}}",
+          confirmButtonColor: "#18314F",
+          focusConfirm: false,
+        });
+      </script>
+    {% elif m.tags == 'debug' %}
+      <script>
+        Swal.fire({
+          title: "{{m.tags|upper}}",
+          text: "{{m}}",
+          icon: "{{m.tags}}",
+          confirmButtonColor: "#18314F",
+          focusConfirm: false,
+        });
+      </script>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+<style>
+    /* Imagen del usuario */
+    .login-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 4px solid #18314f;
+    }
+
+    /* Botón de login */
+    .btn-custom {
+      background-color: #18314f;
+      color: white;
+      border-radius: 8px;
+    }
+
+    .btn-custom:hover {
+      background-color: #bababa;
+      color: #18314f;
+      border: 1px solid #18314f;
+    }
+
+    /* Links */
+    .text-link {
+      color: #18314f;
+      text-decoration: none;
+    }
+
+    .text-link:hover {
+      text-decoration: underline;
+    }
+
+    .btn-go-back {
+      border-radius: 20px 0 0 20px;
+      margin-right: 0px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-go-back:hover {
+      color: #265d9f;
+    }
+
+    /* Contenedor del input */
+    .input-container {
+      position: relative;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+
+    /* Estilos del input */
+    .input-container input {
+      width: 100%;
+      padding: 12px 10px;
+      border: 1px solid #d8d8d8;
+      border-radius: 5px;
+      outline: none;
+      font-size: 16px;
+      background: transparent;
+      transition: border-color 0.3s ease;
+    }
+
+    /* Estilos del label */
+    .input-container label {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #888;
+      background: white;
+      padding: 0 5px;
+      transition: all 0.3s ease-in-out;
+      pointer-events: none;
+    }
+
+    /* Efecto flotante: cuando el input está enfocado o tiene contenido */
+    .input-container input:focus+label,
+    .input-container input:not(:placeholder-shown)+label {
+      top: 0;
+      /* Se posiciona sobre el borde */
+      left: 10px;
+      font-size: 14px;
+      color: #18314f;
+    }
+
+    /* Remueve la sombra azul y el blur */
+    .input-container input:focus {
+      border-color: #18314f;
+      outline: none;
+      box-shadow: none;
+    }
+
+    /* Ajuste del fondo del label */
+    .input-container label::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: calc(100% + 10px);
+      height: 10px;
+      background: white;
+      z-index: -1;
+    }
+
+    /* Estilos del select */
+    .input-container select {
+      width: 100%;
+      padding: 12px 10px;
+      border: 1px solid #d8d8d8;
+      border-radius: 5px;
+      /* Bordes redondeados */
+      outline: none;
+      font-size: 16px;
+      background: white;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      appearance: none;
+      /* Quita el diseño nativo del navegador */
+      cursor: pointer;
+    }
+
+    /* Flecha personalizada para el select */
+    .input-container::after {
+      /* content: '\25BC'; */
+      font-size: 16px;
+      color: #888;
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      pointer-events: none;
+      /* Evita que interfiera con el select */
+    }
+
+    /* Estilos del label para select */
+    .input-container label {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #888;
+      background: white;
+      padding: 0 5px;
+      transition: all 0.3s ease-in-out;
+      pointer-events: none;
+    }
+
+    /* Efecto flotante: cuando el select está enfocado o tiene una opción seleccionada */
+    .input-container select:focus+label,
+    .input-container select:not(:placeholder-shown)+label {
+      top: 0;
+      /* Se posiciona sobre el borde */
+      left: 10px;
+      font-size: 14px;
+      color: #18314f;
+    }
+
+    /* Estilo cuando el select está enfocado */
+    .input-container select:focus {
+      border-color: #18314f;
+      outline: none;
+      box-shadow: 0 0 5px rgba(24, 49, 79, 0.3);
+    }
+
+    /* Ajuste del fondo del label */
+    .input-container label::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: calc(100% + 10px);
+      height: 10px;
+      background: white;
+      z-index: -1;
+    }
+  </style>
+
+  
+
+  <div class="edit-user-container">
+    <h3 class="mb-3">Editar Usuario</h3>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="input-container">
+        <input type="text" name="first_name" id="first_name" class="form-control" value="{{ user.first_name }}"
+          placeholder=" " required />
+        <label for="first_name" class="form-label">Nombre</label>
+      </div>
+
+      <div class="input-container">
+        <input type="text" name="last_name" id="last_name" class="form-control" value="{{ user.last_name }}"
+          placeholder=" " required />
+        <label for="last_name" class="form-label">Apellido</label>
+      </div>
+
+      <!-- Campo para seleccionar el rol (grupo) -->
+      <div class="input-container mb-3">
+        <select name="group" required>
+          <option value="{{ current_group.name }}">
+            {{ current_group.name }}
+          </option>
+          {% for group in groups %}
+          <option value="{{ group.name }}">{{ group.name }}</option>
+          {% endfor %}
+        </select>
+        <label for="select">Seleccione el rol</label>
+      </div>
+
+      <div class="input-container mb-3">
+        <input type="text" name="pin" id="pin" class="form-control" value="{{ user.userprofile.pin }}" placeholder=" "
+          required />
+        <label for="pin" class="form-label">PIN</label>
+      </div>
+
+      <div class="input-container">
+        <input type="email" name="email" id="email" class="form-control" value="{{ user.email }}" placeholder=" "
+          required />
+        <label for="email" class="form-label">Correo Electrónico</label>
+      </div>
+
+      <a class="btn btn-secondary" href="{% url 'user_list' %}">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Actualizar</button>
+    </form>
+  </div>
+  {% endblock %}
