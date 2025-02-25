@@ -36,6 +36,7 @@
 
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="{% static '/assets/css/styles.min.css' %}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <style>
         .btn{
             border-radius: 25px;
@@ -50,6 +51,9 @@
             background-color: #a7adba;
             color: #18314F;
             padding-left: 18px;
+        }
+        .body-wrapper .container-fluid{
+            max-width: 1500px;
         }
     </style>
 </head>
@@ -92,20 +96,14 @@
                     </li>
                     <li class="sidebar-item">
                         <a class="sidebar-link" href="{% url 'visitas' %}" aria-expanded="false">
-                        <iconify-icon icon="solar:layers-minimalistic-bold-duotone"></iconify-icon>
-                        <span class="hide-menu">Visitas</span>
+                            <iconify-icon icon="f7:person-2-fill"></iconify-icon>
+                            <span class="hide-menu">Visitas</span>
                         </a>
                     </li>
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'visitas' %}" aria-expanded="false">
-                        <iconify-icon icon="solar:danger-circle-line-duotone"></iconify-icon>
-                        <span class="hide-menu">Eventos</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'visitas' %}" aria-expanded="false">
-                        <iconify-icon icon="solar:bookmark-square-minimalistic-line-duotone"></iconify-icon>
-                        <span class="hide-menu">Card</span>
+                        <a class="sidebar-link" href="{% url 'eventos_capacitaciones' %}" aria-expanded="false">
+                            <iconify-icon icon="streamline:class-lesson-solid"></iconify-icon>
+                            <span class="hide-menu">Eventos/Capacitaciones</span>
                         </a>
                     </li>
                     <li>
@@ -117,26 +115,32 @@
                     </li>
                     <li class="sidebar-item">
                         <a class="sidebar-link" href="{% url 'user_list' %}" aria-expanded="false">
-                        <iconify-icon icon="solar:user-plus-rounded-line-duotone"></iconify-icon>
-                        <span class="hide-menu">Usuarios</span>
+                            <iconify-icon icon="lsicon:user-crowd-outline"></iconify-icon>
+                            <span class="hide-menu">Usuarios</span>
                         </a>
                     </li>
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'user_list' %}" aria-expanded="false">
+                        <a class="sidebar-link" href="{% url 'pases' %}" aria-expanded="false">
+                            <iconify-icon icon="ion:id-card"></iconify-icon>
+                            <span class="hide-menu">Pases</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{% url 'parametros' %}" aria-expanded="false">
                             <iconify-icon icon="icon-park-outline:setting-web"></iconify-icon>
-                            <span class="hide-menu">Parametros</span>
+                            <span class="hide-menu">Motivos</span>
                         </a>
                     </li>
                     <li>
                         <span class="sidebar-divider lg"></span>
                     </li>
                     
-                    <li class="sidebar-item">
+                    <!-- <li class="sidebar-item">
                         <a class="sidebar-link" href="{% url 'logout' %}" aria-expanded="false">
                             <iconify-icon icon="solar:logout-3-line-duotone" class="text-danger"></iconify-icon>
                             <span class="hide-menu text-danger">Cerrar Sesión</span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </nav>
         <!-- End Sidebar navigation -->

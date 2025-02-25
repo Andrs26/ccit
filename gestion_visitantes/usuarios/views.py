@@ -30,6 +30,9 @@ import os
 
 """ Importación de los modelos """
 from usuarios.models import *
+from visitantes.models import *
+from pertenencias.models import *
+from pases.models import *
 
 # Número máximo de intentos antes del bloqueo
 MAX_ATTEMPTS = 5
@@ -107,12 +110,34 @@ def logout_view(request):
 
 @login_required
 def inicio(request):
+    visitas_dentro = Visita.objects.filter(estado_visitante='in')
+    visitas_agendadas = Visita.objects.filter(agendado_presente='agendado')
+    visitantes_visita = VisitanesVisita.objects.all()
+    pertenencias = PertenenciasVisitante.objects.all()
+    pases = PaseAcceso.objects.all()
+
+    # Crear un diccionario: { documento_identificacion: nombre }
+    visitante_por_documento = {v.documento_identificacion: v.nombre for v in visitantes_visita}
+
+    # Crear un diccionario para cada visita (clave = cod_visita)
+    visitas_info = {}
+    for visita in visitas_dentro:
+        visitas_info[visita.cod_visita] = {
+            'visita': visita,
+            # Filtrar visitantes cuyo cod_visita coincida
+            'visitantes': [v for v in visitantes_visita if v.cod_visita == visita.cod_visita],
+            # Filtrar pertenencias cuyo cod_visita coincida
+            'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
+        }
+    
     return render(request, 'inicio/inicio.html', {
-        # 'is_admin_group': is_admin_group,
-        # 'is_super_admin': is_super_admin,
-        # 'is_estandar_group': is_estandar_group,
-        # 'disabled': disabled,
-        # 'estado_asamblea': estado_asamblea
+        'visitas_dentro': visitas_dentro,
+        'visitas_agendadas': visitas_agendadas,
+        'visitantes_visita': visitantes_visita,
+        'pertenencias': pertenencias,
+        'visitas_info': visitas_info,
+        'pases': pases,
+        'visitante_por_documento': visitante_por_documento,
     })
 
 #* --------------------------------------------------------------- Función de usuarios

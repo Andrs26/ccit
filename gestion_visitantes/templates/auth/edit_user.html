@@ -1,4 +1,4 @@
-{% extends 'layout/layout-users.html' %}
+{% extends 'layout/layout.html' %}
 {% block title %} Inicio {% endblock %}
 {% block content %} 
 {% load static %} 
@@ -238,13 +238,10 @@
       background: white;
       z-index: -1;
     }
-  </style>
+</style>
 
-  
-
-  <div class="edit-user-container">
-    <h3 class="mb-3">Editar Usuario</h3>
-
+<div class="col-6" style="margin: 0 auto; border: 1px solid #18314f; border-radius: 20px; padding: 15px;">
+    <h3 class="mb-3 text-center">Editar Usuario</h3>
     <form method="POST">
       {% csrf_token %}
       <div class="input-container">
@@ -284,8 +281,10 @@
         <label for="email" class="form-label">Correo Electrónico</label>
       </div>
 
-      <a class="btn btn-secondary" href="{% url 'user_list' %}">Cancelar</a>
-      <button type="submit" class="btn btn-primary">Actualizar</button>
+      <div class="row d-flex justify-content-end">
+        <a class="btn btn-secondary col-auto m-1" href="{% url 'user_list' %}">Cancelar</a>
+        <button type="submit" class="btn btn-primary col-auto m-1 d-flex align-items-center"><i class='bx bxs-edit-alt' style='margin-right: 7px;' ></i> Actualizar Usuario</button>
+      </div>
     </form>
   </div>
   {% endblock %}

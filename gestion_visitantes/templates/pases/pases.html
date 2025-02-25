@@ -1,0 +1,372 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Inicio {% endblock %}
+{% block content %}
+{% load static %}
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<style>
+/* Botón de login */
+.btn-edit {
+    border-radius: 50%;
+}
+
+.btn-delete {
+    border-radius: 50%;
+}
+
+.btn-pass {
+    border-radius: 20px;
+}
+
+.btn-custom {
+    background-color: #18314F;
+    color: white;
+}
+
+.btn-custom:hover {
+    background-color: #bababa;
+    color: #18314F;
+    border: 1px solid #18314F;
+}
+
+/* Links */
+.text-link {
+    color: #18314F;
+    text-decoration: none;
+}
+.text-link:hover {
+    text-decoration: underline;
+}
+
+/* Contenedor del input */
+.input-container {
+    position: relative;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Estilos del input */
+.input-container input {
+    width: 100%;
+    padding: 12px 10px;
+    border: 1px solid #d8d8d8;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+    background: transparent;
+    transition: border-color 0.3s ease;
+}
+
+/* Estilos del label */
+.input-container label {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #888;
+    background: white;
+    padding: 0 5px;
+    transition: all 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+/* Efecto flotante: cuando el input está enfocado o tiene contenido */
+.input-container input:focus + label,
+.input-container input:not(:placeholder-shown) + label {
+    top: 0; /* Se posiciona sobre el borde */
+    left: 10px;
+    font-size: 14px;
+    color: #18314F;
+}
+
+/* Remueve la sombra azul y el blur */
+.input-container input:focus {
+    border-color: #18314F;
+    outline: none;
+    box-shadow: none;
+}
+
+/* Ajuste del fondo del label */
+.input-container label::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    right: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: calc(100% + 10px);
+    height: 10px;
+    background: white;
+    z-index: -1;
+}
+
+/* Ajustes para el modal de SweetAlert2 */
+.swal2-container {
+    z-index: 2050 !important; /* Aseguramos que se muestre encima */
+}
+
+/* Estilos generales para el switch */
+.ios-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.ios-switch input {
+    opacity: 0; /* Ocultamos el checkbox real */
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.ios-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+/* Estilo del círculo del switch */
+.ios-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    border-radius: 50%;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+}
+
+/* Estilos cuando el switch está activado */
+.ios-switch input:checked + .slider {
+    background-color: #4CAF50; /* Color verde cuando está activado */
+}
+
+.ios-switch input:checked + .slider:before {
+    transform: translateX(26px); /* Mueve el círculo hacia la derecha */
+}
+
+/* Efecto de hover para mejorar la interacción */
+.ios-switch .slider:hover {
+    background-color: #45a049;
+}
+
+/* Estilos para el estado desactivado */
+.ios-switch input:not(:checked) + .slider {
+    background-color: #ccc; /* Color gris cuando está desactivado */
+}
+</style>
+<div>
+    <div class="row">
+        <div class="col">
+            <h3 class="mb-3">Pases de Acceso</h3>
+        </div>
+        <div class="col d-flex justify-content-end">
+            <a href="{% url 'crear_pase' %}" class="btn btn-custom mb-3">Crear Pase</a>
+        </div>
+    </div>
+    <table class="table table-hover table-sm">
+        <thead>
+            <tr>
+                <th>N.</th>
+                <th>Número Pase</th>
+                <th>Lugares Acceso</th>
+                <th>Estado Pase</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pase in pases %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ pase.numero_pase }}</td>
+                    <td>{{ pase.lugares_acceso }}</td>
+                    <td>{{ pase.estado_pase }}</td>
+                    <td>
+                        <label class="ios-switch">
+                            <input type="checkbox" class="pase-status" data-pase-id="{{ pase.id }}" {% if pase.estado == 'activo' %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                        
+                    </td>
+                    <td>
+                        <a href="{% url 'editar_pase' pase.id %}" class="btn btn-custom btn-sm btn-edit"><i class='bx bx-edit-alt'></i></a>
+                        <button class="btn btn-danger btn-sm btn-delete" data-url="{% url 'delete_user' user.id %}" data-bs-toggle="modal" data-bs-target="#modalEliminarPase{{pase.id}}">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </td>
+                </tr>
+    
+                <!-- Modal para eliminar usuario (solo visible si el usuario es Super Admin) -->
+                <div class="modal fade" id="modalEliminarPase{{pase.id}}" tabindex="-1" aria-labelledby="modalEliminarUsuarioLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalEliminarUsuarioLabel">Confirmar Eliminación</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-center">¿Está seguro de que desea eliminar este pase? <br>
+                                    <span style="color: red;">{{ pase.numero_pase }}</span>
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <form method="POST" action="{% url 'eliminar_pase' pase.id %}">
+                                    {% csrf_token %}
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No hay usuarios registrados.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+document.querySelectorAll('.pase-status').forEach(function(switchElement) {
+    switchElement.addEventListener('change', function() {
+        // Primero obtenemos el paseId del atributo data-pase-id
+        var paseId = this.getAttribute('data-pase-id');
+        console.log("paseId:", paseId);
+        // Si el switch está marcado, se considerará "activo"; de lo contrario, "inactivo"
+        var newEstado = this.checked ? 'activo' : 'inactivo';
+
+        // Obtener CSRF Token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                          document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (!csrfToken) {
+            console.error("CSRF token no encontrado.");
+            Swal.fire({
+                title: 'Error',
+                text: 'CSRF Token no encontrado, no se puede completar la solicitud.',
+                icon: 'error'
+            });
+            // Revertir el cambio
+            switchElement.checked = !switchElement.checked;
+            return;
+        }
+
+        // Confirmar la acción con SweetAlert
+        Swal.fire({
+            title: 'Advertencia',
+            text: `El pase ahora estará ${newEstado}. ¿Desea continuar?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, continuar',
+            confirmButtonColor: "#18314F",
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Realizar la petición AJAX usando fetch a la URL correcta
+                fetch(`/pases/cambiar_estado_pase/${paseId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ estado: newEstado })
+                }).then(response => {
+                    if (!response.ok) {
+                        if (response.status === 403) {
+                            throw new Error("No tienes permiso para cambiar el estado del pase.");
+                        } else if (response.status === 404) {
+                            throw new Error("Pase no encontrado.");
+                        }
+                        throw new Error("Error en el servidor.");
+                    }
+                    return response.json();
+                }).then(data => {
+                    if (!data.success) throw new Error(data.message);
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: `El estado del pase ha sido actualizado a ${newEstado} correctamente.`,
+                        icon: 'success',
+                        confirmButtonColor: "#FDBD15",
+                    });
+                }).catch(error => {
+                    // Revertir el cambio en el switch en caso de error
+                    switchElement.checked = !switchElement.checked;
+                    Swal.fire({
+                        title: 'Error',
+                        text: error.message,
+                        icon: 'error'
+                    });
+                });
+            } else {
+                // Si se cancela, revertir el cambio
+                switchElement.checked = !switchElement.checked;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

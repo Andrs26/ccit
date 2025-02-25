@@ -1,4 +1,4 @@
-{% extends 'layout/layout-users.html' %}
+{% extends 'layout/layout.html' %}
 {% block title %} Inicio {% endblock %}
 {% block content %}
 {% load static %}
@@ -219,8 +219,14 @@
 }
 </style>
     <div>
-        <h3 class="mb-3">Usuarios Registrados</h3>
-        <a href="{% url 'create_user' %}" class="btn btn-custom mb-3">Crear Usuario</a>
+        <div class="row">
+            <div class="col">
+                <h3 class="mb-3">Usuarios Registrados</h3>
+            </div>
+            <div class="col d-flex justify-content-end">
+                <a href="{% url 'create_user' %}" class="btn btn-custom mb-3">Crear Usuario</a>
+            </div>
+        </div>
         <table class="table table-hover table-sm">
             <thead>
                 <tr>
@@ -353,14 +359,15 @@
     
                 Swal.fire({
                     title: 'Advertencia',
-                    text: `El usuario ahora está ${newStatus ? 'Activo' : 'Inactivo'}. ¿Desea continuar?`,
+                    text: `El usuario ahora estará ${newStatus ? 'Activo' : 'Inactivo'}. ¿Desea continuar?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Sí, continuar',
+                    confirmButtonColor: "#18314F",
                     cancelButtonText: 'Cancelar'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/gestion/usuarios/cambiar_estado/${userId}/`, {
+                        fetch(`/usuarios/cambiar_estado/${userId}/`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
