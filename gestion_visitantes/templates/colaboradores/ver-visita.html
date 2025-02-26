@@ -1,0 +1,374 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Nueva Visita {% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    .input-visita{
+        border: none;
+        border-bottom: 1px solid #000;
+        border-radius: 0px;
+        padding-left: 2px;
+    }
+</style>
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div>
+    <div class="mb-3 row" style="border-bottom: 1px solid #000;">
+        <h4>Datos de visita</h4>
+    </div>
+    <div class="mb-3 row">
+        <form method="post" action="">
+            <div class="mb-3 row">
+                <div class="col-4">
+                    <label for="exampleFormControlInput1" class="form-label">Motivo de Visita</label>
+                    <select class="form-select" aria-label="Default select example">
+                        <option selected>Open this select menu</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <div class="col">
+                    <label for="exampleFormControlInput1" class="form-label">Tipo de Ingreso</label>
+                    <div class="mb-3">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="Individual">
+                            <label class="form-check-label" for="inlineRadio1">Individual</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="Grupo">
+                            <label class="form-check-label" for="inlineRadio2">Grupo</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="row mb-3 align-items-center">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-auto">
+                            <label for="nombreVisitante" class="col-form-label">Nombre del visitante</label>
+                        </div>
+                        <div class="col">
+                            <input type="text" id="nombreVisitante" class="form-control input-visita">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-auto">
+                            <label for="documentoVisitante" class="col-form-label">Documento de Identificación</label>
+                        </div>
+                        <div class="col">
+                            <input type="text" id="documentoVisitante" class="form-control input-visita">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <div class="col-4">
+                    <label for="exampleFormControlInput1" class="form-label">A quien visita</label>
+                    <select class="form-select" aria-label="Default select example">
+                        <option selected>Open this select menu</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <label for="exampleFormControlInput1" class="form-label">Area/Departamento</label>
+                    <select class="form-select" aria-label="Default select example">
+                        <option selected>Open this select menu</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <label for="exampleFormControlInput1" class="form-label">Num. Pase</label>
+                    <input type="text" id="documentoVisitante" class="form-control input-visita">
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link d-flex active" data-bs-toggle="tab" href="#v_agendada" role="tab">
+                <span><i class='bx bx-male-female'></i></span>
+                <span class="d-none d-md-block ms-2">Grupo</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link d-flex" data-bs-toggle="tab" href="#v_dentro" role="tab">
+                <span><i class='bx bx-run'></i></span>
+                <span class="d-none d-md-block ms-2">Docuemnto de Identificación</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link d-flex" data-bs-toggle="tab" href="#eventos_capacitaciones" role="tab">
+                <span><i class='bx bx-globe'></i></i> </span>
+                <span class="d-none d-md-block ms-2">Registro de Entrada/Salida</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link d-flex" data-bs-toggle="tab" href="#lista_negra" role="tab">
+                <span><i class='bx bxs-user-x'></i></span>
+                <span class="d-none d-md-block ms-2">Pase</span>
+            </a>
+        </li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane active" id="v_agendada" role="tabpanel">
+            <div class="p-3">
+                <table class="table text-nowrap mb-0 align-middle">
+                    <thead class="text-dark fs-4">
+                        <tr>
+                            <th>
+                                <h6 class="fs-4 fw-semibold mb-0">User</h6>
+                            </th>
+                            <th>
+                                <h6 class="fs-4 fw-semibold mb-0">Project Name</h6>
+                            </th>
+                            <th>
+                                <h6 class="fs-4 fw-semibold mb-0">Team</h6>
+                            </th>
+                            <th>
+                                <h6 class="fs-4 fw-semibold mb-0">Status</h6>
+                            </th>
+                            <th>
+                                <h6 class="fs-4 fw-semibold mb-0">Budget</h6>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{% static '/assets/images/profile/user-3.jpg' %}" class="rounded-circle" width="40" height="40">
+                                    <div class="ms-3">
+                                        <h6 class="fs-4 fw-semibold mb-0">Sunil Joshi</h6>
+                                        <span class="fw-normal">Web Designer</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="mb-0 fw-normal fs-4">Elite Admin</p>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <a href="javascript:void(0)" class="text-bg-secondary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
+                                        S
+                                    </a>
+                                    <a href="javascript:void(0)" class="text-bg-danger text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
+                                        D
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-success-subtle text-success">Active</span>
+                            </td>
+                            <td>
+                                <h6 class="fs-4 fw-semibold mb-0">$3.9k</h6>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{% static '/assets/images/profile/user-2.jpg' %}" class="rounded-circle" width="40" height="40">
+                                    <div class="ms-3">
+                                        <h6 class="fs-4 fw-semibold mb-0">Arlene McCoy</h6>
+                                        <span class="fw-normal">Project Manager</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="mb-0 fw-normal fs-4">Real Homes WP Theme</p>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <a href="javascript:void(0)" class="text-bg-primary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
+                                        A
+                                    </a>
+                                    <a href="javascript:void(0)" class="text-bg-warning text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
+                                        X
+                                    </a>
+                                    <a href="javascript:void(0)" class="text-bg-secondary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
+                                        N
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning-subtle text-warning">Pending</span>
+                            </td>
+                            <td>
+                                <h6 class="fs-4 fw-semibold mb-0">$24.5k</h6>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{% static '/assets/images/profile/user-1.jpg' %}" class="rounded-circle" width="40" height="40">
+                                    <div class="ms-3">
+                                        <h6 class="fs-4 fw-semibold mb-0">Christopher Jamil</h6>
+                                        <span class="fw-normal">Project Manager</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="mb-0 fw-normal fs-4">MedicalPro WP Theme</p>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <a href="javascript:void(0)" class="text-bg-danger text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
+                                        X
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary">Completed</span>
+                            </td>
+                            <td>
+                                <h6 class="fs-4 fw-semibold mb-0">$12.8k</h6>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{% static '/assets/images/profile/user-2.jpg' %}" class="rounded-circle" width="40" height="40">
+                                    <div class="ms-3">
+                                        <h6 class="fs-4 fw-semibold mb-0">Evelyn Pope</h6>
+                                        <span class="fw-normal">Frontend Engineer</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="mb-0 fw-normal fs-4">Hosting Press HTML</p>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <a href="javascript:void(0)" class="text-bg-primary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
+                                        Y
+                                    </a>
+                                    <a href="javascript:void(0)" class="text-bg-danger text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
+                                        X
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-success-subtle text-success">Active</span>
+                            </td>
+                            <td>
+                                <h6 class="fs-4 fw-semibold mb-0">$2.4k</h6>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{% static '/assets/images/profile/user-3.jpg' %}" class="rounded-circle" width="40" height="40">
+                                    <div class="ms-3">
+                                        <h6 class="fs-4 fw-semibold mb-0">Micheal Doe</h6>
+                                        <span class="fw-normal">Content Writer</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="mb-0 fw-normal fs-4">Hosting Press HTML</p>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <a href="javascript:void(0)" class="text-bg-secondary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
+                                        S
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-danger-subtle text-danger">Cancel</span>
+                            </td>
+                            <td>
+                                <h6 class="fs-4 fw-semibold mb-0">$9.3k</h6>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane p-3" id="v_dentro" role="tabpanel">
+            <h4>Adjuntos</h4>
+            <p>
+                Rony por favor trabajá
+            </p>
+        </div>
+        <div class="tab-pane p-3" id="eventos_capacitaciones" role="tabpanel">
+            <h4>Registro Entrada/Salida</h4>
+            <p>
+                Rony ya es hora de trabajar
+            </p>
+        </div>
+        <div class="tab-pane p-3" id="lista_negra" role="tabpanel">
+            <h4>Pase</h4>
+            <p>
+                Rony no trabaja
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

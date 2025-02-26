@@ -1,0 +1,386 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Agendar Visita {% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    .input-visita{
+        border: none;
+        border-bottom: 1px solid #000;
+        border-radius: 0px;
+        padding-left: 2px;
+    }
+    .busqueda-container {
+        position: relative;
+        width: 50%;
+    }
+
+    #buscar-visitante {
+        width: 100%;
+    }
+
+    #resultados-visitante {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #57647D;
+        border: none;
+        z-index: 9999;
+        max-height: 200px;
+        overflow-y: auto;
+        color: #fff;
+    }
+
+    .resultado {
+        padding: 8px 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+    }
+
+    .resultado:hover {
+        background-color: #d5d5d5;
+        color: #18314F;
+    }
+</style>
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div>
+    <div class="mb-3 row d-flex" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
+        <div class="col" style="display: flex; flex-direction: column; justify-content: flex-end;">
+            <h4>Datos de visita</h4>
+        </div>
+        <div class="col d-flex justify-content-end align-items-center">
+            <button type="submit" form="formNewVisita" class="btn btn-primary col-auto">
+                <i class='bx bxs-save'></i> Agendar Visita
+            </button>
+        </div>
+    </div>
+
+    <!-- <div class="busqueda-container mb-3">
+        <input type="text" id="buscar-visitante" placeholder="Buscar visitante..." class="form-control">
+        <div id="resultados-visitante"></div>
+    </div> -->
+
+    <form id="formNewVisita" method="post" action="{% url 'colaboradores-save-visita' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3 row">
+            <div class="mb-3 row">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+                    <label for="exampleFormControlInput1" class="form-label">A quien visita</label>
+                    <select class="form-select" aria-label="Default select example" name="persona_visitada">
+                        <option value="{{ request.user.username }}" selected>{{ request.user.first_name }} {{ request.user.last_name }}</option>
+                        {% for colab in colaboradores %}
+                            <option value="{{colab.nombre}}">{{colab.nombre}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
+                    <label for="fecha" class="form-label">Fecha de visita</label>
+                    <input type="date" id="fecha-vista" class="form-control" name="fecha">
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
+                    <label for="fecha" class="form-label">Hora de visita</label>
+                    <input type="time" id="fecha-vista" class="form-control" name="hora">
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
+                    <label for="exampleFormControlInput1" class="form-label">Motivo de Visita</label>
+                    <select class="form-select" aria-label="Default select example" name="motivo">
+                        <option selected>Seleccione un motivo...</option>
+                        {% for motivo in motivos %}
+                            <option value="{{motivo.descripcion}}">{{motivo.descripcion}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
+                    <label for="exampleFormControlInput1" class="form-label">Area / Departamento</label>
+                    <select class="form-select" aria-label="Default select example" name="area_departamento">
+                        <option selected>Seleccione el lugar...</option>
+                        {% for ad in areasdeptos %}
+                        <option value="{{ad.nombre}}">{{ad.nombre}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- <div class="mb-3 row">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                    <label for="exampleFormControlInput1" class="form-label">Motivo de Visita</label>
+                    <select class="form-select" aria-label="Default select example" name="motivo">
+                        <option selected>Seleccione un motivo...</option>
+                        {% for motivo in motivos %}
+                            <option value="{{motivo.descripcion}}">{{motivo.descripcion}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                    <label for="exampleFormControlInput1" class="form-label">Area / Departamento</label>
+                    <select class="form-select" aria-label="Default select example" name="area_departamento">
+                        <option selected>Seleccione el lugar...</option>
+                        {% for ad in areasdeptos %}
+                        <option value="{{ad.nombre}}">{{ad.nombre}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div> -->
+        </div>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link d-flex active" data-bs-toggle="tab" href="#v_agendada" role="tab">
+                    <span><i class='bx bx-male-female'></i></span>
+                    <span class="d-none d-md-block ms-2">Visitante/Visitantes</span>
+                </a>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div class="tab-pane active" id="v_agendada" role="tabpanel">
+                <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Documento de Identificación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <!-- Estas celdas son contenteditable para permitir edición -->
+                            <td contenteditable="true" class="nuevo-nombre col-6" placeholder="Nombre..."></td>
+                            <td contenteditable="true" class="nuevo-documento col-6" placeholder="Documento..."></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="text-center">
+                                <button id="btn-agregar-fila" class="btn btn-light btn-sm">
+                                    <span class="d-flex align-items-center">
+                                        <i class='bx bx-plus'></i> Agregar fila
+                                    </span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <!-- Campo oculto para enviar los datos de visitantes -->
+                <input type="hidden" name="visitantes_data" id="visitantes_data">
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function(){
+    
+        // Función para sincronizar la tabla de materiales con la de visitantes
+        function sincronizarMateriales() {
+            var tbodyMaterial = $('#tabla-material tbody');
+            tbodyMaterial.empty();  // Limpiar la tabla de materiales
+            // Recorrer cada fila de visitantes
+            $('#tabla-asistencia tbody tr').each(function(){
+                var nombre = $(this).find('.nuevo-nombre').text().trim();
+                var documento = $(this).find('.nuevo-documento').text().trim();
+                // Crear una fila en la tabla de materiales
+                var filaMaterial = `<tr>
+                    <td>${nombre}</td>
+                    <td>${documento}</td>
+                    <td contenteditable="true" class="nuevo-equipo" placeholder="Equipo/Material/Artículo"></td>
+                </tr>`;
+                tbodyMaterial.append(filaMaterial);
+            });
+        }
+    
+        // Función para recopilar datos de la tabla de visitantes y almacenarlos en un input hidden
+        function recopilarVisitantes() {
+            var visitantes = [];
+            $('#tabla-asistencia tbody tr').each(function(){
+                var nombre = $(this).find('.nuevo-nombre').text().trim();
+                var documento = $(this).find('.nuevo-documento').text().trim();
+                if(nombre || documento){  // Solo incluir filas con datos
+                    visitantes.push({nombre: nombre, documento: documento});
+                }
+            });
+            $('#visitantes_data').val(JSON.stringify(visitantes));
+        }
+    
+        // Función para recopilar datos de la tabla de materiales antes de enviar el formulario
+        function recopilarMateriales() {
+            var materiales = [];
+            $('#tabla-material tbody tr').each(function(){
+                var nombre = $(this).find('td').eq(0).text().trim();
+                var documento = $(this).find('td').eq(1).text().trim();
+                var equipo = $(this).find('.nuevo-equipo').text().trim();
+                if(nombre || documento || equipo){
+                    materiales.push({nombre: nombre, documento: documento, equipo: equipo});
+                }
+            });
+            $('#materiales_data').val(JSON.stringify(materiales));
+        }
+    
+        // Al enviar el formulario, se recopilan los datos de ambas tablas
+        $('form').submit(function(){
+            recopilarVisitantes();
+            recopilarMateriales();
+        });
+    
+        // Actualizar la tabla de materiales cuando se pierda el foco en celdas de la tabla de visitantes
+        $('#tabla-asistencia').on('blur', '.nuevo-nombre, .nuevo-documento', function(){
+            sincronizarMateriales();
+        });
+    
+        // Evento para agregar una nueva fila manualmente (botón "Agregar fila")
+        $('#btn-agregar-fila').click(function(e) {
+            e.preventDefault();
+            // Crear una nueva fila con celdas editables y botón para eliminar
+            var nuevaFila = $('<tr></tr>');
+            nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');
+            nuevaFila.append('<td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>');
+            nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
+            $('#tabla-asistencia tbody').append(nuevaFila);
+        });
+    
+        // Evento para eliminar una fila de la tabla de visitantes
+        $('#tabla-asistencia').on('click', '.eliminar-fila', function(){
+            $(this).closest('tr').remove();
+            sincronizarMateriales();
+        });
+    
+        // Búsqueda AJAX: al escribir en el input se consulta visitantes
+        $('#buscar-visitante').on('input', function(){
+            var query = $(this).val().trim();
+            var resultadosDiv = $('#resultados-visitante');
+            if(query.length > 2){
+                $.ajax({
+                    url: '{% url "buscar_visitante_ajax" %}',
+                    type: 'GET',
+                    data: { 'q': query },
+                    success: function(response){
+                        resultadosDiv.empty();
+                        response.forEach(function(visitante){
+                            resultadosDiv.append(
+                            '<div class="resultado" data-id="'+ visitante.id +'" data-nombre="'+ visitante.nombre +'" data-documento="'+ visitante.documento +'">'+ visitante.nombre +'</div>'
+                            );
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error);
+                    }
+                });
+            } else {
+                resultadosDiv.empty();
+            }
+        });
+    
+        // Al hacer clic en un resultado, se agrega el visitante a la tabla de asistentes
+        $('#resultados-visitante').on('click', '.resultado', function(){
+            var nombre = $(this).data('nombre');
+            var documento = $(this).data('documento');
+    
+            // Verificar que el documento no se haya ingresado ya en la tabla
+            var duplicado = false;
+            $('#tabla-asistencia tbody tr').each(function(){
+                var docExistente = $(this).find('.nuevo-documento').text().trim();
+                if(docExistente === documento){
+                    duplicado = true;
+                    return false; // Salir del each si se encontró duplicado
+                }
+            });
+    
+            if(duplicado) {
+                Swal.fire({
+                    title: "Información",
+                    text: "El documento de identidad ya se encuentra en la lista.",
+                    icon: "info",
+                    confirmButtonText: "Aceptar"
+                });
+                // Limpiar el input y los resultados
+                $('#resultados-visitante').empty();
+                $('#buscar-visitante').val('');
+                return;
+            }
+    
+            // Intentar insertar en una fila vacía
+            var inserted = false;
+            $('#tabla-asistencia tbody tr').each(function(){
+                var currentNombre = $(this).find('.nuevo-nombre').text().trim();
+                var currentDocumento = $(this).find('.nuevo-documento').text().trim();
+                if(currentNombre === "" && currentDocumento === ""){
+                    $(this).find('.nuevo-nombre').text(nombre);
+                    $(this).find('.nuevo-documento').text(documento);
+                    inserted = true;
+                    return false; // Salir del each
+                }
+            });
+            // Si no se encontró fila vacía, agregar nueva fila
+            if(!inserted) {
+                var nuevaFila = $('<tr></tr>');
+                nuevaFila.append('<td contenteditable="true" class="nuevo-nombre">' + nombre + '</td>');
+                nuevaFila.append('<td contenteditable="true" class="nuevo-documento">' + documento + '</td>');
+                nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
+                $('#tabla-asistencia tbody').append(nuevaFila);
+            }
+            
+            sincronizarMateriales();
+            $('#resultados-visitante').empty();
+            $('#buscar-visitante').val('');
+        });
+    
+    });
+</script>    
+    
+{% endblock %}

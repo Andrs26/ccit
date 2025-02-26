@@ -76,9 +76,9 @@
             <h4>Visitas</h4>
         </div>
         <div class="col-auto">
-            <a class="btn btn-success d-flex col-auto" href="{% url 'nueva-visita' %}">
+            <a class="btn btn-success d-flex col-auto" href="{% url 'colaboradores-nueva-visita' %}">
                 <span><i class='bx bxs-user-plus'></i></span>
-                <span class="d-none d-md-block ms-2">Nueva Visita</span>
+                <span class="d-none d-md-block ms-2">Agendar Visita</span>
             </a>
         </div>
     </div>
@@ -102,14 +102,7 @@
                 <span class="d-none d-md-block ms-2">Eventos/Capacitaciones</span>
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link d-flex" data-bs-toggle="tab" href="#lista_negra" role="tab">
-                <span><i class='bx bxs-user-x'></i></span>
-                <span class="d-none d-md-block ms-2">Lista Negra</span>
-            </a>
-        </li>
         <li></li>
-        
     </ul>
 
     <!-- Tab panes -->
@@ -127,7 +120,7 @@
                         <ul class="px-2 py-2 list-unstyled d-flex align-items-center justify-content-center mb-0">
                             <li class="position-relative">
                                 <button class="btn btn-danger btn-sm text-white d-flex align-items-center justify-content-center p-2" data-bs-toggle="modal" data-bs-target="#registrarSalidaVisitante{{visita.id}}">
-                                    <i class='bx bx-log-out' style="margin-right: 7px;"></i> Salida
+                                    <i class='bx bx-log-out-circle' style="margin-right: 7px;"></i> Salida
                                 </button>
                                 <!-- Modal -->
                                 <div class="modal fade" id="registrarSalidaVisitante{{visita.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -301,16 +294,22 @@
                     <div class="card hover-img card-visita-dentro">
                         <div class="card-body p-3 text-center border-bottom">
                             <img src="{% static '/assets/images/profile/user-3.jpg' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
-                            <h4 class="card-title mb-1">{{visita.visitante}}</h4>
+                            <h4 class="card-title mb-1">Charles Nunez</h4>
                             <div class=" mb-1 row">
-                                <span class="fs-2">{{visita.persona_visitada}}</span>
+                                <span class="fs-2">Rony Castro</span>
                             </div>
-                            <!-- <span class="badge text-bg-info text-white">{{visita.tipo}}</span> -->
+                            <span class="badge text-bg-info text-white">Tipo</span>
                         </div>
                         <ul class="px-2 py-2 list-unstyled d-flex align-items-center justify-content-center mb-0">
                             <li class="position-relative">
-                                <a class="btn btn-success btn-sm text-white d-flex align-items-center justify-content-center p-2" href="{% url 'nueva-visita-agendada' visita.id %}">
-                                    <i class='bx bx-log-in' style="margin-right: 7px;"></i> Entrada
+                                <a class="btn btn-success btn-sm text-white d-flex align-items-center justify-content-center p-2" href="javascript:void(0)">
+                                    <i class='bx bx-show' style="margin-right: 7px;"></i> Entrada
+                                </a>
+                            </li>
+    
+                            <li class="position-relative">
+                                <a class="btn btn-success btn-sm text-white d-flex align-items-center justify-content-center p-2" href="javascript:void(0)">
+                                    <i class='bx bx-log-in' style="margin-right: 7px;"></i> Detalles
                                 </a>
                             </li>
                         </ul>
@@ -342,168 +341,6 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane p-3" id="lista_negra" role="tabpanel">
-            lista_negra
-
-        </div>
     </div>
 </div>
-<script>
-    $(document).ready(function(){
-    
-        // Función para sincronizar la tabla de materiales con la de visitantes
-        function sincronizarMateriales() {
-            var tbodyMaterial = $('#tabla-material tbody');
-            tbodyMaterial.empty();  // Limpiar la tabla de materiales
-            // Recorrer cada fila de visitantes
-            $('#tabla-asistencia tbody tr').each(function(){
-                var nombre = $(this).find('.nuevo-nombre').text().trim();
-                var documento = $(this).find('.nuevo-documento').text().trim();
-                // Crear una fila en la tabla de materiales
-                var filaMaterial = `<tr>
-                    <td>${nombre}</td>
-                    <td>${documento}</td>
-                    <td contenteditable="true" class="nuevo-equipo" placeholder="Equipo/Material/Artículo"></td>
-                </tr>`;
-                tbodyMaterial.append(filaMaterial);
-            });
-        }
-    
-        // Función para recopilar datos de la tabla de visitantes y almacenarlos en un input hidden
-        function recopilarVisitantes() {
-            var visitantes = [];
-            $('#tabla-asistencia tbody tr').each(function(){
-                var nombre = $(this).find('.nuevo-nombre').text().trim();
-                var documento = $(this).find('.nuevo-documento').text().trim();
-                if(nombre || documento){  // Solo incluir filas con datos
-                    visitantes.push({nombre: nombre, documento: documento});
-                }
-            });
-            $('#visitantes_data').val(JSON.stringify(visitantes));
-        }
-    
-        // Función para recopilar datos de la tabla de materiales antes de enviar el formulario
-        function recopilarMateriales() {
-            var materiales = [];
-            $('#tabla-material tbody tr').each(function(){
-                var nombre = $(this).find('td').eq(0).text().trim();
-                var documento = $(this).find('td').eq(1).text().trim();
-                var equipo = $(this).find('.nuevo-equipo').text().trim();
-                if(nombre || documento || equipo){
-                    materiales.push({nombre: nombre, documento: documento, equipo: equipo});
-                }
-            });
-            $('#materiales_data').val(JSON.stringify(materiales));
-        }
-    
-        // Al enviar el formulario, se recopilan los datos de ambas tablas
-        $('form').submit(function(){
-            recopilarVisitantes();
-            recopilarMateriales();
-        });
-    
-        // Actualizar la tabla de materiales cuando se pierda el foco en celdas de la tabla de visitantes
-        $('#tabla-asistencia').on('blur', '.nuevo-nombre, .nuevo-documento', function(){
-            sincronizarMateriales();
-        });
-    
-        // Evento para agregar una nueva fila manualmente (botón "Agregar fila")
-        $('#btn-agregar-fila').click(function(e) {
-            e.preventDefault();
-            // Crear una nueva fila con celdas editables y botón para eliminar
-            var nuevaFila = $('<tr></tr>');
-            nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');
-            nuevaFila.append('<td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>');
-            nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
-            $('#tabla-asistencia tbody').append(nuevaFila);
-        });
-    
-        // Evento para eliminar una fila de la tabla de visitantes
-        $('#tabla-asistencia').on('click', '.eliminar-fila', function(){
-            $(this).closest('tr').remove();
-            sincronizarMateriales();
-        });
-    
-        // Búsqueda AJAX: al escribir en el input se consulta visitantes
-        $('#buscar-visitante').on('input', function(){
-            var query = $(this).val().trim();
-            var resultadosDiv = $('#resultados-visitante');
-            if(query.length > 2){
-                $.ajax({
-                    url: '{% url "buscar_visitante_ajax" %}',
-                    type: 'GET',
-                    data: { 'q': query },
-                    success: function(response){
-                        resultadosDiv.empty();
-                        response.forEach(function(visitante){
-                            resultadosDiv.append(
-                            '<div class="resultado" data-id="'+ visitante.id +'" data-nombre="'+ visitante.nombre +'" data-documento="'+ visitante.documento +'">'+ visitante.nombre +'</div>'
-                            );
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("AJAX error:", error);
-                    }
-                });
-            } else {
-                resultadosDiv.empty();
-            }
-        });
-    
-        // Al hacer clic en un resultado, se agrega el visitante a la tabla de asistentes
-        $('#resultados-visitante').on('click', '.resultado', function(){
-            var nombre = $(this).data('nombre');
-            var documento = $(this).data('documento');
-    
-            // Verificar que el documento no se haya ingresado ya en la tabla
-            var duplicado = false;
-            $('#tabla-asistencia tbody tr').each(function(){
-                var docExistente = $(this).find('.nuevo-documento').text().trim();
-                if(docExistente === documento){
-                    duplicado = true;
-                    return false; // Salir del each si se encontró duplicado
-                }
-            });
-    
-            if(duplicado) {
-                Swal.fire({
-                    title: "Información",
-                    text: "El documento de identidad ya se encuentra en la lista.",
-                    icon: "info",
-                    confirmButtonText: "Aceptar"
-                });
-                // Limpiar el input y los resultados
-                $('#resultados-visitante').empty();
-                $('#buscar-visitante').val('');
-                return;
-            }
-    
-            // Intentar insertar en una fila vacía
-            var inserted = false;
-            $('#tabla-asistencia tbody tr').each(function(){
-                var currentNombre = $(this).find('.nuevo-nombre').text().trim();
-                var currentDocumento = $(this).find('.nuevo-documento').text().trim();
-                if(currentNombre === "" && currentDocumento === ""){
-                    $(this).find('.nuevo-nombre').text(nombre);
-                    $(this).find('.nuevo-documento').text(documento);
-                    inserted = true;
-                    return false; // Salir del each
-                }
-            });
-            // Si no se encontró fila vacía, agregar nueva fila
-            if(!inserted) {
-                var nuevaFila = $('<tr></tr>');
-                nuevaFila.append('<td contenteditable="true" class="nuevo-nombre">' + nombre + '</td>');
-                nuevaFila.append('<td contenteditable="true" class="nuevo-documento">' + documento + '</td>');
-                nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
-                $('#tabla-asistencia tbody').append(nuevaFila);
-            }
-            
-            sincronizarMateriales();
-            $('#resultados-visitante').empty();
-            $('#buscar-visitante').val('');
-        });
-    
-    });
-</script> 
 {% endblock %}

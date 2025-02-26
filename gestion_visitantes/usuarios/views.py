@@ -21,6 +21,7 @@ from django.utils.timezone import now
 from django.http import JsonResponse
 from django.utils import timezone
 from django.urls import reverse
+from django.db.models import Q
 import pandas as pd
 import traceback  # Para imprimir el error completo en la consola
 import random
@@ -111,7 +112,7 @@ def logout_view(request):
 @login_required
 def inicio(request):
     visitas_dentro = Visita.objects.filter(estado_visitante='in')
-    visitas_agendadas = Visita.objects.filter(agendado_presente='agendado')
+    visitas_agendadas = Visita.objects.filter(Q(agendado_presente='agendado') & Q(estado_visitante = 'agendado'))
     visitantes_visita = VisitanesVisita.objects.all()
     pertenencias = PertenenciasVisitante.objects.all()
     pases = PaseAcceso.objects.all()

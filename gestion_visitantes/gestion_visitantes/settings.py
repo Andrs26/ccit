@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'usuarios',
     'lista_negra',
     'pertenencias',
+    'colaboradores',
 ]
 
 MIDDLEWARE = [

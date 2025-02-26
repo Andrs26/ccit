@@ -61,6 +61,24 @@ def nueva_visita(request):
     })
 
 @login_required
+def nueva_visita_agendada(request,id):
+    visita = Visita.objects.get(id=id)
+    visitantes_visita = VisitanesVisita.objects.filter(cod_visita=visita.cod_visita)
+    motivos = MotivoVisita.objects.filter(estado='activo')
+    colaboradores = Colaborador.objects.filter(estado='activo')
+    areasdeptos = AreaDepto.objects.filter(estado='activo')
+    pases = PaseAcceso.objects.filter(Q(estado='activo') & Q(estado_pase='Disponible'))
+
+    return render(request, 'visitantes/nueva-visita-agendada.html', {
+        'motivos': motivos,
+        'colaboradores': colaboradores,
+        'areasdeptos': areasdeptos,
+        'pases': pases,
+        'visita': visita,
+        'visitantes_visita': visitantes_visita,
+    })
+
+@login_required
 def parametros(request):
     motivos = MotivoVisita.objects.all()
 
@@ -278,6 +296,146 @@ def guardar_visita(request):
             'pases': pases,
         })
 
+import json
+import base64
+from django.core.files.base import ContentFile
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
+from django.utils import timezone
+
+@login_required
+def guardar_visita_agendada(request):
+    if request.method == "POST":
+        id = request.POST.get("id")
+        visita = get_object_or_404(Visita, id=id)
+
+        # Recoger datos del formulario
+        motivo = request.POST.get("motivo")
+        area_departamento = request.POST.get("area_departamento")
+        persona_visitada = request.POST.get("persona_visitada")
+        num_pase = request.POST.get("pase_seleccionado")
+        
+        cod_visita = visita.cod_visita
+        estado_visitante = 'in'
+
+        if num_pase:
+            pase = PaseAcceso.objects.get(numero_pase=num_pase)
+            pase.estado_pase = 'En uso'
+            pase.save()
+            print("1. Pase ahora está En Uso")
+        
+        # Obtener los datos JSON de visitantes y materiales
+        visitantes_json = request.POST.get("visitantes_data", "[]")
+        materiales_json = request.POST.get("materiales_data", "[]")
+        try:
+            visitantes_data = json.loads(visitantes_json)
+        except json.JSONDecodeError:
+            visitantes_data = []
+        try:
+            materiales_data = json.loads(materiales_json)
+        except json.JSONDecodeError:
+            materiales_data = []
+
+        tipo = "Individual" if len(visitantes_data) == 1 else "Grupal"
+        nombre_primero = visitantes_data[0]["nombre"] if visitantes_data else ""
+        hora_ingreso = timezone.localtime().time()
+        usuario_registro = request.user.username if request.user.is_authenticated else "Anonimo"
+        
+        # Procesar la foto: archivo o Data URL.
+        foto_documento = None
+        if "foto_documento" in request.FILES:
+            foto_uploaded = request.FILES["foto_documento"]
+            if visitantes_data:
+                doc_id = visitantes_data[0].get("documento", "").strip()
+                if doc_id:
+                    extension = foto_uploaded.name.split('.')[-1]
+                    foto_uploaded.name = f"doc_iden_{doc_id}.{extension}"
+            foto_documento = foto_uploaded
+        else:
+            foto_data = request.POST.get("foto_documento_data", "")
+            if foto_data:
+                try:
+                    format, imgstr = foto_data.split(';base64,')
+                    ext = format.split('/')[-1]
+                    doc_id = ""
+                    if visitantes_data:
+                        doc_id = visitantes_data[0].get("documento", "").strip()
+                    filename = f"doc_iden_{doc_id}.{ext}" if doc_id else f"captured.{ext}"
+                    foto_documento = ContentFile(base64.b64decode(imgstr), name=filename)
+                except Exception as e:
+                    print("Error al procesar la imagen capturada:", e)
+        
+        # Actualizar la Visita
+        visita.visitante = nombre_primero
+        visita.motivo = motivo
+        visita.tipo = tipo
+        visita.area_departamento = area_departamento
+        visita.persona_visitada = persona_visitada
+        visita.hora_ingreso = hora_ingreso
+        visita.usuario_registro = usuario_registro
+        if num_pase:
+            visita.num_pase = num_pase
+        visita.estado_visitante = estado_visitante
+        visita.foto_documento_identificacion = foto_documento
+        visita.save()
+        print("2. Visita Guardada")
+        
+        # Actualizar o crear registros de Visitante
+        for dato in visitantes_data:
+            nombre = dato.get("nombre", "")
+            documento = dato.get("documento", "")
+            Visitante.objects.update_or_create(
+                cod_visita=cod_visita,
+                documento_identificacion=documento,
+                defaults={'nombre': nombre}
+            )
+            print("3. Visitante actualizado o creado")
+        
+        # Actualizar o crear registros de VisitanesVisita
+        # Supongamos que cada objeto en visitantes_data ahora tiene un campo "id" (si existe) o None.
+        for dato in visitantes_data:
+            rec_id = dato.get("id")  # Esto vendría del input hidden o del atributo data de la fila.
+            nombre = dato.get("nombre", "").strip()
+            documento = dato.get("documento", "").strip()
+            
+            if rec_id:  
+                # Actualizamos el registro con ese id.
+                VisitanesVisita.objects.filter(id=rec_id).update(nombre=nombre, documento_identificacion=documento)
+            else:
+                # Si no hay id, usamos update_or_create para buscar por cod_visita y, por ejemplo, por nombre si no existe un documento.
+                VisitanesVisita.objects.update_or_create(
+                    cod_visita=cod_visita,
+                    documento_identificacion=documento,  # o, si está vacío, podrías buscar por nombre
+                    defaults={'nombre': nombre}
+                )
+        
+        # Crear registros de PertenenciasVisitante
+        for material in materiales_data:
+            documento = material.get("documento", "")
+            equipo = material.get("equipo", "")
+            PertenenciasVisitante.objects.create(
+                cod_visita=cod_visita,
+                identificacion_visitante=documento,
+                pertenencias_entrada=equipo,
+                usuario_registro_ingreso=usuario_registro
+            )
+            print("5. Pertenencias guardadas")
+
+        messages.success(request, "Visita registrada exitosamente.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    else:
+        motivos = MotivoVisita.objects.filter(estado='activo')
+        colaboradores = Colaborador.objects.filter(estado='activo')
+        areasdeptos = AreaDepto.objects.filter(estado='activo')
+        pases = PaseAcceso.objects.filter(estado_pase='activo')
+        print("0. Nada pasó")
+        return render(request, 'visitantes/nueva-visita-agendada.html', {
+            'motivos': motivos,
+            'colaboradores': colaboradores,
+            'areasdeptos': areasdeptos,
+            'pases': pases,
+        })
+    
 def salida_visita(request):
     if request.method == "POST":
         # Recibir el código de visita enviado desde el formulario (hidden)
