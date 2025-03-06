@@ -250,14 +250,14 @@
 
     <!-- Campo para seleccionar el rol (grupo) -->
     <div class="input-container mb-3">
-      <select name="group" required>
-        <option value="" hidden></option>
+      <select name="groups[]" multiple required>
+        <option value="" hidden>Seleccione los roles</option>
         {% for group in groups %}
-        <option value="{{ group.name }}">{{ group.name }}</option>
+          <option value="{{ group.name }}">{{ group.name }}</option>
         {% endfor %}
       </select>
-      <label for="select">Seleccione el rol</label>
-    </div>
+      <label for="select">Seleccione los roles</label>
+    </div>    
 
     <div class="input-container mb-3">
       <input type="text" name="first_name" id="first_name" class="form-control" placeholder=" " required />

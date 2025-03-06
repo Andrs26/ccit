@@ -44,7 +44,7 @@ def login_view(request):
     """Autentica al usuario y lo redirige al cambio de contraseña si es necesario."""
     
     if request.user.is_authenticated:
-        return redirect('inicio_recepcion')
+        return redirect('home')
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -84,7 +84,7 @@ def login_view(request):
 
             # Redirigir al usuario a la página que intentaba acceder, o al inicio si no hay 'next'
             next_url = request.POST.get('next', request.GET.get('next', 'inicio/'))
-            return redirect('inicio_recepcion')
+            return redirect('home')
 
         else:
             # Intento fallido
@@ -157,7 +157,7 @@ def create_user(request):
             pin = request.POST['pin']
             first_name = request.POST['first_name']
             last_name = request.POST['last_name']
-            group_name = request.POST.get('group', None)
+            selected_groups = request.POST.getlist('groups[]')
 
             # Validaciones
             if get_user_model().objects.filter(username=username).exists():
@@ -171,7 +171,7 @@ def create_user(request):
             )
 
             # Asignar grupo (rol) al usuario
-            if group_name:
+            for group_name in selected_groups:
                 group = Group.objects.get(name=group_name)
                 user.groups.add(group)
 
@@ -215,13 +215,15 @@ def edit_user(request, user_id):
             user.last_name = request.POST['last_name']
             user.email = request.POST['email']
             pin = request.POST['pin']
-            group_name = request.POST.get('group', None)  # Obtener el nuevo grupo del formulario
+            # Obtener el nuevo grupo del formulario
+            group_names = request.POST.getlist('groups')
 
             # Actualizar grupo (rol)
-            if group_name:
-                group = Group.objects.get(name=group_name)
-                user.groups.clear()  # Eliminar los grupos existentes
-                user.groups.add(group)  # Asignar el nuevo grupo
+            if group_names:
+                user.groups.clear()
+                for group_name in group_names:
+                    group = Group.objects.get(name=group_name)
+                    user.groups.add(group)
 
             # Guardar cambios del usuario y su perfil (PIN)
             user.save()
@@ -316,7 +318,7 @@ def change_password(request, user_id):
                 user_profile.save()
 
             messages.success(request, "Contraseña y PIN cambiados correctamente.")
-            return redirect('inicio')
+            return redirect('home')
         else:
             # 🔹 Agregar errores al sistema de mensajes
             for error in form.errors.values():
@@ -346,7 +348,7 @@ def change_password_reset(request, user_id):
                 user_profile.save()
 
             messages.success(request, "Contraseña y PIN cambiados correctamente.")
-            return redirect('inicio')
+            return redirect('home')
         else:
             # 🔹 Agregar errores al sistema de mensajes
             for error in form.errors.values():

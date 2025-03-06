@@ -87,99 +87,113 @@
                             <span class="hide-menu">Inicio</span>
                         </a>
                     </li>
-                    <li>
-                        <span class="sidebar-divider lg"></span>
-                    </li>
-                    <li class="nav-small-cap">
-                        <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
-                        <span class="hide-menu">GESTIÓN DE VISITAS</span>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'inicio_recepcion' %}" aria-expanded="false">
-                            <iconify-icon icon="material-symbols:home-rounded"></iconify-icon>
-                            <span class="hide-menu">Inicio</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'visitas_recepcion' %}" aria-expanded="false">
-                            <iconify-icon icon="f7:person-2-fill"></iconify-icon>
-                            <span class="hide-menu">Visitas</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'eventos_capacitaciones' %}" aria-expanded="false">
-                            <iconify-icon icon="streamline:class-lesson-solid"></iconify-icon>
-                            <span class="hide-menu">Eventos</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'pases_recepcion' %}" aria-expanded="false">
-                            <iconify-icon icon="ion:id-card"></iconify-icon>
-                            <span class="hide-menu">Pases</span>
-                        </a>
-                    </li>
-                    <li>
-                        <span class="sidebar-divider lg"></span>
-                    </li>
-                    <li class="nav-small-cap">
-                        <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
-                        <span class="hide-menu">MIS VISITAS</span>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'colaboradores_home' %}" aria-expanded="false">
-                            <iconify-icon icon="material-symbols:home-rounded"></iconify-icon>
-                            <span class="hide-menu">Inicio</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'visitas_colaborador' %}" aria-expanded="false">
-                            <iconify-icon icon="f7:person-2-fill"></iconify-icon>
-                            <span class="hide-menu">Visitas</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'eventos_capacitaciones_colaborador' %}" aria-expanded="false">
-                            <iconify-icon icon="streamline:class-lesson-solid"></iconify-icon>
-                            <span class="hide-menu">Eventos</span>
-                        </a>
-                    </li>
-                    <li>
-                        <span class="sidebar-divider lg"></span>
-                    </li>
-                    <li class="nav-small-cap">
-                        <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
-                        <span class="hide-menu">GESTIÓN</span>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'user_list' %}" aria-expanded="false">
-                            <iconify-icon icon="lsicon:user-crowd-outline"></iconify-icon>
-                            <span class="hide-menu">Usuarios</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'colaboradores' %}" aria-expanded="false">
-                            <iconify-icon icon="clarity:employee-group-solid"></iconify-icon>
-                            <span class="hide-menu">Colaboradores</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'pases' %}" aria-expanded="false">
-                            <iconify-icon icon="ion:id-card"></iconify-icon>
-                            <span class="hide-menu">Pases</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'motivos' %}" aria-expanded="false">
-                            <iconify-icon icon="icon-park-outline:setting-web"></iconify-icon>
-                            <span class="hide-menu">Motivos</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'acciones' %}" aria-expanded="false">
-                            <iconify-icon icon="ant-design:setting-filled"></iconify-icon>
-                            <span class="hide-menu">Acciones</span>
-                        </a>
-                    </li>
+                    {% for grupo in user_grupos %}
+                        {% if grupo.name == "visitas_recepcion_group" or grupo.name == "admin_group" or grupo.name == 'super_admin' %}    
+                            <li>
+                                <span class="sidebar-divider lg"></span>
+                            </li>
+                            <li class="nav-small-cap">
+                                <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+                                <span class="hide-menu">GESTIÓN DE VISITAS</span>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'inicio_recepcion' %}" aria-expanded="false">
+                                    <iconify-icon icon="material-symbols:home-rounded"></iconify-icon>
+                                    <span class="hide-menu">Inicio</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'visitas_recepcion' %}" aria-expanded="false">
+                                    <iconify-icon icon="f7:person-2-fill"></iconify-icon>
+                                    <span class="hide-menu">Visitas</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'eventos_capacitaciones' %}" aria-expanded="false">
+                                    <iconify-icon icon="streamline:class-lesson-solid"></iconify-icon>
+                                    <span class="hide-menu">Eventos</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'pases_recepcion' %}" aria-expanded="false">
+                                    <iconify-icon icon="ion:id-card"></iconify-icon>
+                                    <span class="hide-menu">Pases</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for grupo in user_grupos %}
+                        {% if grupo.name == "visitas_colaborador_group" or grupo.name == 'visitas_it_group' %}
+                            <li>
+                                <span class="sidebar-divider lg"></span>
+                            </li>
+                            <li class="nav-small-cap">
+                                <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+                                <span class="hide-menu">MIS VISITAS</span>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'colaboradores_home' %}" aria-expanded="false">
+                                    <iconify-icon icon="material-symbols:home-rounded"></iconify-icon>
+                                    <span class="hide-menu">Inicio</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'visitas_colaborador' %}" aria-expanded="false">
+                                    <iconify-icon icon="f7:person-2-fill"></iconify-icon>
+                                    <span class="hide-menu">Visitas</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'eventos_capacitaciones_colaborador' %}" aria-expanded="false">
+                                    <iconify-icon icon="streamline:class-lesson-solid"></iconify-icon>
+                                    <span class="hide-menu">Eventos</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for grupo in user_grupos %}
+                        {% if grupo.name == "visitas_it_group" %}
+                            <li>
+                                <span class="sidebar-divider lg"></span>
+                            </li>
+                            <li class="nav-small-cap">
+                                <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+                                <span class="hide-menu">GESTIÓN</span>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'user_list' %}" aria-expanded="false">
+                                    <iconify-icon icon="lsicon:user-crowd-outline"></iconify-icon>
+                                    <span class="hide-menu">Usuarios</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'colaboradores' %}" aria-expanded="false">
+                                    <iconify-icon icon="clarity:employee-group-solid"></iconify-icon>
+                                    <span class="hide-menu">Colaboradores</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'pases' %}" aria-expanded="false">
+                                    <iconify-icon icon="ion:id-card"></iconify-icon>
+                                    <span class="hide-menu">Pases</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'motivos' %}" aria-expanded="false">
+                                    <iconify-icon icon="icon-park-outline:setting-web"></iconify-icon>
+                                    <span class="hide-menu">Motivos</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" href="{% url 'acciones' %}" aria-expanded="false">
+                                    <iconify-icon icon="ant-design:setting-filled"></iconify-icon>
+                                    <span class="hide-menu">Acciones</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
                     <li>
                         <span class="sidebar-divider lg"></span>
                     </li>
