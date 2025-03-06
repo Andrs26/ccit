@@ -1,0 +1,193 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Eventos {% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    .card-visita-dentro {
+        /* border: 1px solid #18314F; */
+        box-shadow: 0px 0px 10px 2px #18314f86;
+    }
+    .card-visita-dentro:hover {
+        /* border: 1px solid #18314F; */
+        box-shadow: 0px 0px 20px 2px #18314f86;
+    }
+</style>
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div>
+    <div class="mb-3 row d-flex justify-content-between">
+        <div class="col-auto">
+            <h4>Mis Eventos</h4>
+        </div>
+        <div class="col-6">
+            <input type="search" class="form-control" name="busqueda" id="search_visita" placeholder="Buscar evento...">
+        </div>
+        <div class="col-auto">
+            <a class="btn btn-success d-flex col-auto" href="{% url 'nuevo_evento' %}">
+                <span><i class='bx bxs-user-account'></i></span>
+                <span class="d-none d-md-block ms-2">Nuevo Evento</span>
+            </a>
+        </div>
+    </div>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link d-flex active" data-bs-toggle="tab" href="#eventos_capacitaciones" role="tab">
+                <span><i class='bx bx-globe'></i></i> </span>
+                <span class="d-none d-md-block ms-2">Eventos/Capacitaciones</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-pane" id="eventos_capacitaciones" role="tabpanel">
+        <div class="row p-3">
+            <h5>Eventos Hoy</h5>
+            {% for evento in eventos_hoy %}
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                    <div class="card hover-img card-visita-dentro">
+                        <div class="card-body p-2 text-center border-none">
+                            <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                            <h4 class="card-title mb-1">{{evento.nombre}}</h4>
+                            <div class=" mb-1 row">
+                                <span class="fs-2">{{evento.organizador}}</span>
+                            </div>
+                            <span class="badge text-bg-light text-secondary">
+                                <i class='bx bxs-calendar'></i> {{evento.fecha | date:'d/m/Y' }}
+                                <i class='bx bxs-time'></i> {{evento.hora_inicio}} - {{evento.hora_fin}} 
+                            </span>
+                        </div>
+                        <ul class="px-2 py-2 list-unstyled d-flex align-items-center justify-content-center mb-0">
+                            <li class="position-relative">
+                                <a class="btn btn-light btn-sm text-secondary d-flex align-items-center justify-content-center text-center fs-3" href="{% url 'editar_evento' evento.id %}">
+                                    <i class='bx bx-show' style="margin-right: 4px;"></i> Ver/Editar
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center text-secondary">
+                    No hay eventos para hoy
+                </div>
+            {% endfor %}
+        </div>
+        <div class="row p-3">
+            <h5>Próximos Eventos</h5>
+            {% for evento in eventos_proximos %}
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                    <div class="card hover-img card-visita-dentro">
+                        <div class="card-body p-2 text-center border-none">
+                            <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                            <h4 class="card-title mb-1">{{evento.nombre}}</h4>
+                            <div class=" mb-1 row">
+                                <span class="fs-2">{{evento.organizador}}</span>
+                            </div>
+                            <span class="badge text-bg-light text-secondary">
+                                <i class='bx bxs-calendar'></i> {{evento.fecha | date:'d/m/Y' }}
+                                <i class='bx bxs-time'></i> {{evento.hora_inicio}} - {{evento.hora_fin}} 
+                            </span>
+                        </div>
+                        <ul class="px-2 py-2 list-unstyled d-flex align-items-center justify-content-center mb-0">
+                            <li class="position-relative">
+                                <a class="btn btn-light btn-sm text-secondary d-flex align-items-center justify-content-center text-center fs-3" href="{% url 'editar_evento' evento.id %}">
+                                    <i class='bx bx-show' style="margin-right: 4px;"></i> Ver/Editar
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center text-secondary">
+                    No hay eventos para los próximos días
+                </div>
+            {% endfor %}
+        </div>
+        <div class="row p-3">
+            <h5>Eventos Anteriores</h5>
+            {% for evento in eventos_anteriores %}
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                    <div class="card hover-img card-visita-dentro">
+                        <div class="card-body p-2 text-center border-none">
+                            <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                            <h4 class="card-title mb-1">{{evento.nombre}}</h4>
+                            <div class=" mb-1 row">
+                                <span class="fs-2">{{evento.organizador}}</span>
+                            </div>
+                            <span class="badge text-bg-light text-secondary">
+                                <i class='bx bxs-calendar'></i> {{evento.fecha | date:'d/m/Y' }}
+                                <i class='bx bxs-time'></i> {{evento.hora_inicio}} - {{evento.hora_fin}} 
+                            </span>
+                        </div>
+                        <ul class="px-2 py-2 list-unstyled d-flex align-items-center justify-content-center mb-0">
+                            <li class="position-relative">
+                                <a class="btn btn-light btn-sm text-secondary d-flex align-items-center justify-content-center text-center fs-3" href="{% url 'detalles_evento_visitas' evento.id %}">
+                                    <i class='bx bx-show' style="margin-right: 4px;"></i> Detalles
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center text-secondary">
+                    No hay eventos anteriores
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

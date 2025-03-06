@@ -1,0 +1,329 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Crear evento {% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    .input-visita{
+        border: none;
+        border-bottom: 1px solid #000;
+        border-radius: 0px;
+        padding-left: 2px;
+    }
+    .busqueda-container {
+        position: relative;
+        width: 50%;
+    }
+
+    #buscar-visitante {
+        width: 100%;
+    }
+
+    #resultados-visitante {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #57647D;
+        border: none;
+        z-index: 9999;
+        max-height: 200px;
+        overflow-y: auto;
+        color: #fff;
+    }
+
+    .resultado {
+        padding: 8px 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+    }
+
+    .resultado:hover {
+        background-color: #d5d5d5;
+        color: #18314F;
+    }
+</style>
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="container my-4">
+    <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
+        <div class="col">
+            <h4>{{ evento.nombre }} - {{ evento.organizador }} </h4>
+        </div>
+    </div>
+    
+    <div class="mb-3 row">
+        <div class="col-md-3">
+            <label class="form-label">Fecha de Evento</label>
+            <input type="text" name="fecha" class="form-control" value="{{ evento.fecha }}" readonly>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Hora de Inicio</label>
+            <input type="text" name="hora_inicio" class="form-control" value="{{ evento.hora_inicio }}" readonly>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Hora de Fin</label>
+            <input type="text" name="hora_fin" class="form-control" value="{{ evento.hora_fin }}" readonly>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Cantidad Participantes</label>
+            <input type="text" name="cantidad" class="form-control" value="{{ evento.cantidad_visitantes }}" readonly>
+        </div>
+    </div>
+    
+    <!-- Tab de Participantes -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link d-flex active" data-bs-toggle="tab" href="#participantes" role="tab">
+                <span><i class='bx bx-male-female'></i></span>
+                <span class="d-none d-md-block ms-2">Participantes</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link d-flex" data-bs-toggle="tab" href="#actualizarEstado" role="tab">
+                <span><i class='bx bx-check-circle'></i></span>
+                <span class="d-none d-md-block ms-2">Registrar Entrada/Salida</span>
+            </a>
+        </li>
+    </ul>
+    
+    <div class="tab-content my-3">
+        <!-- Tab: Participantes Manuales -->
+        <div class="tab-pane active" id="participantes" role="tabpanel">
+            <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Documento de Identificación</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-asistencia-body">
+                    {% if participantes_evento %}
+                        {% for participante in participantes_evento %}
+                            <tr data-participante-id="{{ participante.id }}">
+                                <td contenteditable="true" class="nuevo-nombre" placeholder="Nombre...">{{ participante.nombre_visitante }}</td>
+                                <td contenteditable="true" class="nuevo-documento" placeholder="Documento...">{{ participante.documento_identificacion }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>
+                            <td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            <input type="hidden" name="visitantes_data" id="visitantes_data">
+        </div>
+        
+        <!-- Tab: Actualizar Estado (Entrada/Salida) -->
+        <div class="tab-pane" id="actualizarEstado" role="tabpanel">
+            <table class="table table-bordered table-hover table-sm" id="tabla-estados">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Documento de Identificación</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Acción Global</th>
+                        <th>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckboxAllIn" value="1">
+                                <label class="form-check-label" for="inlineCheckboxAllIn">All In</label>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckboxAllOut" value="0">
+                                <label class="form-check-label" for="inlineCheckboxAllOut">All Out</label>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participante in participantes_evento %}
+                    <tr data-participante-id="{{ participante.id }}">
+                        <td>{{ participante.nombre_visitante }}</td>
+                        <td>{{ participante.documento_identificacion }}</td>
+                        <td>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input participante-in" type="checkbox" id="inlineCheckboxIn{{ participante.id }}" data-participante-id="{{ participante.id }}" {% if participante.entrada %}checked{% endif %}>
+                                <label class="form-check-label" for="inlineCheckboxIn{{ participante.id }}">Entrada</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input participante-out" type="checkbox" id="inlineCheckboxOut{{ participante.id }}" data-participante-id="{{ participante.id }}" {% if participante.salida %}checked{% endif %}>
+                                <label class="form-check-label" for="inlineCheckboxOut{{ participante.id }}">Salida</label>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Incluye SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Script para manejar la tabla de participantes y actualización con AJAX -->
+<script>
+$(document).ready(function(){    
+    /* =============================
+       Actualización de Estado con AJAX
+       ============================= */
+       
+    // Función para actualizar el estado individual de un participante
+    function actualizarEstadoParticipante(participanteId, campo, nuevoEstado) {
+        $.ajax({
+            url: '/evento/actualizar_participante/' + participanteId + '/',
+            type: 'POST',
+            data: {
+                [campo]: nuevoEstado,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if(response.success) {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: 'Estado actualizado correctamente.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: response.message,
+                        icon: 'error'
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error en la solicitud de actualización',
+                    icon: 'error'
+                });
+            }
+        });
+    }
+    
+    // Evento para checkbox individual de Entrada
+    $('.participante-in').change(function(){
+        var participanteId = $(this).data('participante-id');
+        var newEntrada = $(this).is(':checked');
+        actualizarEstadoParticipante(participanteId, 'entrada', newEntrada);
+    });
+    
+    // Evento para checkbox individual de Salida.
+    $('.participante-out').change(function(){
+        var participanteId = $(this).data('participante-id');
+        // Verificamos que la entrada esté marcada en la misma fila.
+        var row = $(this).closest('tr');
+        var entradaCheckbox = row.find('.participante-in');
+        if(!entradaCheckbox.is(':checked')) {
+            Swal.fire({
+                title: 'Advertencia',
+                text: 'No se puede marcar salida sin que se haya marcado entrada.',
+                icon: 'warning'
+            });
+            $(this).prop('checked', false);
+            return;
+        }
+        var newSalida = $(this).is(':checked');
+        actualizarEstadoParticipante(participanteId, 'salida', newSalida);
+    });
+    
+    // Evento para "All In": actualizar todos los checkboxes de entrada
+    $('#inlineCheckboxAllIn').change(function(){
+        var newEntrada = $(this).is(':checked');
+        $('.participante-in').each(function(){
+            if($(this).is(':checked') !== newEntrada) {
+                $(this).prop('checked', newEntrada).trigger('change');
+            }
+        });
+    });
+    
+    // Evento para "All Out": actualizar todos los checkboxes de salida, pero solo si su correspondiente entrada está marcada.
+    $('#inlineCheckboxAllOut').change(function(){
+        var newSalida = $(this).is(':checked');
+        $('.participante-out').each(function(){
+            var row = $(this).closest('tr');
+            var entradaChecked = row.find('.participante-in').is(':checked');
+            // Solo actualizar si la entrada está marcada.
+            if(newSalida && !entradaChecked) {
+                Swal.fire({
+                    title: 'Advertencia',
+                    text: 'No se puede marcar salida sin que la entrada esté marcada para algunos participantes.',
+                    icon: 'warning'
+                });
+                // Opcional: no cambiar este checkbox
+                $(this).prop('checked', false);
+            } else {
+                if($(this).is(':checked') !== newSalida) {
+                    $(this).prop('checked', newSalida).trigger('change');
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

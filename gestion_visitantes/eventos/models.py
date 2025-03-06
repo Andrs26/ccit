@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class EventoCapacitacion(models.Model):
     """Registro de eventos o capacitaciones con visitantes"""
     nombre = models.CharField(max_length=255)
-    organizador = models.CharField(max_length=255)
+    organizador = models.CharField(max_length=255, null=True, blank=True)
     fecha = models.DateField()
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()
@@ -21,7 +21,11 @@ class EventoVisitante(models.Model):
     id_evento = models.CharField(max_length=255)
     nombre_visitante = models.CharField(max_length=255)
     documento_identificacion = models.CharField(max_length=50)
-    cat_participante = models.CharField(max_length=255)
+    cat_participante = models.CharField(max_length=255, null=True, blank=True)
+    entrada = models.BooleanField(default=0)
+    hora_entrada = models.TimeField(null=True, blank=True)
+    salida = models.BooleanField(default=0)
+    hora_salida = models.TimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

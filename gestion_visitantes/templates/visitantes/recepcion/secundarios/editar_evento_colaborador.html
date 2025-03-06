@@ -1,0 +1,333 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Crear evento {% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    .input-visita{
+        border: none;
+        border-bottom: 1px solid #000;
+        border-radius: 0px;
+        padding-left: 2px;
+    }
+    .busqueda-container {
+        position: relative;
+        width: 50%;
+    }
+
+    #buscar-visitante {
+        width: 100%;
+    }
+
+    #resultados-visitante {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #57647D;
+        border: none;
+        z-index: 9999;
+        max-height: 200px;
+        overflow-y: auto;
+        color: #fff;
+    }
+
+    .resultado {
+        padding: 8px 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+    }
+
+    .resultado:hover {
+        background-color: #d5d5d5;
+        color: #18314F;
+    }
+</style>
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<div class="container my-4">
+    <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
+        <div class="col">
+            <h4>Editar Evento: {{ evento.nombre }}</h4>
+        </div>
+        <div class="col d-flex justify-content-end align-items-center">
+            <button type="submit" form="formEditarEvento" class="btn btn-primary">
+                <i class='bx bxs-save'></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+
+    <form id="formEditarEvento" method="post" action="{% url 'save_editar_evento' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Campo oculto con el id del evento -->
+        <input type="hidden" name="id" value="{{ evento.id }}">
+        <!-- Campos generales del evento -->
+        <div class="mb-3 row">
+            <div class="col-md-8">
+                <label class="form-label">Nombre del Evento</label>
+                <input type="text" name="nombre" class="form-control" value="{{ evento.nombre }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Organizador</label>
+                <select class="form-select" name="organizador">
+                    <option value="{{ request.user.username }}" {% if evento.organizador == request.user.username %}selected{% endif %}>
+                        {{ request.user.first_name }} {{ request.user.last_name }}
+                    </option>
+                    {% for colab in colaboradores %}
+                        <option value="{{ colab.nombre }}" {% if evento.organizador == colab.nombre %}selected{% endif %}>{{ colab.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <div class="col-md-3">
+                <label class="form-label">Fecha de Evento</label>
+                <input type="date" name="fecha" class="form-control" value="{{ evento.fecha|date:'Y-m-d' }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Hora de Inicio</label>
+                <input type="time" name="hora_inicio" class="form-control" value="{{ evento.hora_inicio }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Hora de Fin</label>
+                <input type="time" name="hora_fin" class="form-control" value="{{ evento.hora_fin }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Adjuntar participantes (Excel)</label>
+                <input type="file" name="participantes_file" class="form-control" accept=".xls,.xlsx">
+            </div>
+        </div>
+        
+        <!-- Aquí puedes incluir otros campos generales si es necesario -->
+
+        <!-- Tab para participantes manuales -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link d-flex active" data-bs-toggle="tab" href="#participantes" role="tab">
+                    <span><i class='bx bx-male-female'></i></span>
+                    <span class="d-none d-md-block ms-2">Participantes <span class="badge text-bg-success rounded-5">{{evento.cantidad_visitantes}}</span></span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="tab-content my-3">
+            <!-- Tab: Participantes manuales -->
+            <div class="tab-pane active" id="participantes" role="tabpanel">
+                <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Documento de Identificación</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-asistencia-body">
+                        {% if participantes_evento %}
+                            {% for participante in participantes_evento %}
+                                <tr data-visitante-id="{{ participante.id }}">
+                                    <td contenteditable="true" class="nuevo-nombre" placeholder="Nombre...">{{ participante.nombre_visitante }}</td>
+                                    <td contenteditable="true" class="nuevo-documento" placeholder="Documento...">{{ participante.documento_identificacion }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>
+                                <td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="text-center">
+                                <button id="btn-agregar-fila" class="btn btn-light btn-sm">
+                                    <i class='bx bx-plus'></i> Agregar fila
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <!-- Campo oculto para enviar los datos de participantes -->
+                <input type="hidden" name="visitantes_data" id="visitantes_data">
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Script para manejar la tabla de participantes y sincronización -->
+<script>
+$(document).ready(function(){
+    // Función para sincronizar la tabla de materiales (si existiera otra tabla, aquí se dejaría)
+    function sincronizarMateriales() {
+        // En este formulario, no tenemos tabla separada de materiales.
+    }
+    
+    // Función para recopilar datos de la tabla de participantes e incluir el id si existe.
+    function recopilarVisitantes() {
+        var visitantes = [];
+        $('#tabla-asistencia tbody tr').each(function(){
+            var id = $(this).attr('data-visitante-id') || "";
+            var nombre = $(this).find('.nuevo-nombre').text().trim();
+            var documento = $(this).find('.nuevo-documento').text().trim();
+            if(nombre || documento){
+                visitantes.push({id: id, nombre: nombre, documento: documento});
+            }
+        });
+        $('#visitantes_data').val(JSON.stringify(visitantes));
+    }
+    
+    // Al enviar el formulario, se recopilan los datos de participantes.
+    $('form').submit(function(){
+        recopilarVisitantes();
+    });
+    
+    // Evento para agregar una nueva fila manualmente.
+    $('#btn-agregar-fila').click(function(e) {
+        e.preventDefault();
+        var nuevaFila = $('<tr></tr>');
+        nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');
+        nuevaFila.append('<td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>');
+        nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
+        $('#tabla-asistencia tbody').append(nuevaFila);
+    });
+    
+    // Evento para eliminar una fila.
+    $('#tabla-asistencia').on('click', '.eliminar-fila', function(){
+        $(this).closest('tr').remove();
+    });
+    
+    // (Opcional) Búsqueda AJAX para participantes manuales.
+    $('#buscar-visitante').on('input', function(){
+        var query = $(this).val().trim();
+        var resultadosDiv = $('#resultados-visitante');
+        if(query.length > 2){
+            $.ajax({
+                url: '{% url "buscar_visitante_ajax" %}',
+                type: 'GET',
+                data: { 'q': query },
+                success: function(response){
+                    resultadosDiv.empty();
+                    response.forEach(function(visitante){
+                        resultadosDiv.append(
+                            '<div class="resultado" data-id="'+ visitante.id +'" data-nombre="'+ visitante.nombre +'" data-documento="'+ visitante.documento +'">'+ visitante.nombre +'</div>'
+                        );
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX error:", error);
+                }
+            });
+        } else {
+            resultadosDiv.empty();
+        }
+    });
+    
+    // Al hacer clic en un resultado de búsqueda, agregar el participante a la tabla.
+    $('#resultados-visitante').on('click', '.resultado', function(){
+        var nombre = $(this).data('nombre');
+        var documento = $(this).data('documento');
+        var participanteId = $(this).data('id'); // si existe
+        
+        // Verificar duplicados
+        var duplicado = false;
+        $('#tabla-asistencia tbody tr').each(function(){
+            var docExistente = $(this).find('.nuevo-documento').text().trim();
+            if(docExistente === documento){
+                duplicado = true;
+                return false;
+            }
+        });
+        if(duplicado) {
+            Swal.fire({
+                title: "Información",
+                text: "El documento de identidad ya se encuentra en la lista.",
+                icon: "info",
+                confirmButtonText: "Aceptar"
+            });
+            $('#resultados-visitante').empty();
+            $('#buscar-visitante').val('');
+            return;
+        }
+    
+        // Intentar insertar en una fila vacía.
+        var inserted = false;
+        $('#tabla-asistencia tbody tr').each(function(){
+            var currentNombre = $(this).find('.nuevo-nombre').text().trim();
+            var currentDocumento = $(this).find('.nuevo-documento').text().trim();
+            if(currentNombre === "" && currentDocumento === ""){
+                $(this).find('.nuevo-nombre').text(nombre);
+                $(this).find('.nuevo-documento').text(documento);
+                if(participanteId) {
+                    $(this).attr('data-visitante-id', participanteId);
+                }
+                inserted = true;
+                return false;
+            }
+        });
+        if(!inserted) {
+            var nuevaFila = $('<tr></tr>');
+            if(participanteId) {
+                nuevaFila.attr('data-visitante-id', participanteId);
+            }
+            nuevaFila.append('<td contenteditable="true" class="nuevo-nombre">' + nombre + '</td>');
+            nuevaFila.append('<td contenteditable="true" class="nuevo-documento">' + documento + '</td>');
+            nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
+            $('#tabla-asistencia tbody').append(nuevaFila);
+        }
+    
+        $('#resultados-visitante').empty();
+        $('#buscar-visitante').val('');
+    });
+});
+</script>
+{% endblock %}

@@ -7,7 +7,7 @@ class Visitante(models.Model):
     """Registro de datos básicos de los visitantes"""
     cod_visita = models.CharField(max_length=50)
     nombre = models.CharField(max_length=255)
-    documento_identificacion = models.CharField(max_length=50, unique=True)
+    documento_identificacion = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -26,6 +26,12 @@ class MotivoVisita(models.Model):
     def __str__(self):
         return self.descripcion
 
+class AccionVisita(models.Model):
+    """Lista de acciones de visita (reunión, entrevista, entrega, etc.)"""
+    accion = models.TextField()
+    estado = models.CharField(max_length=50, choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class TipoVisita(models.Model):
     """Lista de tipos de visita (individual, grupo, escolta, etc.)"""
@@ -55,6 +61,7 @@ class Visita(models.Model):
     cod_visita = models.CharField(max_length=50, unique=True)
     visitante = models.CharField(max_length=500)
     motivo = models.TextField()
+    accion = models.TextField(null=True, blank=True)
     tipo = models.TextField()
     agendado_presente = models.CharField(max_length=500, null=True, blank=True)
     estado_visitante = models.CharField(max_length=500, null=True, blank=True)

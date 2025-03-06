@@ -1,0 +1,274 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Acciones {% endblock %}
+{% block content %}
+{% load static %}
+<style>
+/* Estilos generales para el switch */
+.ios-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.ios-switch input {
+    opacity: 0; /* Ocultamos el checkbox real */
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.ios-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+/* Estilo del círculo del switch */
+.ios-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    border-radius: 50%;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+}
+
+/* Estilos cuando el switch está activado */
+.ios-switch input:checked + .slider {
+    background-color: #4CAF50; /* Color verde cuando está activado */
+}
+
+.ios-switch input:checked + .slider:before {
+    transform: translateX(26px); /* Mueve el círculo hacia la derecha */
+}
+
+/* Efecto de hover para mejorar la interacción */
+.ios-switch .slider:hover {
+    background-color: #45a049;
+}
+
+/* Estilos para el estado desactivado */
+.ios-switch input:not(:checked) + .slider {
+    background-color: #ccc; /* Color gris cuando está desactivado */
+}
+</style>
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<div class="row">
+    <div class="mb-3">
+        <div class="row">
+            <div class="col-6">
+                <h3>Acciones de visita</h3>
+            </div>
+            <div class="col-6 d-flex justify-content-end">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary col-auto" data-bs-toggle="modal" data-bs-target="#agregarMotivo">
+                    Agregar accion
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="agregarMotivo" tabindex="-1" aria-labelledby="agregarMotivoLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form action="{% url 'crear_accion' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="agregarMotivoLabel">Nueva Acción de Visita</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="exampleFormControlTextarea1" class="form-label">Acción</label>
+                                <textarea class="form-control" name="accion" id="accion" required rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Guardar acción</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-hover table-sm">
+        <thead>
+            <tr>
+                <th>N.</th>
+                <th>Acción</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for accion in acciones %}
+            <tr>
+                <td class="col-1">{{ forloop.counter }}</td>
+                <td class="col-auto">{{ accion.accion }}</td>
+                <td class="col-1">
+                    <label class="ios-switch">
+                        <input type="checkbox" class="accion-status" data-accion-id="{{ accion.id }}" {% if accion.estado == 'activo' %}checked{% endif %}>
+                        <span class="slider"></span>
+                      </label>
+                </td>                
+                <td class="col-2">
+                    <a href="{% url 'editar_accion' accion.id %}" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarAccion{{accion.id}}"><i class='bx bx-edit-alt'></i> Editar</a>
+                    <!-- Modal -->
+                    <div class="modal fade" id="editarAccion{{accion.id}}" tabindex="-1" aria-labelledby="editarAccionLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <form action="{% url 'editar_accion' accion.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="agregarMotivoLabel">Editando Acción de Visita</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="exampleFormControlTextarea1" class="form-label">Acción</label>
+                                            <textarea class="form-control" name="accion" id="accion" rows="3">{{accion.accion}}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                        <button type="submit" class="btn btn-primary">Guardar acción</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No hay acciones registradas.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<!-- Incluye SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function(){
+        $('.accion-status').change(function(){
+            // Corregido: se usa "accionId" en lugar de "motivoId"
+            var accionId = $(this).data('accion-id');
+            
+            $.ajax({
+                url: '{% url "cambiar_estado_accion" %}',  // Asegúrate de que esta URL esté configurada en urls.py
+                type: 'POST',
+                data: {
+                    'accion_id': accionId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if(response.success){
+                        var estado = response.estado;
+                        if (estado === 'activo') {
+                            Swal.fire({
+                                title: 'Acción activada',
+                                text: 'La acción se ha activado.',
+                                icon: 'success',
+                                confirmButtonText: 'Aceptar',
+                                confirmButtonColor: "#57647D"
+                            });
+                        } else if (estado === 'inactivo') {
+                            Swal.fire({
+                                title: 'Acción desactivada',
+                                text: 'La acción se ha inactivado.',
+                                icon: 'warning',
+                                confirmButtonText: 'Aceptar',
+                                confirmButtonColor: "#57647D"
+                            });
+                        }
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No se pudo cambiar el estado de la acción.',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar',
+                            confirmButtonColor: "#57647D"
+                        });
+                    }
+                },
+                error: function(){
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Ocurrió un error en el servidor.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar',
+                        confirmButtonColor: "#57647D"
+                    });
+                }
+            });
+        });
+    });
+</script>    
+{% endblock %}

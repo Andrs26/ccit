@@ -4,6 +4,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    path('inicio/', views.home, name='home'),
     path('users/', views.user_list, name='user_list'),  # Ver todos los usuarios
     path('user/edit/<int:user_id>/', views.edit_user, name='edit_user'),  # Editar un usuario
     path('user/delete/<int:user_id>/', views.delete_user, name='delete_user'),  # Eliminar un usuario

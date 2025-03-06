@@ -1,0 +1,148 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Eventos {% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    .card-visita-dentro {
+        /* border: 1px solid #18314F; */
+        box-shadow: 0px 0px 10px 2px #18314f86;
+    }
+    .card-visita-dentro:hover {
+        /* border: 1px solid #18314F; */
+        box-shadow: 0px 0px 20px 2px #18314f86;
+    }
+</style>
+{% if messages %}
+    {% for m in messages %}
+        {% if m.tags == 'success' %}
+            <script>
+                Swal.fire({
+                    title: "LISTO!",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    showConfirmButton: false,
+                    timer: 2500,
+                });
+            </script>
+        {% elif m.tags == 'error' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#57647D",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'warning' %}
+            <script>
+                Swal.fire({
+                    title: "ADVERTENCIA",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#FDBD15",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'info' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% elif m.tags == 'debug' %}
+            <script>
+                Swal.fire({
+                    title: "{{m.tags|upper}}",
+                    text: "{{m}}",
+                    icon: "{{m.tags}}",
+                    confirmButtonColor: "#18314F",
+                    focusConfirm: false,
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div>
+    <div class="mb-3 row d-flex justify-content-between">
+        <div class="col-auto">
+            <h4>Hola {{request.user.first_name}} {{request.user.last_name}}, ¿Qué hacemos hoy?</h4>
+        </div>
+    </div>
+
+    <div class="row p-3">
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+            <a href="{% url 'colaboradores_home' %}">
+                <div class="card hover-img card-visita-dentro">
+                    <div class="card-body p-3 text-center border-bottom">
+                        <img src="{% static '/img/home/visitante.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                        <h4 class="card-title mb-1">Visitas</h4>
+                        <div class=" mb-1 row">
+                            <span class="fs-2">
+                                Agendar visitas, eventos, salida de materiales, equipo.
+                            </span>
+                        </div>
+                        <span class="badge text-white">Hola</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+            <a>
+                <div class="card hover-img card-visita-dentro">
+                    <div class="card-body p-3 text-center border-bottom">
+                        <img src="{% static '/img/home/gestion.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                        <h4 class="card-title mb-1">Talento Humano</h4>
+                        <div class=" mb-1 row">
+                            <span class="fs-2">
+                                Asistencias, Permisos, vacaciones, incapacidades, otras solicitudes.
+                            </span>
+                        </div>
+                        <span class="badge text-bg-dark text-white">Proximamente (Solo en cines)</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+            <a>
+                <div class="card hover-img card-visita-dentro">
+                    <div class="card-body p-3 text-center border-bottom">
+                        <img src="{% static '/img/home/productos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                        <h4 class="card-title mb-1">Requisiciones</h4>
+                        <div class=" mb-1 row">
+                            <span class="fs-2">
+                                Solicitud de insumos para colaboradores.
+                            </span>
+                        </div>
+                        <span class="badge text-bg-dark text-white">Proximamente (Solo en cines)</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+            <a>
+                <div class="card hover-img card-visita-dentro">
+                    <div class="card-body p-3 text-center border-bottom">
+                        <img src="{% static '/img/home/solicitud.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                        <h4 class="card-title mb-1">Ordenes de Trabajo</h4>
+                        <div class=" mb-1 row">
+                            <span class="fs-2">
+                                Solicitudes de trabajo para otras unidades/departamentos.
+                            </span>
+                        </div>
+                        <span class="badge text-bg-dark text-white">Proximamente (Solo en cines)</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

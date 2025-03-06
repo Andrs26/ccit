@@ -35,17 +35,190 @@ from usuarios.models import *
 from visitantes.models import *
 from pases.models import *
 from pertenencias.models import *
+from eventos.models import *
 
 # Create your views here.
+#* ************************************************************************ Principales: Mostrar datos
 @login_required
-def visitas(request):
-    return render(request, 'inicio/inicio.html')
+def inicio_recepcion(request):
+    today = timezone.localdate()
+
+    visitas_dentro = Visita.objects.filter(estado_visitante='in').order_by('hora_ingreso')
+
+    visitas_agendadas_hoy = Visita.objects.filter(
+        Q(estado_visitante='agendado', agendado_presente='agendado'),
+        fecha_visita=today
+    ).order_by('fecha_visita', 'hora_ingreso')
+
+    visitas_agendadas = Visita.objects.filter(
+        Q(estado_visitante='agendado', agendado_presente='agendado'),
+        fecha_visita__gt=today
+    ).order_by('fecha_visita', 'hora_ingreso')
+
+    visitantes_visita = VisitanesVisita.objects.all()
+    pertenencias = PertenenciasVisitante.objects.all()
+    pases = PaseAcceso.objects.all()
+
+    today = timezone.localdate()
+    eventos_hoy = EventoCapacitacion.objects.filter(fecha=today).order_by('fecha', 'hora_inicio')
+    eventos_proximos = EventoCapacitacion.objects.filter(fecha__gt=today).order_by('fecha', 'hora_inicio')
+
+    # Crear un diccionario: { documento_identificacion: nombre }
+    visitante_por_documento = {v.documento_identificacion: v.nombre for v in visitantes_visita}
+
+    # Crear un diccionario para cada visita (clave = cod_visita)
+    visitas_info = {}
+    for visita in visitas_dentro:
+        visitas_info[visita.cod_visita] = {
+            'visita': visita,
+            # Filtrar visitantes cuyo cod_visita coincida
+            'visitantes': [v for v in visitantes_visita if v.cod_visita == visita.cod_visita],
+            # Filtrar pertenencias cuyo cod_visita coincida
+            'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
+        }
+    
+    return render(request, 'visitantes/recepcion/principales/inicio.html', {
+        'visitas_dentro': visitas_dentro,
+        'visitas_agendadas': visitas_agendadas,
+        'visitas_agendadas_hoy': visitas_agendadas_hoy,
+        'visitantes_visita': visitantes_visita,
+        'pertenencias': pertenencias,
+        'visitas_info': visitas_info,
+        'pases': pases,
+        'eventos_hoy': eventos_hoy,
+        'eventos_proximos': eventos_proximos,
+        'visitante_por_documento': visitante_por_documento,
+    })
+
+@login_required
+def visitas_recepcion(request):
+    today = timezone.localdate()
+    visitas_dentro = Visita.objects.filter(estado_visitante='out').order_by('fecha_visita', 'hora_ingreso')
+    visitas_agendadas_hoy = Visita.objects.filter(
+        Q(estado_visitante='agendado', agendado_presente='agendado'),
+        fecha_visita=today
+    ).order_by('fecha_visita', 'hora_ingreso')
+    
+    visitas_agendadas = Visita.objects.filter(
+        Q(estado_visitante='agendado', agendado_presente='agendado'),
+        fecha_visita__gt=today
+    ).order_by('fecha_visita', 'hora_ingreso')
+    
+    visitas_anteriores = Visita.objects.filter(
+        Q(agendado_presente='agendado'),
+        fecha_visita__lt=today
+    ).order_by('-fecha_visita', 'hora_ingreso')
+
+    visitantes_visita = VisitanesVisita.objects.all()
+    pertenencias = PertenenciasVisitante.objects.all()
+    pases = PaseAcceso.objects.all()
+    eventos = EventoCapacitacion.objects.all().order_by('fecha', 'hora_inicio')
+
+    # Crear un diccionario: { documento_identificacion: nombre }
+    visitante_por_documento = {v.documento_identificacion: v.nombre for v in visitantes_visita}
+
+    # Crear un diccionario para cada visita (clave = cod_visita)
+    visitas_info = {}
+    for visita in visitas_dentro:
+        visitas_info[visita.cod_visita] = {
+            'visita': visita,
+            # Filtrar visitantes cuyo cod_visita coincida
+            'visitantes': [v for v in visitantes_visita if v.cod_visita == visita.cod_visita],
+            # Filtrar pertenencias cuyo cod_visita coincida
+            'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
+        }
+    
+    visitas_agendadas_hoy_info = {}
+    for visita in visitas_agendadas_hoy:
+        visitas_agendadas_hoy_info[visita.cod_visita] = {
+            'visita': visita,
+            # Filtrar visitantes cuyo cod_visita coincida
+            'visitantes': [v for v in visitantes_visita if v.cod_visita == visita.cod_visita],
+            # Filtrar pertenencias cuyo cod_visita coincida
+            'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
+        }
+
+    visitas_agendadas_info = {}
+    for visita in visitas_agendadas:
+        visitas_agendadas_info[visita.cod_visita] = {
+            'visita': visita,
+            # Filtrar visitantes cuyo cod_visita coincida
+            'visitantes': [v for v in visitantes_visita if v.cod_visita == visita.cod_visita],
+            # Filtrar pertenencias cuyo cod_visita coincida
+            'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
+        }
+        
+    visitas_anteriores_info = {}
+    for visita in visitas_anteriores:
+        visitas_anteriores_info[visita.cod_visita] = {
+            'visita': visita,
+            # Filtrar visitantes cuyo cod_visita coincida
+            'visitantes': [v for v in visitantes_visita if v.cod_visita == visita.cod_visita],
+            # Filtrar pertenencias cuyo cod_visita coincida
+            'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
+        }
+    
+    return render(request, 'visitantes/recepcion/principales/visitas.html', {
+        'visitas_dentro': visitas_dentro,
+        'visitas_agendadas': visitas_agendadas,
+        'visitas_anteriores': visitas_anteriores,
+        'visitas_agendadas_hoy': visitas_agendadas_hoy,
+        'visitantes_visita': visitantes_visita,
+        'pertenencias': pertenencias,
+        'visitas_info': visitas_info,
+        'visitas_agendadas_info': visitas_agendadas_info,
+        'visitas_anteriores_info': visitas_anteriores_info,
+        'visitas_agendadas_hoy_info': visitas_agendadas_hoy_info,
+        'pases': pases,
+        'eventos': eventos,
+        'visitante_por_documento': visitante_por_documento,
+    })
 
 @login_required
 def eventos_capacitaciones(request):
-    return render(request, 'inicio/eventos_capacitaciones.html')
+    today = timezone.localdate()
+    eventos_hoy = EventoCapacitacion.objects.filter(fecha=today).order_by('fecha', 'hora_inicio')
+    eventos_proximos = EventoCapacitacion.objects.filter(fecha__gt=today).order_by('fecha', 'hora_inicio')
+    eventos_anteriores = EventoCapacitacion.objects.filter(fecha__lt=today).order_by('-fecha', 'hora_inicio')
 
-#* Asi se muestra una vista
+    return render(request, 'visitantes/recepcion/principales/eventos_capacitaciones.html', {
+        'eventos_hoy': eventos_hoy,
+        'eventos_proximos': eventos_proximos,
+        'eventos_anteriores': eventos_anteriores,
+    })
+
+@login_required
+def pases(request):
+    pases = PaseAcceso.objects.filter(estado='activo')
+    visitas = Visita.objects.all()
+
+    return render(request, 'visitantes/recepcion/principales/pases.html', {
+        'pases': pases,
+        'visitas': visitas,
+    })
+
+#* ************************************************************************ Secundarios: Detalles
+@login_required
+def detalles_evento(request,id):
+    evento = EventoCapacitacion.objects.get(id=id)
+    participantes_evento = EventoVisitante.objects.filter(id_evento=id)
+
+    return render(request, 'visitantes/recepcion/secundarios/detalles_evento.html', {
+        'evento': evento,
+        'participantes_evento': participantes_evento,
+    })
+
+@login_required
+def detalles_evento_visitas(request,id):
+    evento = EventoCapacitacion.objects.get(id=id)
+    participantes_evento = EventoVisitante.objects.filter(id_evento=id)
+
+    return render(request, 'visitantes/recepcion/secundarios/detalles_evento_visitas.html', {
+        'evento': evento,
+        'participantes_evento': participantes_evento,
+    })
+
+#* ************************************************************************ Recepción: Formulario para crear visita.
 @login_required
 def nueva_visita(request):
     motivos = MotivoVisita.objects.filter(estado='activo')
@@ -53,106 +226,12 @@ def nueva_visita(request):
     areasdeptos = AreaDepto.objects.filter(estado='activo')
     pases = PaseAcceso.objects.filter(Q(estado='activo') & Q(estado_pase='Disponible'))
 
-    return render(request, 'visitantes/nueva-visita.html', {
+    return render(request, 'visitantes/recepcion/formularios/nueva-visita.html', {
         'motivos': motivos,
         'colaboradores': colaboradores,
         'areasdeptos': areasdeptos,
         'pases': pases,
     })
-
-@login_required
-def nueva_visita_agendada(request,id):
-    visita = Visita.objects.get(id=id)
-    visitantes_visita = VisitanesVisita.objects.filter(cod_visita=visita.cod_visita)
-    motivos = MotivoVisita.objects.filter(estado='activo')
-    colaboradores = Colaborador.objects.filter(estado='activo')
-    areasdeptos = AreaDepto.objects.filter(estado='activo')
-    pases = PaseAcceso.objects.filter(Q(estado='activo') & Q(estado_pase='Disponible'))
-
-    return render(request, 'visitantes/nueva-visita-agendada.html', {
-        'motivos': motivos,
-        'colaboradores': colaboradores,
-        'areasdeptos': areasdeptos,
-        'pases': pases,
-        'visita': visita,
-        'visitantes_visita': visitantes_visita,
-    })
-
-@login_required
-def parametros(request):
-    motivos = MotivoVisita.objects.all()
-
-    return render(request, 'parametros/parametros.html', {
-        'motivos': motivos
-    })
-
-def crear_motivo(request):
-    """
-    Vista para crear un nuevo MotivoVisita usando un formulario HTML.
-    Se asigna el estado 'activo' por defecto.
-    """
-    if request.method == 'POST':
-        descripcion = request.POST.get('descripcion')
-        accion = request.POST.get('accion')
-
-        # Se pueden agregar validaciones adicionales aquí
-        MotivoVisita.objects.create(
-            descripcion=descripcion,
-            accion=accion,
-            estado='activo'
-        )
-        messages.success(request, "Motivo agregado correctamente.")
-        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
-    messages.error(request, "No se agregó el motivo.")
-    return render(request, 'parametros/parametros.html')
-
-
-def editar_motivo(request, motivo_id):
-    """
-    Vista para editar un MotivoVisita existente usando un formulario HTML.
-    """
-    motivo = get_object_or_404(MotivoVisita, id=motivo_id)
-    if request.method == 'POST':
-        motivo.descripcion = request.POST.get('descripcion')
-        motivo.accion = request.POST.get('accion')
-        motivo.save()
-        messages.success(request, "Motivo editado correctamente.")
-        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
-    messages.error(request, "No se editó el motivo.")
-    return render(request, 'motivos/editar_motivo.html', {'motivo': motivo})
-
-
-def cambiar_estado_motivo(request):
-    """
-    Vista para cambiar el estado del motivo a 'inactivo' mediante AJAX.
-    Se espera recibir por POST el 'motivo_id'.
-    """
-    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        motivo_id = request.POST.get('motivo_id')
-        motivo = get_object_or_404(MotivoVisita, id=motivo_id)
-        if motivo.estado == 'activo':
-            motivo.estado = 'inactivo'
-        elif motivo.estado == 'inactivo':
-            motivo.estado = 'activo'
-        motivo.save()
-        return JsonResponse({
-            'success': True,
-            'motivo_id': motivo_id,
-            'estado': motivo.estado
-        })
-    return JsonResponse({'success': False}, status=400)
-
-def buscar_visitante_ajax(request):
-    query = request.GET.get('q', '')
-    visitantes = Visitante.objects.filter(nombre__icontains=query)
-    data = []
-    for v in visitantes:
-        data.append({
-            'id': v.id,
-            'nombre': v.nombre,
-            'documento': v.documento_identificacion,
-        })
-    return JsonResponse(data, safe=False)
 
 import base64
 from django.core.files.base import ContentFile
@@ -191,7 +270,7 @@ def guardar_visita(request):
         # Generar cod_visita
         hoy = timezone.localdate()
         fecha_str = hoy.strftime("%Y%m%d")
-        contador = Visita.objects.filter(fecha_visita=hoy).count() + 1
+        contador = Visita.objects.filter(created_at__date=hoy).count() + 1
         cod_visita = f"{fecha_str}-{contador:03d}"
         
         nombre_primero = visitantes_data[0]["nombre"] if visitantes_data else ""
@@ -280,7 +359,7 @@ def guardar_visita(request):
             print("5. Pertenencias guardadas")
 
         messages.success(request, "Visita registrada exitosamente.")
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        return redirect('inicio_recepcion')
     else:
         # Renderiza el formulario (carga de motivos, colaboradores, etc.)
         motivos = MotivoVisita.objects.filter(estado='activo')
@@ -295,6 +374,27 @@ def guardar_visita(request):
             'areasdeptos': areasdeptos,
             'pases': pases,
         })
+    
+#* ************************************************************************ Recepción: Formulario para Completar una Visita Agendada
+@login_required
+def ingresar_visita_agendada(request,id):
+    visita = Visita.objects.get(id=id)
+    visitantes_visita = VisitanesVisita.objects.filter(cod_visita=visita.cod_visita)
+    motivos = MotivoVisita.objects.filter(estado='activo')
+    acciones = AccionVisita.objects.filter(estado='activo')
+    colaboradores = Colaborador.objects.filter(estado='activo')
+    areasdeptos = AreaDepto.objects.filter(estado='activo')
+    pases = PaseAcceso.objects.filter(Q(estado='activo') & Q(estado_pase='Disponible'))
+
+    return render(request, 'visitantes/recepcion/formularios/ingresar_visita_agendada.html', {
+        'motivos': motivos,
+        'acciones': acciones,
+        'colaboradores': colaboradores,
+        'areasdeptos': areasdeptos,
+        'pases': pases,
+        'visita': visita,
+        'visitantes_visita': visitantes_visita,
+    })
 
 import json
 import base64
@@ -304,7 +404,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 @login_required
-def guardar_visita_agendada(request):
+def guardar_ingresar_visita_agendada(request):
     if request.method == "POST":
         id = request.POST.get("id")
         visita = get_object_or_404(Visita, id=id)
@@ -422,7 +522,7 @@ def guardar_visita_agendada(request):
             print("5. Pertenencias guardadas")
 
         messages.success(request, "Visita registrada exitosamente.")
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        return redirect('inicio_recepcion')
     else:
         motivos = MotivoVisita.objects.filter(estado='activo')
         colaboradores = Colaborador.objects.filter(estado='activo')
@@ -436,6 +536,209 @@ def guardar_visita_agendada(request):
             'pases': pases,
         })
     
+@login_required
+def cambiar_pase(request):
+    if request.method == "POST":
+        id = request.POST.get("id")
+        visita = get_object_or_404(Visita, id=id)
+
+        pase_actual = request.POST.get("pase_actual")
+        num_pase = request.POST.get("pase_seleccionado")
+        
+        if pase_actual:
+            pase = PaseAcceso.objects.get(numero_pase=pase_actual)
+            pase.estado_pase = 'Disponible'
+            pase.save()
+        
+        if num_pase:
+            pase = PaseAcceso.objects.get(numero_pase=num_pase)
+            pase.estado_pase = 'En uso'
+            pase.save()
+        
+        visita.num_pase = num_pase
+        visita.save()
+        
+        messages.success(request, "El pase se cambió correctamente.")
+        return redirect('inicio_recepcion')
+
+#* ************************************************************************ Parametros: Motivos
+@login_required
+def motivos(request):
+    motivos = MotivoVisita.objects.all()
+
+    return render(request, 'parametros/parametros.html', {
+        'motivos': motivos
+    })
+
+def crear_motivo(request):
+    """
+    Vista para crear un nuevo MotivoVisita usando un formulario HTML.
+    Se asigna el estado 'activo' por defecto.
+    """
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        accion = request.POST.get('accion')
+
+        # Se pueden agregar validaciones adicionales aquí
+        MotivoVisita.objects.create(
+            descripcion=descripcion,
+            accion=accion,
+            estado='activo'
+        )
+        messages.success(request, "Motivo agregado correctamente.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
+    messages.error(request, "No se agregó el motivo.")
+    return render(request, 'parametros/parametros.html')
+
+
+def editar_motivo(request, motivo_id):
+    """
+    Vista para editar un MotivoVisita existente usando un formulario HTML.
+    """
+    motivo = get_object_or_404(MotivoVisita, id=motivo_id)
+    if request.method == 'POST':
+        motivo.descripcion = request.POST.get('descripcion')
+        motivo.accion = request.POST.get('accion')
+        motivo.save()
+        messages.success(request, "Motivo editado correctamente.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
+    messages.error(request, "No se editó el motivo.")
+    return render(request, 'motivos/editar_motivo.html', {'motivo': motivo})
+
+
+def cambiar_estado_motivo(request):
+    """
+    Vista para cambiar el estado del motivo a 'inactivo' mediante AJAX.
+    Se espera recibir por POST el 'motivo_id'.
+    """
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        motivo_id = request.POST.get('motivo_id')
+        motivo = get_object_or_404(MotivoVisita, id=motivo_id)
+        if motivo.estado == 'activo':
+            motivo.estado = 'inactivo'
+        elif motivo.estado == 'inactivo':
+            motivo.estado = 'activo'
+        motivo.save()
+        return JsonResponse({
+            'success': True,
+            'motivo_id': motivo_id,
+            'estado': motivo.estado
+        })
+    return JsonResponse({'success': False}, status=400)
+
+#* ************************************************************************ Parametros: Acciones
+@login_required
+def acciones(request):
+    acciones = AccionVisita.objects.all()
+
+    return render(request, 'parametros/acciones.html', {
+        'acciones': acciones
+    })
+
+def crear_accion(request):
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+        AccionVisita.objects.create(
+            accion=accion,
+            estado='activo'
+        )
+        messages.success(request, "Acción agregada correctamente.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
+    messages.error(request, "No se agregó la acción.")
+    return render(request, 'parametros/acciones.html')
+
+
+def editar_accion(request, accion_id):
+    accion = get_object_or_404(AccionVisita, id=accion_id)
+    if request.method == 'POST':
+        accion.accion = request.POST.get('accion')
+        accion.save()
+        messages.success(request, "Acción editada correctamente.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
+    messages.error(request, "No se editó la acción.")
+    return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
+
+def cambiar_estado_accion(request):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        accion_id = request.POST.get('accion_id')
+        accion = get_object_or_404(AccionVisita, id=accion_id)
+        if accion.estado == 'activo':
+            accion.estado = 'inactivo'
+        elif accion.estado == 'inactivo':
+            accion.estado = 'activo'
+        accion.save()
+        return JsonResponse({
+            'success': True,
+            'accion_id': accion_id,
+            'estado': accion.estado
+        })
+    return JsonResponse({'success': False}, status=400)
+
+#* ************************************************************************ Parametros: Colaboradores
+@login_required
+def colaboradores(request):
+    colaboradores = Colaborador.objects.all()
+
+    return render(request, 'parametros/colaboradores.html', {
+        'colaboradores': colaboradores
+    })
+
+def crear_colaborador(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        usuario = request.POST.get('usuario')
+        Colaborador.objects.create(
+            nombre=nombre,
+            usuario=usuario,
+            estado='activo'
+        )
+        messages.success(request, "Colaborador agregado correctamente.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
+    messages.error(request, "No se agregó el colaborador.")
+    return render(request, 'parametros/colaboradores.html')
+
+
+def editar_colaborador(request, colaborador_id):
+    colaborador = get_object_or_404(Colaborador, id=colaborador_id)
+    if request.method == 'POST':
+        colaborador.nombre = request.POST.get('nombre')
+        colaborador.usuario = request.POST.get('usuario')
+        colaborador.save()
+        messages.success(request, "Colaborador editado correctamente.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
+    messages.error(request, "No se editó el colaborador.")
+    return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
+
+def cambiar_estado_colaborador(request):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        colaborador_id = request.POST.get('colaborador_id')
+        colaborador = get_object_or_404(Colaborador, id=colaborador_id)
+        if colaborador.estado == 'activo':
+            colaborador.estado = 'inactivo'
+        elif colaborador.estado == 'inactivo':
+            colaborador.estado = 'activo'
+        colaborador.save()
+        return JsonResponse({
+            'success': True,
+            'colaborador_id': colaborador_id,
+            'estado': colaborador.estado
+        })
+    return JsonResponse({'success': False}, status=400)
+
+#* ************************************************************************ AJAX
+def buscar_visitante_ajax(request):
+    query = request.GET.get('q', '')
+    visitantes = Visitante.objects.filter(nombre__icontains=query)
+    data = []
+    for v in visitantes:
+        data.append({
+            'id': v.id,
+            'nombre': v.nombre,
+            'documento': v.documento_identificacion,
+        })
+    return JsonResponse(data, safe=False)
+    
+#* ************************************************************************ Recepción: Dar salida a una visita
 def salida_visita(request):
     if request.method == "POST":
         # Recibir el código de visita enviado desde el formulario (hidden)

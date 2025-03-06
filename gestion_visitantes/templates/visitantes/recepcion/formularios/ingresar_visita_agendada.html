@@ -1,5 +1,5 @@
 {% extends 'layout/layout.html' %}
-{% block title %} Nueva Visita {% endblock %}
+{% block title %} Nueva Visita Agendada {% endblock %}
 {% block content %}
 {% load static %}
 <style>
@@ -97,11 +97,10 @@
         {% endif %}
     {% endfor %}
 {% endif %}
-
 <div>
     <div class="mb-3 row d-flex" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
         <div class="col" style="display: flex; flex-direction: column; justify-content: flex-end;">
-            <h4>Nueva visita</h4>
+            <h4>Ingreso de visita agendada </h4>
         </div>
         <div class="col d-flex justify-content-end align-items-center">
             <button type="submit" form="formNewVisita" class="btn btn-primary col-auto">
@@ -110,42 +109,22 @@
         </div>
     </div>
 
-    <div class="busqueda-container mb-3">
-        <input type="text" id="buscar-visitante" placeholder="Buscar visitante..." class="form-control">
-        <div id="resultados-visitante"></div>
-    </div>
-
-    <form id="formNewVisita" method="post" action="{% url 'guardar_visita_agendada' %}" enctype="multipart/form-data">
+    <form id="formNewVisita" method="post" action="{% url 'guardar_ingresar_visita_agendada' %}" enctype="multipart/form-data">
         {% csrf_token %}
         <!-- Los campos generales de la visita -->
         <div class="mb-3 row">
             <div class="mb-3 row">
                 <div class="col-12 col-md-4">
                     <label class="form-label">Motivo de Visita</label>
-                    <select class="form-select" name="motivo">
-                        <option value="{{ visita.motivo }}" selected>{{ visita.motivo }}</option>
-                        {% for motivo in motivos %}
-                            <option value="{{ motivo.descripcion }}">{{ motivo.descripcion }}</option>
-                        {% endfor %}
-                    </select>
+                    <input type="text" class="form-control" name="motivo" value="{{visita.motivo}}" readonly>
                 </div>
                 <div class="col-12 col-md-4">
                     <label class="form-label">A quien visita</label>
-                    <select class="form-select" name="persona_visitada">
-                        <option value="{{ visita.persona_visitada }}" selected>{{ visita.persona_visitada }}</option>
-                        {% for colab in colaboradores %}
-                            <option value="{{ colab.nombre }}">{{ colab.nombre }}</option>
-                        {% endfor %}
-                    </select>
+                    <input type="text" class="form-control" name="persona_visitada" value="{{visita.persona_visitada}}" readonly>
                 </div>
                 <div class="col-12 col-md-4">
                     <label class="form-label">Area / Departamento</label>
-                    <select class="form-select" name="area_departamento">
-                        <option value="{{ visita.area_departamento }}" selected>{{ visita.area_departamento }}</option>
-                        {% for ad in areasdeptos %}
-                            <option value="{{ ad.nombre }}">{{ ad.nombre }}</option>
-                        {% endfor %}
-                    </select>
+                    <input type="text" class="form-control" name="area_departamento" value="{{visita.area_departamento}}" readonly>
                 </div>
             </div>
         </div>
@@ -193,7 +172,7 @@
                         {% if visitantes_visita %}
                             {% for visitante in visitantes_visita %}
                                 <tr data-visitante-id="{{ visitante.id }}">
-                                    <td contenteditable="true" class="nuevo-nombre col-6" placeholder="Nombre...">{{ visitante.nombre }}</td>
+                                    <td contenteditable="False" class="nuevo-nombre col-6" placeholder="Nombre...">{{ visitante.nombre }}</td>
                                     <td contenteditable="true" class="nuevo-documento col-6" placeholder="Documento...">{{ visitante.documento_identificacion }}</td>
                                 </tr>
                             {% endfor %}
@@ -204,41 +183,37 @@
                             </tr>
                         {% endif %}
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="2" class="text-center">
-                                <button id="btn-agregar-fila" class="btn btn-light btn-sm">
-                                    <i class='bx bx-plus'></i> Agregar fila
-                                </button>
-                            </td>
-                        </tr>
-                    </tfoot>
                 </table>
                 <input type="hidden" name="visitantes_data" id="visitantes_data">
             </div>
             
             <!-- Tab: Documento de Identificación -->
             <div class="tab-pane p-3" id="v_dentro" role="tabpanel">
+                <!-- Contenedor para la cámara -->
                 <div class="d-flex justify-content-center align-items-center" style="min-height:300px;">
                     <div id="photo-options">
-                        <!-- Opción 1: Cámara -->
+                        <!-- Opción 1: Cámara para capturar foto -->
                         <div id="camera-option" style="display: none;">
                             <video id="video" autoplay playsinline style="width: 100%; max-width: 400px;"></video>
+                            <br>
                             <button type="button" id="capture" class="btn btn-primary btn-sm col-12">Capturar foto</button>
+                            <br>
                             <img id="captured-image" alt="Foto capturada" style="display: none; max-width: 400px; margin-top: 10px;">
+                            <!-- Input hidden para enviar la foto capturada -->
                             <input type="hidden" name="foto_documento_data" id="foto_hidden">
                         </div>
                         <br>
-                        <!-- Opción 2: Subir archivo -->
+                        <!-- Opción 2: Adjuntar foto desde archivos -->
                         <div id="upload-option">
                             <input type="file" class="form-control" id="file-input" accept="image/*" name="foto_documento">
+                            <br>
                             <img id="uploaded-image" alt="Foto adjuntada" style="display: none; max-width: 400px; margin-top: 10px;">
                         </div>
                     </div>
                 </div>
                 <p class="text-center mb-0">
-                    <small class="badge badge-default text-secondary bg-secondary-subtle form-text">
-                        Capturar DNI / Licencia / Carné / Pasaporte
+                    <small id="name45" class="badge badge-default text-secondary  bg-secondary-subtle form-text">
+                        Capturar DNI / Licencia de Conducir / Carné de Residente / Pasaporte
                     </small>
                 </p>
                 <script>
@@ -253,6 +228,7 @@
                         const uploadedImage = document.getElementById('uploaded-image');
                         const fotoHidden = document.getElementById('foto_hidden');
                     
+                        // Crear canvas si no existe en el HTML
                         if (!canvas) {
                             canvas = document.createElement('canvas');
                             canvas.id = 'canvas';
@@ -260,15 +236,17 @@
                             document.body.appendChild(canvas);
                         }
                     
+                        // Intentar acceder a la cámara
                         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                             navigator.mediaDevices.getUserMedia({ video: true })
                                 .then(function(stream) {
                                     video.srcObject = stream;
                                     video.play();
+                                    // Mostrar la opción de cámara
                                     cameraOption.style.display = 'block';
                                 })
                                 .catch(function(err) {
-                                    console.error("No se pudo acceder a la cámara:", err);
+                                    console.error("No se pudo acceder a la cámara: ", err);
                                     cameraOption.style.display = 'none';
                                     uploadOption.style.display = 'block';
                                 });
@@ -277,6 +255,7 @@
                             uploadOption.style.display = 'block';
                         }
                     
+                        // Capturar foto desde la cámara
                         captureButton.addEventListener('click', function(event) {
                             event.preventDefault();
                             canvas.width = video.videoWidth;
@@ -285,25 +264,29 @@
                             const imageData = canvas.toDataURL('image/png');
                             capturedImage.src = imageData;
                             capturedImage.style.display = 'block';
+                            // Ocultar video y botón de captura, y también la opción de adjuntar archivo
                             video.style.display = 'none';
                             captureButton.style.display = 'none';
                             uploadOption.style.display = 'none';
+                            // Guardar la imagen capturada en el input hidden para enviarla
                             fotoHidden.value = imageData;
                         });
                     
+                        // Procesar la imagen seleccionada desde el input file
                         fileInput.addEventListener('change', function(event) {
                             if (event.target.files && event.target.files[0]) {
                                 const reader = new FileReader();
                                 reader.onload = function(e) {
                                     uploadedImage.src = e.target.result;
                                     uploadedImage.style.display = 'block';
+                                    // Ocultar la opción de cámara si se selecciona un archivo
                                     cameraOption.style.display = 'none';
                                 }
                                 reader.readAsDataURL(event.target.files[0]);
                             }
                         });
                     });
-                </script>
+                </script> 
             </div>
             
             <!-- Tab: Materiales/Equipos/Artículos -->
@@ -357,8 +340,6 @@
         <input type="hidden" name="id" value="{{ visita.id }}">
     </form>
 </div>
-
-<!-- Script para manejo de tablas y AJAX -->
 <script>
     $(document).ready(function(){
         // Función para sincronizar la tabla de materiales con la de visitantes.
@@ -415,110 +396,8 @@
         $('#tabla-asistencia').on('blur', '.nuevo-nombre, .nuevo-documento', function(){
             sincronizarMateriales();
         });
-        
-        // Evento para agregar una nueva fila manualmente.
-        $('#btn-agregar-fila').click(function(e) {
-            e.preventDefault();
-            var nuevaFila = $('<tr></tr>');
-            nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');
-            nuevaFila.append('<td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>');
-            nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
-            $('#tabla-asistencia tbody').append(nuevaFila);
-        });
-        
-        // Evento para eliminar una fila de la tabla de visitantes.
-        $('#tabla-asistencia').on('click', '.eliminar-fila', function(){
-            $(this).closest('tr').remove();
-            sincronizarMateriales();
-        });
-        
-        // Búsqueda AJAX para visitantes.
-        $('#buscar-visitante').on('input', function(){
-            var query = $(this).val().trim();
-            var resultadosDiv = $('#resultados-visitante');
-            if(query.length > 2){
-                $.ajax({
-                    url: '{% url "buscar_visitante_ajax" %}',
-                    type: 'GET',
-                    data: { 'q': query },
-                    success: function(response){
-                        resultadosDiv.empty();
-                        response.forEach(function(visitante){
-                            // Asegúrate que la respuesta incluya el id, nombre y documento.
-                            resultadosDiv.append(
-                                '<div class="resultado" data-id="'+ visitante.id +'" data-nombre="'+ visitante.nombre +'" data-documento="'+ visitante.documento +'">'+ visitante.nombre +'</div>'
-                            );
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("AJAX error:", error);
-                    }
-                });
-            } else {
-                resultadosDiv.empty();
-            }
-        });
-        
-        // Al hacer clic en un resultado, agregar visitante a la tabla.
-        $('#resultados-visitante').on('click', '.resultado', function(){
-            var nombre = $(this).data('nombre');
-            var documento = $(this).data('documento');
-            var visitanteId = $(this).data('id'); // Se obtiene el id si existe
-            
-            // Verificar duplicados.
-            var duplicado = false;
-            $('#tabla-asistencia tbody tr').each(function(){
-                var docExistente = $(this).find('.nuevo-documento').text().trim();
-                if(docExistente === documento){
-                    duplicado = true;
-                    return false;
-                }
-            });
-        
-            if(duplicado) {
-                Swal.fire({
-                    title: "Información",
-                    text: "El documento de identidad ya se encuentra en la lista.",
-                    icon: "info",
-                    confirmButtonText: "Aceptar"
-                });
-                $('#resultados-visitante').empty();
-                $('#buscar-visitante').val('');
-                return;
-            }
-        
-            // Insertar en una fila vacía si existe.
-            var inserted = false;
-            $('#tabla-asistencia tbody tr').each(function(){
-                var currentNombre = $(this).find('.nuevo-nombre').text().trim();
-                var currentDocumento = $(this).find('.nuevo-documento').text().trim();
-                if(currentNombre === "" && currentDocumento === ""){
-                    $(this).find('.nuevo-nombre').text(nombre);
-                    $(this).find('.nuevo-documento').text(documento);
-                    // Asignar el id al atributo data-visitante-id de la fila
-                    if(visitanteId) {
-                        $(this).attr('data-visitante-id', visitanteId);
-                    }
-                    inserted = true;
-                    return false;
-                }
-            });
-            // Si no hay fila vacía, agregar nueva fila con el id.
-            if(!inserted) {
-                var nuevaFila = $('<tr></tr>');
-                if(visitanteId) {
-                    nuevaFila.attr('data-visitante-id', visitanteId);
-                }
-                nuevaFila.append('<td contenteditable="true" class="nuevo-nombre">' + nombre + '</td>');
-                nuevaFila.append('<td contenteditable="true" class="nuevo-documento">' + documento + '</td>');
-                nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
-                $('#tabla-asistencia tbody').append(nuevaFila);
-            }
-            
-            sincronizarMateriales();
-            $('#resultados-visitante').empty();
-            $('#buscar-visitante').val('');
-        });
+
+        sincronizarMateriales();
     });
-    </script>    
+</script> 
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends 'layout/layout.html' %}
-{% block title %} Agendar Visita {% endblock %}
+{% block title %} Ver visita agendada {% endblock %}
 {% block content %}
 {% load static %}
 <style>
@@ -101,28 +101,24 @@
 <div>
     <div class="mb-3 row d-flex" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
         <div class="col" style="display: flex; flex-direction: column; justify-content: flex-end;">
-            <h4>Datos de visita</h4>
+            <h4>Visita {{visita.cod_visita}}</h4>
         </div>
         <div class="col d-flex justify-content-end align-items-center">
-            <button type="submit" form="formNewVisita" class="btn btn-primary col-auto">
-                <i class='bx bxs-save'></i> Agendar Visita
+            <button type="submit" form="formNewVisita" class="btn btn-warning col-auto text-light">
+                <i class='bx bxs-save'></i> Editar Visita
             </button>
         </div>
     </div>
 
-    <!-- <div class="busqueda-container mb-3">
-        <input type="text" id="buscar-visitante" placeholder="Buscar visitante..." class="form-control">
-        <div id="resultados-visitante"></div>
-    </div> -->
-
-    <form id="formNewVisita" method="post" action="{% url 'colaboradores-save-visita' %}" enctype="multipart/form-data">
+    <form id="formNewVisita" method="post" action="{% url 'editar_visita_agendada' %}" enctype="multipart/form-data">
         {% csrf_token %}
+        <!-- Los campos generales de la visita -->
         <div class="mb-3 row">
             <div class="mb-3 row">
                 <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
                     <label for="exampleFormControlInput1" class="form-label">A quien visita</label>
                     <select class="form-select" aria-label="Default select example" name="persona_visitada">
-                        <option value="{{ request.user.username }}" selected>{{ request.user.first_name }} {{ request.user.last_name }}</option>
+                        <option value="{{ visita.persona_visitada }}" selected>{{ visita.persona_visitada }}</option>
                         {% for colab in colaboradores %}
                             <option value="{{colab.nombre}}">{{colab.nombre}}</option>
                         {% endfor %}
@@ -130,16 +126,16 @@
                 </div>
                 <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
                     <label for="fecha" class="form-label">Fecha de visita</label>
-                    <input type="date" id="fecha-vista" class="form-control" name="fecha">
+                    <input type="date" id="fecha-vista" class="form-control" name="fecha" value="{{ visita.fecha_visita | date:'Y-m-d' }}">
                 </div>
                 <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
                     <label for="fecha" class="form-label">Hora de visita</label>
-                    <input type="time" id="fecha-vista" class="form-control" name="hora">
+                    <input type="time" id="fecha-vista" class="form-control" name="hora" value="{{ visita.hora_ingreso }}">
                 </div>
                 <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
                     <label for="exampleFormControlInput1" class="form-label">Motivo de Visita</label>
                     <select class="form-select" aria-label="Default select example" name="motivo">
-                        <option selected>Seleccione un motivo...</option>
+                        <option value="{{ visita.motivo }}" selected>{{ visita.motivo }}</option>
                         {% for motivo in motivos %}
                             <option value="{{motivo.descripcion}}">{{motivo.descripcion}}</option>
                         {% endfor %}
@@ -149,7 +145,7 @@
                 <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
                     <label for="exampleFormControlInput1" class="form-label">Area / Departamento</label>
                     <select class="form-select" aria-label="Default select example" name="area_departamento">
-                        <option selected>Seleccione el lugar...</option>
+                        <option value="{{ visita.area_departamento }}" selected>{{ visita.area_departamento }}</option>
                         {% for ad in areasdeptos %}
                         <option value="{{ad.nombre}}">{{ad.nombre}}</option>
                         {% endfor %}
@@ -157,28 +153,19 @@
                 </div>
             </div>
 
-            <!-- <div class="mb-3 row">
-                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
-                    <label for="exampleFormControlInput1" class="form-label">Motivo de Visita</label>
-                    <select class="form-select" aria-label="Default select example" name="motivo">
-                        <option selected>Seleccione un motivo...</option>
-                        {% for motivo in motivos %}
-                            <option value="{{motivo.descripcion}}">{{motivo.descripcion}}</option>
+            <div class="mb-3 row">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+                    <label for="exampleFormControlInput1" class="form-label">Acción</label>
+                    <select class="form-select" aria-label="Default select example" name="accion">
+                        <option value="{{ visita.accion }}" selected>{{ visita.accion }}</option>
+                        {% for accion in acciones %}
+                            <option value="{{accion.accion}}">{{accion.accion}}</option>
                         {% endfor %}
                     </select>
                 </div>
-
-                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
-                    <label for="exampleFormControlInput1" class="form-label">Area / Departamento</label>
-                    <select class="form-select" aria-label="Default select example" name="area_departamento">
-                        <option selected>Seleccione el lugar...</option>
-                        {% for ad in areasdeptos %}
-                        <option value="{{ad.nombre}}">{{ad.nombre}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div> -->
+            </div>
         </div>
+        
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item">
@@ -188,8 +175,10 @@
                 </a>
             </li>
         </ul>
+        
         <!-- Tab panes -->
         <div class="tab-content">
+            <!-- Tab: Visitante/Visitantes -->
             <div class="tab-pane active" id="v_agendada" role="tabpanel">
                 <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
                     <thead class="thead-dark">
@@ -198,35 +187,42 @@
                             <th>Documento de Identificación</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <!-- Estas celdas son contenteditable para permitir edición -->
-                            <td contenteditable="true" class="nuevo-nombre col-6" placeholder="Nombre..."></td>
-                            <td contenteditable="true" class="nuevo-documento col-6" placeholder="Documento..."></td>
-                        </tr>
+                    <tbody id="tabla-asistencia-body">
+                        {% if visitantes_visita %}
+                            {% for visitante in visitantes_visita %}
+                                <tr data-visitante-id="{{ visitante.id }}">
+                                    <td contenteditable="true" class="nuevo-nombre col-6" placeholder="Nombre...">{{ visitante.nombre }}</td>
+                                    <td contenteditable="true" class="nuevo-documento col-6" placeholder="Documento...">{{ visitante.documento_identificacion }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td contenteditable="true" class="nuevo-nombre col-6" placeholder="Nombre..."></td>
+                                <td contenteditable="true" class="nuevo-documento col-6" placeholder="Documento..."></td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="2" class="text-center">
                                 <button id="btn-agregar-fila" class="btn btn-light btn-sm">
-                                    <span class="d-flex align-items-center">
-                                        <i class='bx bx-plus'></i> Agregar fila
-                                    </span>
+                                    <i class='bx bx-plus'></i> Agregar fila
                                 </button>
                             </td>
                         </tr>
                     </tfoot>
                 </table>
-                <!-- Campo oculto para enviar los datos de visitantes -->
                 <input type="hidden" name="visitantes_data" id="visitantes_data">
             </div>
         </div>
+        <!-- Campo hidden para enviar el ID de la visita -->
+        <input type="hidden" name="id" value="{{ visita.id }}">
     </form>
 </div>
 
+<!-- Script para manejo de tablas y AJAX -->
 <script>
     $(document).ready(function(){
-    
         // Función para sincronizar la tabla de materiales con la de visitantes
         function sincronizarMateriales() {
             var tbodyMaterial = $('#tabla-material tbody');
@@ -249,10 +245,11 @@
         function recopilarVisitantes() {
             var visitantes = [];
             $('#tabla-asistencia tbody tr').each(function(){
+                var id = $(this).attr('data-visitante-id') || "";
                 var nombre = $(this).find('.nuevo-nombre').text().trim();
                 var documento = $(this).find('.nuevo-documento').text().trim();
-                if(nombre || documento){  // Solo incluir filas con datos
-                    visitantes.push({nombre: nombre, documento: documento});
+                if(nombre || documento){
+                    visitantes.push({id: id, nombre: nombre, documento: documento});
                 }
             });
             $('#visitantes_data').val(JSON.stringify(visitantes));
@@ -381,6 +378,5 @@
         });
     
     });
-</script>    
-    
+</script>
 {% endblock %}

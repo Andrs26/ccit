@@ -44,7 +44,7 @@ def login_view(request):
     """Autentica al usuario y lo redirige al cambio de contraseña si es necesario."""
     
     if request.user.is_authenticated:
-        return redirect('inicio')
+        return redirect('inicio_recepcion')
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -84,7 +84,7 @@ def login_view(request):
 
             # Redirigir al usuario a la página que intentaba acceder, o al inicio si no hay 'next'
             next_url = request.POST.get('next', request.GET.get('next', 'inicio/'))
-            return redirect('inicio')
+            return redirect('inicio_recepcion')
 
         else:
             # Intento fallido
@@ -110,36 +110,8 @@ def logout_view(request):
     return redirect('login')
 
 @login_required
-def inicio(request):
-    visitas_dentro = Visita.objects.filter(estado_visitante='in')
-    visitas_agendadas = Visita.objects.filter(Q(agendado_presente='agendado') & Q(estado_visitante = 'agendado'))
-    visitantes_visita = VisitanesVisita.objects.all()
-    pertenencias = PertenenciasVisitante.objects.all()
-    pases = PaseAcceso.objects.all()
-
-    # Crear un diccionario: { documento_identificacion: nombre }
-    visitante_por_documento = {v.documento_identificacion: v.nombre for v in visitantes_visita}
-
-    # Crear un diccionario para cada visita (clave = cod_visita)
-    visitas_info = {}
-    for visita in visitas_dentro:
-        visitas_info[visita.cod_visita] = {
-            'visita': visita,
-            # Filtrar visitantes cuyo cod_visita coincida
-            'visitantes': [v for v in visitantes_visita if v.cod_visita == visita.cod_visita],
-            # Filtrar pertenencias cuyo cod_visita coincida
-            'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
-        }
-    
-    return render(request, 'inicio/inicio.html', {
-        'visitas_dentro': visitas_dentro,
-        'visitas_agendadas': visitas_agendadas,
-        'visitantes_visita': visitantes_visita,
-        'pertenencias': pertenencias,
-        'visitas_info': visitas_info,
-        'pases': pases,
-        'visitante_por_documento': visitante_por_documento,
-    })
+def home(request):
+    return render(request, 'inicio/home.html')
 
 #* --------------------------------------------------------------- Función de usuarios
 #? Vista para ver la lista de usuarios
