@@ -195,11 +195,27 @@
 }
 </style>
 <div>
-    <div class="row">
-        <div class="col">
-            <h3 class="mb-3">Pases de Acceso</h3>
+    <div class="mb-3 row d-flex justify-content-between">
+        <div class="col-auto">
+            <h3>Pases de Acceso</h3>
+        </div>
+        <div class="col-6">
+            <form action="{% url 'buscar_pase_recepcion' %}" class="d-flex">
+                <input type="search" class="form-control" name="q" id="search_visita" placeholder="Buscar pase..." style="border-radius: 15px 0px 0px 15px;" {% if query %} value="{{query}}" {% endif %}>
+                <select class="form-select busqueda_visita" name="estado_pase" id="estado_pase" style="border-radius: 0px; width: 25%;">
+                    <option selected>Estado</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="En uso">En uso</option>
+                    <option value="Extraviado">Extraviado</option>
+                    <option value="Malo">Dañado</option>
+                </select>
+                <button type="submit" class="btn btn-secondary" style="border-radius: 0px 15px 15px 0px;">
+                    <i class='bx bx-search-alt'></i>
+                </button>
+            </form>
         </div>
     </div>
+
     <table class="table table-hover table-sm">
         <thead>
             <tr>
@@ -213,11 +229,11 @@
         <tbody>
             {% for pase in pases %}
                 <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ pase.numero_pase }}</td>
-                    <td>{{ pase.lugares_acceso }}</td>
-                    <td>{{ pase.estado_pase }}</td>
-                    <td>
+                    <td class="col-auto">{{ forloop.counter }}</td>
+                    <td class="col-auto">{{ pase.numero_pase }}</td>
+                    <td class="col-auto">{{ pase.lugares_acceso }}</td>
+                    <td class="col-auto">{{ pase.estado_pase }}</td>
+                    <td class="col-auto">
                         <button class="btn btn-warning btn-sm text-secondary" data-url="{% url 'delete_user' user.id %}" data-bs-toggle="modal" data-bs-target="#modalEliminarPase{{pase.id}}">
                             <i class='bx bxs-no-entry'></i> Reportar pase
                         </button>
@@ -277,7 +293,7 @@
                 </div>
             {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center">No hay usuarios registrados.</td>
+                    <td colspan="6" class="text-center">No hay pases para mostrar.</td>
                 </tr>
             {% endfor %}
         </tbody>

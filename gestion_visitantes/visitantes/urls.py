@@ -5,6 +5,10 @@ from . import views
 urlpatterns = [
     #* *************************************************************************************************** Visitas Recepción
     path('visitas/hoy', views.inicio_recepcion, name='inicio_recepcion'),
+    path('visitas/buscar_inicio_recepcion', views.buscar_inicio_recepcion, name='buscar_inicio_recepcion'),
+    path('visitas/buscar_visitas_recepcion', views.buscar_visitas_recepcion, name='buscar_visitas_recepcion'),
+    path('visitas/buscar_eventos_recepcion', views.buscar_eventos_recepcion, name='buscar_eventos_recepcion'),
+    path('visitas/buscar_pase_recepcion', views.buscar_pase_recepcion, name='buscar_pase_recepcion'),
     path('visitas/todas', views.visitas_recepcion, name='visitas_recepcion'),
     path('nueva-visita/', views.nueva_visita, name='nueva-visita'),
     path('cambiar_pase/', views.cambiar_pase, name='cambiar_pase'),

@@ -13,15 +13,6 @@
     .btn-outline-secondary {
         font-size: 0.9rem;
     }
-    .busqueda_visita {
-        border-radius: 0px;
-    }
-    .busqueda_visita_first {
-        border-radius: 15px 0px 0px 15px;
-    }
-    .busqueda_visita_last {
-        border-radius: 0px 15px 15px 0px;
-    }
 </style>
 {% if messages %}
     {% for m in messages %}
@@ -78,7 +69,6 @@
         {% endif %}
     {% endfor %}
 {% endif %}
-
 <div>
     <div class="mb-3 row d-flex justify-content-between">
         <div class="col">
@@ -87,7 +77,7 @@
         <div class="col">
             <form action="{% url 'buscar_inicio_recepcion' %}" class="d-flex">
                 {% csrf_token %}
-                <input type="search" class="form-control" name="q" id="search_visita" placeholder="Buscar visitante...">
+                <input type="search" class="form-control" name="q" id="search_visita" placeholder="Buscar visitante..." value="{{query}}">
             </form>
         </div>
         <div class="col-auto">
@@ -123,7 +113,7 @@
     <div class="tab-content">
         <div class="tab-pane active" id="v_dentro" role="tabpanel">
             <div class="row p-3">
-                {% for visita in visitas_dentro %}
+                {% for visita in resultados_visitas %}
                 <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
                     <div class="card hover-img card-visita-dentro">
                         <div class="card-body p-2 text-center border-none">
@@ -153,7 +143,7 @@
                                                 <!-- Nav tabs -->
                                                 <ul class="nav nav-tabs" role="tablist">
                                                     <li class="nav-item">
-                                                        <a class="nav-link d-flex active" data-bs-toggle="tab" href="#cambiarPaseVisitante{{visita.id}}" role="tab">
+                                                        <a class="nav-link d-flex active" data-bs-toggle="tab" href="#nuevoPaseVisitante{{visita.id}}" role="tab">
                                                             <span><i class='bx bx-barcode-reader'></i></span>
                                                             <span class="d-none d-md-block ms-2">Pase</span>
                                                         </a>
@@ -161,8 +151,8 @@
                                                 </ul>
                                             <!-- Tabs -->
                                                 <div class="tab-content">
-                                                    <div class="tab-pane active" id="cambiarPaseVisitante{{visita.id}}" role="tabpanel">
-                                                        <table class="table table-bordered table-hover table-sm" id="tabla-pases-1">
+                                                    <div class="tab-pane active" id="nuevoPaseVisitante{{visita.id}}" role="tabpanel">
+                                                        <table class="table table-bordered table-hover table-sm" id="tabla-pases">
                                                             <thead class="thead-dark">
                                                                 <tr>
                                                                     <th>Pase Entregado</th>
@@ -192,7 +182,7 @@
                                                         </table>
                                                         <br>
                                                         <h5>Seleccione el nuevo pase a entregar</h5>
-                                                        <table class="table table-bordered table-hover table-sm" id="tabla-pases-nuevo">
+                                                        <table class="table table-bordered table-hover table-sm" id="tabla-pases">
                                                             <thead class="thead-dark">
                                                                 <tr>
                                                                     <th>Número Pase</th>
@@ -227,9 +217,7 @@
                                             </div>
                                             <div class="modal-footer">
                                                 <input type="hidden" name="id" value="{{visita.id}}">
-                                                {% if visita.num_pase %}
-                                                    <input type="hidden" name="pase_actual" value="{{visita.num_pase}}">
-                                                {% endif %}
+                                                <input type="hidden" name="pase_actual" value="{{visita.num_pase}}">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                                 <button type="submit" class="btn btn-primary">Cambiar pase</button>
                                             </div>
@@ -365,7 +353,7 @@
                                                     </div>
 
                                                     <div class="tab-pane" id="paseVisitante{{visita.id}}" role="tabpanel">
-                                                        <table class="table table-bordered table-hover table-sm">
+                                                        <table class="table table-bordered table-hover table-sm" id="tabla-pases">
                                                             <thead class="thead-dark">
                                                                 <tr>
                                                                     <th>Número Pase</th>
@@ -386,8 +374,7 @@
                                                                     <td colspan="4">No se encuentra información de el pase entregado</td>
                                                                 </tr>
                                                                 {% endfor %}
-                                                            {% endif %}
-                                                            {% if not visita.num_pase %}
+                                                            {% else %}
                                                                 <tr>
                                                                     <td colspan="4">No se encuentra un pase entregado</td>
                                                                 </tr>
@@ -411,7 +398,7 @@
                 </div>
                 {% empty %}
                 <div class="col-12 text-center text-secondary">
-                    No hay visitas dentro
+                    No se encuentra el visitante <b>{{query}}</b> dentro hoy
                 </div>
                 {% endfor %}
             </div>
@@ -420,7 +407,7 @@
         <div class="tab-pane" id="v_agendada" role="tabpanel">
             <div class="row p-3">
                 <h5>Agendadas hoy</h5>
-                {% for visita in visitas_agendadas_hoy %}
+                {% for visita in visitas_agendadas_result %}
                 <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
                     <div class="card hover-img card-visita-dentro">
                         <div class="card-body p-2 text-center border-none">
@@ -445,12 +432,12 @@
                 </div>
                 {% empty %}
                     <div class="col-12 text-center text-secondary">
-                        No hay visitas agendadas
+                        No se encuentra el visitante <b>{{query}}</b> agendado hoy
                     </div>
                 {% endfor %}
             </div>
 
-            <div class="row p-3">
+            <!-- <div class="row p-3">
                 <h5>Próximas visitas</h5>
                 {% for visita in visitas_agendadas %}
                 <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
@@ -480,13 +467,13 @@
                         No hay visitas agendadas
                     </div>
                 {% endfor %}
-            </div>
+            </div> -->
         </div>
 
         <div class="tab-pane" id="eventos_capacitaciones" role="tabpanel">
             <div class="row p-3">
                 <h5>Eventos Hoy</h5>
-                {% for evento in eventos_hoy %}
+                {% for evento in resultados_eventos %}
                     <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
                         <div class="card hover-img card-visita-dentro">
                             <div class="card-body p-2 text-center border-none">
@@ -511,14 +498,14 @@
                     </div>
                 {% empty %}
                     <div class="col-12 text-center text-secondary">
-                        No hay eventos para hoy
+                        No se encuentra el participante <b>{{query}}</b> en un evento hoy
                     </div>
                 {% endfor %}
             </div>
     
-            <div class="row p-3">
+            <!-- <div class="row p-3">
                 <h5>Próximos Eventos</h5>
-                {% for evento in eventos_proximos %}
+                {% for evento in resultados_eventos %}
                     <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
                         <div class="card hover-img card-visita-dentro">
                             <div class="card-body p-2 text-center border-none">
@@ -546,7 +533,7 @@
                         No hay eventos para los próximos días
                     </div>
                 {% endfor %}
-            </div>
+            </div> -->
         </div>
     </div>
 </div>

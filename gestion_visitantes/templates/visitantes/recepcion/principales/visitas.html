@@ -13,6 +13,15 @@
     .btn-outline-secondary {
         font-size: 0.9rem;
     }
+    .busqueda_visita{
+        border-radius: 0px;
+    }
+    .busqueda_visita_first{
+        border-radius: 15px 0px 0px 15px;
+    }
+    .busqueda_visita_last{
+        border-radius: 0px 15px 15px 0px;
+    }
 </style>
 {% if messages %}
     {% for m in messages %}
@@ -75,8 +84,21 @@
         <div class="col-auto">
             <h4>Visitas</h4>
         </div>
-        <div class="col-6">
-            <input type="search" class="form-control" name="busqueda" id="search_visita" placeholder="Buscar visita...">
+        <div class="col-auto d-flex">
+            <form action="{% url 'buscar_visitas_recepcion' %}" class="d-flex">
+                {% csrf_token %}
+                <input type="search" class="form-control busqueda_visita busqueda_visita_first" name="q" id="search_visita" placeholder="Buscar visitante...">
+                <select class="form-select busqueda_visita" name="persona_visitada" id="persona_visitada">
+                    <option selected>Colaborador</option>
+                    {% for colaborador in colaboradores %}
+                        <option value="{{colaborador.nombre}}">{{colaborador.nombre}}</option>
+                    {% endfor %}
+                </select>
+                <input type="date" class="form-control busqueda_visita" name="fecha" id="fecha">
+                <button type="submit" class="btn btn-secondary busqueda_visita_last">
+                    <i class='bx bx-search-alt'></i>
+                </button>
+            </form>
         </div>
         <div class="col-auto">
             <a class="btn btn-success d-flex col-auto" href="{% url 'nueva-visita' %}">

@@ -75,18 +75,25 @@
         <div class="col-auto">
             <h4>Mis Visitas & Eventos Hoy</h4>
         </div>
-        <div class="col-4">
-            <input type="search" class="form-control" name="busqueda" id="search_visita" placeholder="Buscar visita...">
-        </div>
-        <div class="col-auto d-flex justify-content-between">
-            <a class="btn btn-secondary  d-flex col-auto" style="margin-right: 7px;" href="{% url 'nuevo_evento' %}">
-                <span><i class='bx bxs-user-account'></i></span>
-                <span class="d-none d-md-block ms-2">Nuevo Evento</span>
-            </a>
-            <a class="btn btn-success d-flex col-auto" href="{% url 'colaboradores-nueva-visita' %}">
-                <span><i class='bx bxs-user-plus'></i></span>
-                <span class="d-none d-md-block ms-2">Agendar Visita</span>
-            </a>
+        <div class="col-auto">
+            <div class="row">
+                <div class="col-auto">
+                    <form action="{% url 'buscar_inicio_colaborador' %}" class="d-flex">
+                        {% csrf_token %}
+                        <input type="search" class="form-control" name="q" id="search_visita" placeholder="Buscar visitante...">
+                    </form>
+                </div>
+                <div class="col-auto d-flex justify-content-between">
+                    <a class="btn btn-secondary  d-flex col-auto" style="margin-right: 7px;" href="{% url 'nuevo_evento' %}">
+                        <span><i class='bx bxs-user-account'></i></span>
+                        <span class="d-none d-md-block ms-2">Nuevo Evento</span>
+                    </a>
+                    <a class="btn btn-success d-flex col-auto" href="{% url 'colaboradores-nueva-visita' %}">
+                        <span><i class='bx bxs-user-plus'></i></span>
+                        <span class="d-none d-md-block ms-2">Agendar Visita</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Nav tabs -->
@@ -298,7 +305,7 @@
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-12 text-center">
+                <div class="col-12">
                     Hoy no hay visitas dentro
                 </div>
                 {% endfor %}
@@ -327,7 +334,7 @@
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-12 text-center">
+                <div class="col-12">
                     No hay visitas agendadas para hoy
                 </div>
                 {% endfor %}
@@ -354,7 +361,7 @@
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-12 text-center">
+                <div class="col-12">
                     No hay futuras visitas agendadas...
                 </div>
                 {% endfor %}
@@ -390,7 +397,7 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div class="col-12 text-center text-secondary">
+                    <div class="col-12 text-secondary">
                         No hay eventos para hoy
                     </div>
                 {% endfor %}
@@ -421,7 +428,7 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div class="col-12 text-center text-secondary">
+                    <div class="col-12 text-secondary">
                         No hay eventos para los próximos días
                     </div>
                 {% endfor %}

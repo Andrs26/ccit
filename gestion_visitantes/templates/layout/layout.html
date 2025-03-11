@@ -124,7 +124,7 @@
                     {% endfor %}
 
                     {% for grupo in user_grupos %}
-                        {% if grupo.name == "visitas_colaborador_group" or grupo.name == 'visitas_it_group' %}
+                        {% if grupo.name == "visitas_colaborador_group" or grupo.name == 'visitas_it_group' or grupo.name == "super_admin" %}
                             <li>
                                 <span class="sidebar-divider lg"></span>
                             </li>
@@ -154,7 +154,7 @@
                     {% endfor %}
 
                     {% for grupo in user_grupos %}
-                        {% if grupo.name == "visitas_it_group" %}
+                        {% if grupo.name == "visitas_it_group" or grupo.name == "super_admin" %}
                             <li>
                                 <span class="sidebar-divider lg"></span>
                             </li>

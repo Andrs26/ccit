@@ -5,6 +5,9 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('colaboradores/', views.colaboradores_home, name='colaboradores_home'),
+    path('colaboradores/buscar_inicio_colaborador', views.buscar_inicio_colaborador, name='buscar_inicio_colaborador'),
+    path('colaboradores/buscar_visitas_colaborador', views.buscar_visitas_colaborador, name='buscar_visitas_colaborador'),
+    path('colaboradores/buscar_eventos_colaborador', views.buscar_eventos_colaborador, name='buscar_eventos_colaborador'),
     path('colaboradores-nueva-visita/', views.nueva_visita, name='colaboradores-nueva-visita'),
     path('colaboradores-save-visita/', views.guardar_visita, name='colaboradores-save-visita'),
     path('nuevo_evento/', views.nuevo_evento, name='nuevo_evento'),
