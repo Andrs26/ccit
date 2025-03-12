@@ -327,6 +327,10 @@ def buscar_pase_recepcion(request):
 @login_required
 def visitas_recepcion(request):
     today = timezone.localdate()
+    hay_visitas_agendadas = False
+    hay_visitas_anteriores = False
+    hay_visitas_dentro = False
+
     visitas_dentro = Visita.objects.filter(estado_visitante='out').order_by('fecha_visita', 'hora_ingreso')
     visitas_agendadas_hoy = Visita.objects.filter(
         Q(estado_visitante='agendado', agendado_presente='agendado'),
@@ -393,11 +397,39 @@ def visitas_recepcion(request):
         }
 
     colaboradores = Colaborador.objects.filter(estado='activo')
+
+    # Paginación para cada queryset    
+    paginator_agendadas = Paginator(visitas_agendadas, 4)  # 10 elementos por página
+    page_agendadas = request.GET.get('page_agendadas')
+    visitas_agendadas_pag = paginator_agendadas.get_page(page_agendadas)
+
+    paginator_anteriores = Paginator(visitas_anteriores, 4)
+    page_anteriores = request.GET.get('page_anteriores')
+    visitas_anteriores_pag = paginator_anteriores.get_page(page_anteriores)
+
+    paginator_dentro = Paginator(visitas_dentro, 4)
+    page_dentro = request.GET.get('page_dentro')
+    visitas_dentro_pag = paginator_dentro.get_page(page_dentro)
+
+    cont_visitas_agendadas = visitas_agendadas.count()
+    if cont_visitas_agendadas > 0:
+        hay_visitas_agendadas = True
     
+    cont_visitas_anteriores = visitas_anteriores.count()
+    if cont_visitas_anteriores > 0:
+        hay_visitas_anteriores = True
+    
+    cont_visitas_dentro = visitas_dentro.count()
+    if cont_visitas_dentro > 0:
+        hay_visitas_dentro = True
+
     return render(request, 'visitantes/recepcion/principales/visitas.html', {
-        'visitas_dentro': visitas_dentro,
-        'visitas_agendadas': visitas_agendadas,
-        'visitas_anteriores': visitas_anteriores,
+        'visitas_dentro': visitas_dentro_pag,
+        'visitas_agendadas': visitas_agendadas_pag,
+        'visitas_anteriores': visitas_anteriores_pag,
+        'hay_visitas_agendadas': hay_visitas_agendadas,
+        'hay_visitas_anteriores': hay_visitas_anteriores,
+        'hay_visitas_dentro': hay_visitas_dentro,
         'visitas_agendadas_hoy': visitas_agendadas_hoy,
         'visitantes_visita': visitantes_visita,
         'pertenencias': pertenencias,
@@ -475,6 +507,9 @@ def nueva_visita(request):
 
 import base64
 from django.core.files.base import ContentFile
+from django.core.mail import send_mail
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 def guardar_visita(request):
     if request.method == "POST":
@@ -597,6 +632,23 @@ def guardar_visita(request):
                 usuario_registro_ingreso=usuario_registro
             )
             print("5. Pertenencias guardadas")
+        
+        # Enviar correo al usuario visitado
+        try:
+            usuario_destino = User.objects.get(username=persona_visitada)
+            if usuario_destino.email:
+                subject = "Notificación: Nueva Visita Registrada"
+                message = f"Hola {usuario_destino.first_name},\n\nSe ha registrado una nueva visita para ti con el código {cod_visita} con fecha {fecha_visita} y hora de ingreso {hora_ingreso}.\n\nSaludos,\nEquipo CCIT"
+                send_mail(
+                    subject,
+                    message,
+                    None,  # O puedes usar DEFAULT_FROM_EMAIL si lo configuraste en settings.py
+                    [usuario_destino.email],
+                    fail_silently=False,
+                )
+                print("Correo enviado a", usuario_destino.email)
+        except User.DoesNotExist:
+            print("Usuario no encontrado para enviar correo.")
 
         messages.success(request, "Visita registrada exitosamente.")
         return redirect('inicio_recepcion')
@@ -760,6 +812,23 @@ def guardar_ingresar_visita_agendada(request):
                 usuario_registro_ingreso=usuario_registro
             )
             print("5. Pertenencias guardadas")
+
+        # Enviar correo al usuario visitado
+        try:
+            usuario_destino = User.objects.get(username=persona_visitada)
+            if usuario_destino.email:
+                subject = "Notificación: Nueva Visita Registrada"
+                message = f"Hola {usuario_destino.first_name},\n\nSe ha registrado una nueva visita para ti con el código {cod_visita} con fecha {visita.fecha_visita} y hora de ingreso {hora_ingreso}.\n\nSaludos,\nEquipo CCIT"
+                send_mail(
+                    subject,
+                    message,
+                    None,  # O puedes usar DEFAULT_FROM_EMAIL si lo configuraste en settings.py
+                    [usuario_destino.email],
+                    fail_silently=False,
+                )
+                print("Correo enviado a", usuario_destino.email)
+        except User.DoesNotExist:
+            print("Usuario no encontrado para enviar correo.")
 
         messages.success(request, "Visita registrada exitosamente.")
         return redirect('inicio_recepcion')

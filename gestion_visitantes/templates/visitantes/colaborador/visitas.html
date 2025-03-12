@@ -23,62 +23,6 @@
         border-radius: 0px 15px 15px 0px;
     }
 </style>
-{% if messages %}
-    {% for m in messages %}
-        {% if m.tags == 'success' %}
-            <script>
-                Swal.fire({
-                    title: "LISTO!",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    showConfirmButton: false,
-                    timer: 2500,
-                });
-            </script>
-        {% elif m.tags == 'error' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#57647D",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'warning' %}
-            <script>
-                Swal.fire({
-                    title: "ADVERTENCIA",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#FDBD15",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'info' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'debug' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% endif %}
-    {% endfor %}
-{% endif %}
-
 <div>
     <div class="mb-3 row d-flex justify-content-between">
         <div class="col-auto">
@@ -96,10 +40,14 @@
                         </button>
                     </form>
                 </div>
-                <div class="col-auto">
-                    <a class="btn btn-success d-flex col-auto" href="{% url 'nueva-visita' %}">
+                <div class="col-auto d-flex">
+                    <a class="btn btn-secondary  d-flex col-auto" style="margin-right: 7px;" href="{% url 'nuevo_evento' %}">
+                        <span><i class='bx bxs-user-account'></i></span>
+                        <span class="d-none d-md-block ms-2">Nuevo Evento</span>
+                    </a>
+                    <a class="btn btn-success d-flex col-auto" href="{% url 'colaboradores-nueva-visita' %}">
                         <span><i class='bx bxs-user-plus'></i></span>
-                        <span class="d-none d-md-block ms-2">Nueva Visita</span>
+                        <span class="d-none d-md-block ms-2">Agendar Visita</span>
                     </a>
                 </div>
             </div>
@@ -295,8 +243,8 @@
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-12 text-secondary">
-                    No hay visitas dentro
+                <div class="col-12">
+                    No tienes visitas
                 </div>
                 {% endfor %}
             </div>
@@ -325,7 +273,7 @@
                 </div>
                 {% empty %}
                 <div class="col-12">
-                    No hay visitas agendadas para hoy
+                    No tienes visitas agendadas para hoy
                 </div>
                 {% endfor %}
             </div>
@@ -352,7 +300,7 @@
                 </div>
                 {% empty %}
                 <div class="col-12">
-                    No hay visitas agendadas para los próximos días
+                    No tienes visitas agendadas para los próximos días
                 </div>
                 {% endfor %}
             </div>
@@ -436,8 +384,8 @@
                     </div>
                 </div>
                 {% empty %}
-                    <div class="col-12 text-secondary">
-                        No hay visitas agendadas
+                    <div class="col-12">
+                        No tienes visitas
                     </div>
                 {% endfor %}
             </div>
@@ -470,8 +418,8 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div class="col-12 text-secondary">
-                        No hay eventos para hoy
+                    <div class="col-12">
+                        No tienes eventos para hoy
                     </div>
                 {% endfor %}
             </div>
@@ -501,8 +449,8 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div class="col-12 text-secondary">
-                        No hay eventos para los próximos días
+                    <div class="col-12">
+                        No tienes eventos en los próximos días
                     </div>
                 {% endfor %}
             </div>
@@ -532,8 +480,8 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div class="col-12 text-secondary">
-                        No hay eventos anteriores
+                    <div class="col-12">
+                        No tienes eventos anteriores
                     </div>
                 {% endfor %}
             </div>

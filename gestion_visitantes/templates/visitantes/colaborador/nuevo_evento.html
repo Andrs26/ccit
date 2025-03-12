@@ -42,62 +42,6 @@
         color: #18314F;
     }
 </style>
-{% if messages %}
-    {% for m in messages %}
-        {% if m.tags == 'success' %}
-            <script>
-                Swal.fire({
-                    title: "LISTO!",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    showConfirmButton: false,
-                    timer: 2500,
-                });
-            </script>
-        {% elif m.tags == 'error' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#57647D",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'warning' %}
-            <script>
-                Swal.fire({
-                    title: "ADVERTENCIA",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#FDBD15",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'info' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'debug' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% endif %}
-    {% endfor %}
-{% endif %}
-
 <div class="container my-4">
     <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
         <div class="col">
@@ -123,7 +67,7 @@
                 <select class="form-select" name="organizador">
                     <option value="{{ request.user.username }}" selected>{{ request.user.first_name }} {{ request.user.last_name }}</option>
                     {% for colab in colaboradores %}
-                        <option value="{{ colab.nombre }}">{{ colab.nombre }}</option>
+                        <option value="{{ colab.usuario }}">{{ colab.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>

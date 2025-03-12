@@ -111,7 +111,13 @@ def logout_view(request):
 
 @login_required
 def home(request):
-    return render(request, 'inicio/home.html')
+    is_visitas_recepcion_group = request.user.groups.filter(name='visitas_recepcion_group').exists()
+    is_visitas_colaborador_group = request.user.groups.filter(name='visitas_colaborador_group').exists()
+
+    return render(request, 'inicio/home.html', {
+        'is_visitas_recepcion_group': is_visitas_recepcion_group,
+        'is_visitas_colaborador_group': is_visitas_colaborador_group,
+    })
 
 #* --------------------------------------------------------------- Función de usuarios
 #? Vista para ver la lista de usuarios

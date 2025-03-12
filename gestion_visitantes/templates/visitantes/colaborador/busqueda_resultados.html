@@ -14,61 +14,6 @@
         font-size: 0.9rem;
     }
 </style>
-{% if messages %}
-    {% for m in messages %}
-        {% if m.tags == 'success' %}
-            <script>
-                Swal.fire({
-                    title: "LISTO!",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    showConfirmButton: false,
-                    timer: 2500,
-                });
-            </script>
-        {% elif m.tags == 'error' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#57647D",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'warning' %}
-            <script>
-                Swal.fire({
-                    title: "ADVERTENCIA",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#FDBD15",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'info' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'debug' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% endif %}
-    {% endfor %}
-{% endif %}
 <div>
     <div class="mb-3 row d-flex justify-content-between">
         <div class="col">

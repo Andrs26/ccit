@@ -37,6 +37,7 @@
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="{% static '/assets/css/styles.min.css' %}" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
         .btn{
             border-radius: 25px;
@@ -55,9 +56,90 @@
         .body-wrapper .container-fluid{
             max-width: 1500px;
         }
+        /* Definimos la animación "zoom-in" */
+        @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+        }
+
+        /* Clase base para aplicar la animación */
+        .zoom-in {
+        /* Puedes ajustar el retraso o la duración según necesites */
+        animation: zoomIn 0.5s ease forwards;
+        }
     </style>
 </head>
 <body>
+    {% if messages %}
+        {% for m in messages %}
+            {% if m.tags == 'success' %}
+                <script>
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    Toast.fire({
+                        icon: "success",
+                        title: "¡Éxito!",
+                        text: "{{m}}",
+                    });
+                </script>
+            {% elif m.tags == 'error' %}
+                <script>
+                    Swal.fire({
+                        title: "Algo Salió Mal :(",
+                        text: "{{m}}",
+                        icon: "{{m.tags}}",
+                        confirmButtonColor: "#57647D",
+                        focusConfirm: false,
+                    });
+                </script>
+            {% elif m.tags == 'warning' %}
+                <script>
+                    Swal.fire({
+                        title: "Atención",
+                        text: "{{m}}",
+                        icon: "{{m.tags}}",
+                        confirmButtonColor: "#FDBD15",
+                        focusConfirm: false,
+                    });
+                </script>
+            {% elif m.tags == 'info' %}
+                <script>
+                    Swal.fire({
+                        title: "Información",
+                        text: "{{m}}",
+                        icon: "{{m.tags}}",
+                        confirmButtonColor: "#18314F",
+                        focusConfirm: false,
+                    });
+                </script>
+            {% elif m.tags == 'debug' %}
+                <script>
+                    Swal.fire({
+                        title: "Mensaje Técnico",
+                        text: "{{m}}",
+                        icon: "{{m.tags}}",
+                        confirmButtonColor: "#18314F",
+                        focusConfirm: false,
+                    });
+                </script>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
      <!--  Body Wrapper -->
   <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
   data-sidebar-position="fixed" data-header-position="fixed">
@@ -273,9 +355,7 @@
 
     <!-- solar icons -->
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-
-    <!-- AOS Animation JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init();
     </script>

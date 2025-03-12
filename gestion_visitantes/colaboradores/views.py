@@ -467,6 +467,10 @@ def nueva_visita(request):
         'pases': pases,
     })
 
+from django.core.mail import send_mail
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 def guardar_visita(request):
     if request.method == "POST":
         # Recoger los datos del formulario
@@ -538,6 +542,37 @@ def guardar_visita(request):
                 documento_identificacion=documento
             )
             print("4. Visitantes de la visita Guardados")
+
+        # Enviar correo al usuario en recepción
+        try:
+            # Buscar el primer usuario que pertenezca al grupo "visitas_recepcion_group"
+            usuario_recepcion = User.objects.filter(groups__name='visitas_recepcion_group').first()
+            
+            if not usuario_recepcion:
+                print("No se encontró ningún usuario en el grupo visitas_recepcion_group")
+            else:
+                usuario_destino = usuario_recepcion.email  # Correo del usuario destino
+                
+                # Obtener el usuario organizador a partir del username contenido en la variable "organizador"
+                usuario_visitado = User.objects.get(username=persona_visitada)
+                
+                subject = "Notificación: Visita Programada"
+                message = (
+                    f"Hola {usuario_recepcion.first_name},\n\n"
+                    f"Se ha agendado una nueva visita '{tipo}' para '{usuario_visitado.first_name} {usuario_visitado.last_name}' con fecha: {fecha_visita} a las {hora_ingreso}."
+                    f"El visitante será: '{nombre_primero}', la acción solicitada es: '{accion}'.\n\n"
+                    "Saludos,\nEquipo CCIT"
+                )
+                send_mail(
+                    subject,
+                    message,
+                    None,
+                    [usuario_destino],
+                    fail_silently=False,
+                )
+                print("Correo enviado a", usuario_destino)
+        except User.DoesNotExist:
+            print("Usuario no encontrado para enviar correo.")
 
         messages.success(request, "Visita agendada exitosamente.")
         return redirect('colaboradores_home')

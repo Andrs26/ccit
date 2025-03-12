@@ -5,6 +5,10 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 import openpyxl
 from .models import EventoCapacitacion, EventoVisitante
+from django.core.mail import send_mail
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
+User = get_user_model()
 
 # Create your views here.
 @login_required
@@ -72,6 +76,37 @@ def guardar_evento(request):
                 documento_identificacion = p.get("documento", ""),
                 cat_participante = ""
             )
+
+        # Enviar correo al usuario en recepción
+        try:
+            # Buscar el primer usuario que pertenezca al grupo "visitas_recepcion_group"
+            usuario_recepcion = User.objects.filter(groups__name='visitas_recepcion_group').first()
+            
+            if not usuario_recepcion:
+                print("No se encontró ningún usuario en el grupo visitas_recepcion_group")
+            else:
+                usuario_destino = usuario_recepcion.email  # Correo del usuario destino
+                
+                # Obtener el usuario organizador a partir del username contenido en la variable "organizador"
+                usuario_organizador = User.objects.get(username=organizador)
+                
+                subject = "Notificación: Nuevo Evento"
+                message = (
+                    f"Hola {usuario_recepcion.first_name},\n\n"
+                    f"Se ha registrado el evento [{nombre}] con fecha: {fecha} en horario: {hora_inicio} - {hora_fin}, "
+                    f"organizado por {usuario_organizador.first_name} {usuario_organizador.last_name}.\n\n"
+                    "Saludos,\nEquipo CCIT"
+                )
+                send_mail(
+                    subject,
+                    message,
+                    None,  # O puedes usar DEFAULT_FROM_EMAIL si lo configuraste en settings.py
+                    [usuario_destino],
+                    fail_silently=False,
+                )
+                print("Correo enviado a", usuario_destino)
+        except User.DoesNotExist:
+            print("Usuario no encontrado para enviar correo.")
         
         messages.success(request, "Evento registrado exitosamente con " + str(len(participantes_unicos)) + " participantes.")
         return redirect('colaboradores_home')

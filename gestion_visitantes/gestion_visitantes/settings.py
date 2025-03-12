@@ -198,11 +198,11 @@ AXES_RESET_ON_SUCCESS = True  # Reinicia intentos fallidos tras un login exitoso
 
 LOGIN_URL = '/login/' 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_PORT = 587  # Puerto para TLS
+EMAIL_USE_TLS = True # Habilita TLS
+EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'andres26romero98@gmail.com'  # Reemplaza con tu correo
-EMAIL_HOST_PASSWORD = 'Micheteam0@'    # Usa una contraseña de aplicación si usas 2FA
+EMAIL_HOST_PASSWORD = 'bbbe mqku eqma nkgg'    # Usa una contraseña de aplicación si usas 2FA
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

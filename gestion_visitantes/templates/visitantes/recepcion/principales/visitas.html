@@ -23,62 +23,6 @@
         border-radius: 0px 15px 15px 0px;
     }
 </style>
-{% if messages %}
-    {% for m in messages %}
-        {% if m.tags == 'success' %}
-            <script>
-                Swal.fire({
-                    title: "LISTO!",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    showConfirmButton: false,
-                    timer: 2500,
-                });
-            </script>
-        {% elif m.tags == 'error' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#57647D",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'warning' %}
-            <script>
-                Swal.fire({
-                    title: "ADVERTENCIA",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#FDBD15",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'info' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'debug' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% endif %}
-    {% endfor %}
-{% endif %}
-
 <div>
     <div class="mb-3 row d-flex justify-content-between">
         <div class="col-auto">
@@ -121,12 +65,6 @@
                 <span class="d-none d-md-block ms-2">Visitantes Anteriores</span>
             </a>
         </li>
-        <!-- <li class="nav-item">
-            <a class="nav-link d-flex" data-bs-toggle="tab" href="#eventos_capacitaciones" role="tab">
-                <span><i class='bx bx-globe'></i></i> </span>
-                <span class="d-none d-md-block ms-2">Eventos/Capacitaciones</span>
-            </a>
-        </li> -->
     </ul>
 
     <!-- Tab panes -->
@@ -217,7 +155,7 @@
                 {% endfor %}
             </div>
 
-            <div class="row p-3">
+            <div class="row p-3" id="prox_visitas">
                 <h5>Próximas visitas</h5>
                 {% for visita in visitas_agendadas %}
                 <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
@@ -300,10 +238,52 @@
                         No hay visitas agendadas
                     </div>
                 {% endfor %}
+                <!-- Paginación Bootstrap -->
+                {% if hay_visitas_agendadas %}
+                <nav aria-label="Paginación de visitas agendadas">
+                    <ul class="pagination justify-content-center">
+                        {% if visitas_agendadas.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page_agendadas={{ visitas_agendadas.previous_page_number }}#prox_visitas" aria-label="Anterior">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo;</span>
+                            </li>
+                        {% endif %}
+
+                        {% for num in visitas_agendadas.paginator.page_range %}
+                            {% if visitas_agendadas.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page_agendadas={{ num }}#prox_visitas">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if visitas_agendadas.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page_agendadas={{ visitas_agendadas.next_page_number }}#prox_visitas" aria-label="Siguiente">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
             </div>
             
-            <div class="row p-3">
-                <h5>Visitas Anteriores</h5>
+            <div class="row p-3" id="visitas_agendadas_anteriores">
+                <h5>Visitas Agendadas Anteriores</h5>
                 {% for visita in visitas_anteriores %}
                 <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
                     <div class="card hover-img card-visita-dentro">
@@ -382,9 +362,51 @@
                 </div>
                 {% empty %}
                     <div class="col-12 text-center text-secondary">
-                        No hay visitas agendadas
+                        No hay visitas anteriores
                     </div>
                 {% endfor %}
+                <!-- Paginación Bootstrap -->
+                {% if hay_visitas_anteriores %}
+                <nav aria-label="Paginación de visitas agendadas">
+                    <ul class="pagination justify-content-center">
+                        {% if visitas_anteriores.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page_anteriores={{ visitas_anteriores.previous_page_number }}#visitas_agendadas_anteriores" aria-label="Anterior">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo;</span>
+                            </li>
+                        {% endif %}
+
+                        {% for num in visitas_anteriores.paginator.page_range %}
+                            {% if visitas_anteriores.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page_anteriores={{ num }}#visitas_agendadas_anteriores">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if visitas_anteriores.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page_anteriores={{ visitas_anteriores.next_page_number }}#visitas_agendadas_anteriores" aria-label="Siguiente">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
             </div>
         </div>
 
@@ -558,44 +580,52 @@
                 </div>
                 {% empty %}
                 <div class="col-12 text-center text-secondary">
-                    No hay visitas dentro
+                    No hay visitas anteriores
                 </div>
                 {% endfor %}
+                {% if hay_visitas_dentro %}
+                <nav aria-label="Paginación de visitas agendadas">
+                    <ul class="pagination justify-content-center">
+                        {% if visitas_dentro.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page_dentro={{ visitas_dentro.previous_page_number }}#v_dentro" aria-label="Anterior">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo;</span>
+                            </li>
+                        {% endif %}
+
+                        {% for num in visitas_dentro.paginator.page_range %}
+                            {% if visitas_dentro.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page_dentro={{ num }}#v_dentro">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if visitas_dentro.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page_dentro={{ visitas_dentro.next_page_number }}#v_dentro" aria-label="Siguiente">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
             </div>
         </div>
-
-        <!-- <div class="tab-pane" id="eventos_capacitaciones" role="tabpanel">
-            <div class="row p-3">
-                {% for evento in eventos %}
-                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
-                        <div class="card hover-img card-visita-dentro">
-                            <div class="card-body p-2 text-center border-bottom">
-                                <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
-                                <h4 class="card-title mb-1">{{evento.nombre}}</h4>
-                                <div class=" mb-1 row">
-                                    <span class="fs-2">{{evento.organizador}}</span>
-                                </div>
-                                <span class="badge text-bg-secondary text-white">
-                                    <i class='bx bxs-calendar'></i> {{evento.fecha | date:'d/m/Y' }}
-                                    <i class='bx bxs-time'></i> {{evento.hora_inicio}} - {{evento.hora_fin}} 
-                                </span>
-                            </div>
-                            <ul class="px-2 py-2 list-unstyled d-flex align-items-center justify-content-center mb-0">
-                                <li class="position-relative">
-                                    <a class="btn btn-success btn-sm text-white d-flex align-items-center justify-content-center text-center fs-3" href="{% url 'detalles_evento_visitas' evento.id %}">
-                                        <i class='bx bx-show' style="margin-right: 4px;"></i> Detalles de evento
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                {% empty %}
-                    <div class="col-12 text-center text-secondary">
-                        No hay eventos registrados
-                    </div>
-                {% endfor %}
-            </div>
-        </div> -->
     </div>
 </div>
 <script>
@@ -756,4 +786,17 @@
     
     });
 </script> 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Si existe un hash en la URL, activa el tab correspondiente
+        var hash = window.location.hash;
+        if (hash) {
+            var triggerEl = document.querySelector('.nav-tabs a[href="' + hash + '"]');
+            if (triggerEl) {
+                var tab = new bootstrap.Tab(triggerEl);
+                tab.show();
+            }
+        }
+    });
+</script>
 {% endblock %}
