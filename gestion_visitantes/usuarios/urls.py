@@ -12,10 +12,14 @@ urlpatterns = [
     path('user/create/', views.create_user, name='create_user'),  # Crear un nuevo usuario
     path('usuarios/cambiar_estado/<int:user_id>/', views.cambiar_estado_usuario, name='cambiar_estado_usuario'),
     #* 
+    path('user/change-password-reset/<int:user_id>/', views.change_password_reset, name='change_password_reset'),  # Cambiar contraseña
+    path('user/verificar_pin/', views.verificar_pin, name='verificar_pin'),
+    path("user/recuperar/<str:token>/", views.cambiar_contrasena, name="cambiar_contrasena"),
+
     path('user/reset-password/', views.reset_password, name='reset_password'), #* Restablecer contraseña con PIN desde Login (Ingresar PIN)
     path('user/change-password-reset/<int:user_id>/', views.change_password_reset, name='change_password_reset'),  # Cambiar contraseña
-
-     #* Enlace de "Olvidaste tu contraseña"
+    
+    #* Enlace de "Olvidaste tu contraseña"
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='auth/password_reset.html'), name='password_reset'),
     
     #* Mensaje después de solicitar el restablecimiento

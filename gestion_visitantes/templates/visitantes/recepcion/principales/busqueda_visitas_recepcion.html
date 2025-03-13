@@ -24,7 +24,7 @@
     }
 </style>
 <div>
-    <div class="mb-3 row d-flex justify-content-between">
+    <div class="mb-3 row d-flex justify-content-between" data-aos="zoom-in">
         <div class="col-auto">
             <h4>Visitas</h4>
         </div>
@@ -60,7 +60,7 @@
         </div>
     </div>
     <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" role="tablist" data-aos="zoom-in">
         <li class="nav-item">
             <a class="nav-link d-flex active" data-bs-toggle="tab" href="#v_agendada" role="tab">
                 <span><i class='bx bx-search-alt'></i></span>
@@ -90,7 +90,7 @@
         <div class="tab-pane active" id="v_agendada" role="tabpanel">
             <div class="row p-3">
                 {% for visita in resultados_visitas %}
-                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
                     <div class="card hover-img card-visita-dentro">
                         <div class="card-body p-2 text-center border-none">
                             <img src="{% static '/assets/images/profile/user-3.jpg' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
@@ -109,64 +109,64 @@
                                     <i class='bx bx-show' style="margin-right: 4px;"></i> Detalles
                                 </button>
                             </li>
-                            <!-- Modal -->
-                            <div class="modal fade" id="verDetallesVisitante{{visita.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Datos de visita {{visita.cod_visita}}</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <ul class="nav nav-tabs" role="tablist">
-                                                <li class="nav-item">
-                                                    <a class="nav-link d-flex active" data-bs-toggle="tab" href="#visitantesVisita{{visita.id}}" role="tab">
-                                                        <span><i class='bx bx-male-female'></i></span>
-                                                        <span class="d-none d-md-block ms-2">Visitante/Visitantes</span>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                            <div class="tab-content">
-                                                <div class="tab-pane active" id="visitantesVisita{{visita.id}}" role="tabpanel">
-                                                    <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
-                                                        <thead class="thead-dark">
-                                                            <tr>
-                                                                <th>Nombre Visitante</th>
-                                                                <th>Documento de Identificación</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {% for cod, info in visitas_info.items %}
-                                                            {% for v in info.visitantes %}
-                                                                {% if v.cod_visita == visita.cod_visita %}
-                                                                    <tr>
-                                                                        <td class="col-6">{{v.nombre}}</td>
-                                                                        <td class="col-6">{{v.documento_identificacion}}</td>
-                                                                    </tr>
-                                                                {% endif %}
-                                                            {% empty %}
-                                                            <tr>
-                                                                <td colspan="2">No hay visitantes</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <input type="hidden" name="cod_visita" value="{{visita.cod_visita}}">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </ul>
                     </div>
                 </div>
+                <!-- Modal -->
+                <div class="modal fade" id="verDetallesVisitante{{visita.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Datos de visita {{visita.cod_visita}}</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex active" data-bs-toggle="tab" href="#visitantesVisita{{visita.id}}" role="tab">
+                                            <span><i class='bx bx-male-female'></i></span>
+                                            <span class="d-none d-md-block ms-2">Visitante/Visitantes</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="visitantesVisita{{visita.id}}" role="tabpanel">
+                                        <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th>Nombre Visitante</th>
+                                                    <th>Documento de Identificación</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for cod, info in visitas_info.items %}
+                                                {% for v in info.visitantes %}
+                                                    {% if v.cod_visita == visita.cod_visita %}
+                                                        <tr>
+                                                            <td class="col-6">{{v.nombre}}</td>
+                                                            <td class="col-6">{{v.documento_identificacion}}</td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% empty %}
+                                                <tr>
+                                                    <td colspan="2">No hay visitantes</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" name="cod_visita" value="{{visita.cod_visita}}">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% empty %}
-                    <div class="col-12 text-center text-secondary">
+                    <div class="col-12 text-center" data-aos="zoom-in">
                         No hay resultados de visitas para la búsqueda
                     </div>
                 {% endfor %}
@@ -176,7 +176,7 @@
         <div class="tab-pane" id="v_dentro" role="tabpanel">
             <div class="row p-3">
                 {% for evento in resultados_eventos %}
-                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" data-aos="zoom-in">
                     <div class="card hover-img card-visita-dentro">
                         <div class="card-body p-2 text-center border-none">
                             <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
@@ -199,7 +199,7 @@
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-12 text-center text-secondary">
+                <div class="col-12 text-center" data-aos="zoom-in">
                     No hay resultados en eventos para la búsqueda
                 </div>
                 {% endfor %}

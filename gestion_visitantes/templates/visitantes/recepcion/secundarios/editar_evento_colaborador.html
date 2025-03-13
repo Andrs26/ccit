@@ -43,7 +43,7 @@
     }
 </style>
 <div class="container my-4">
-    <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
+    <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;" data-aos="zoom-in">
         <div class="col">
             <h4>Editar Evento: {{ evento.nombre }}</h4>
         </div>
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <form id="formEditarEvento" method="post" action="{% url 'save_editar_evento' %}" enctype="multipart/form-data">
+    <form id="formEditarEvento" method="post" action="{% url 'save_editar_evento' %}" enctype="multipart/form-data" data-aos="zoom-in">
         {% csrf_token %}
         <!-- Campo oculto con el id del evento -->
         <input type="hidden" name="id" value="{{ evento.id }}">

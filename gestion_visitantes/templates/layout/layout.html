@@ -1,4 +1,5 @@
 {% load static %}
+{% load menu_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +30,9 @@
     <!-- Box Icons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+    <!-- AOS Animate -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     <!-- SweetAlert2 CSS -->
     <!-- Agregar el CDN de SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.min.css">
@@ -37,7 +41,9 @@
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="{% static '/assets/css/styles.min.css' %}" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- AOS Animate -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <style>
         .btn{
             border-radius: 25px;
@@ -148,7 +154,7 @@
         <!-- Sidebar scroll-->
         <div>
             <div class="brand-logo d-flex align-items-center justify-content-between">
-                <a href="{% url 'inicio_recepcion' %}" class="text-nowrap logo-img">
+                <a href="{% url 'home' %}" class="text-nowrap logo-img">
                     <img class="rounded-circle" width="50" src="{% static '/img/logo.png' %}" alt="logo" style="margin-right: 7px" />
                     PEOPLE CCIT
                 </a>
@@ -179,25 +185,25 @@
                                 <span class="hide-menu">GESTIÓN DE VISITAS</span>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'inicio_recepcion' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'inicio_recepcion' 'buscar_inicio_recepcion' 'ingresar_visita_agendada' %}" href="{% url 'inicio_recepcion' %}" aria-expanded="false">
                                     <iconify-icon icon="material-symbols:home-rounded"></iconify-icon>
                                     <span class="hide-menu">Inicio</span>
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'visitas_recepcion' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'visitas_recepcion' 'buscar_visitas_recepcion' 'nueva-visita' %}" href="{% url 'visitas_recepcion' %}" aria-expanded="false">
                                     <iconify-icon icon="f7:person-2-fill"></iconify-icon>
                                     <span class="hide-menu">Visitas</span>
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'eventos_capacitaciones' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'eventos_capacitaciones' 'detalles_evento_visitas' 'detalles_evento' 'buscar_eventos_recepcion' %}" href="{% url 'eventos_capacitaciones' %}" aria-expanded="false">
                                     <iconify-icon icon="streamline:class-lesson-solid"></iconify-icon>
                                     <span class="hide-menu">Eventos</span>
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'pases_recepcion' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'pases_recepcion' %}" href="{% url 'pases_recepcion' %}" aria-expanded="false">
                                     <iconify-icon icon="ion:id-card"></iconify-icon>
                                     <span class="hide-menu">Pases</span>
                                 </a>
@@ -215,19 +221,19 @@
                                 <span class="hide-menu">MIS VISITAS</span>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'colaboradores_home' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'colaboradores_home' 'buscar_inicio_colaborador' %}" href="{% url 'colaboradores_home' %}" aria-expanded="false">
                                     <iconify-icon icon="material-symbols:home-rounded"></iconify-icon>
                                     <span class="hide-menu">Inicio</span>
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'visitas_colaborador' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'visitas_colaborador' 'buscar_visitas_colaborador' 'colaboradores-nueva-visita' 'salida_mea_visita' 'detalle_visita_agendada' 'detalle_visita_dentro' 'nueva-visita-agendada' 'editar_visita_agendada' %}" href="{% url 'visitas_colaborador' %}" aria-expanded="false">
                                     <iconify-icon icon="f7:person-2-fill"></iconify-icon>
                                     <span class="hide-menu">Visitas</span>
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'eventos_capacitaciones_colaborador' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'eventos_capacitaciones_colaborador' 'buscar_eventos_colaborador' 'nuevo_evento' 'actualizar_participante' 'detalles_evento_visitas' 'detalles_evento' %}" href="{% url 'eventos_capacitaciones_colaborador' %}" aria-expanded="false">
                                     <iconify-icon icon="streamline:class-lesson-solid"></iconify-icon>
                                     <span class="hide-menu">Eventos</span>
                                 </a>
@@ -245,31 +251,31 @@
                                 <span class="hide-menu">GESTIÓN</span>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'user_list' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'user_list' 'edit_user' 'delete_user' 'reset_user_password' 'create_user' 'cambiar_estado_usuario' 'reset_password' 'change_password_reset' %}" href="{% url 'user_list' %}" aria-expanded="false">
                                     <iconify-icon icon="lsicon:user-crowd-outline"></iconify-icon>
                                     <span class="hide-menu">Usuarios</span>
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'colaboradores' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'colaboradores' %} " href="{% url 'colaboradores' %}" aria-expanded="false">
                                     <iconify-icon icon="clarity:employee-group-solid"></iconify-icon>
                                     <span class="hide-menu">Colaboradores</span>
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'pases' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'pases' 'crear_pase' 'editar_pase' %}" href="{% url 'pases' %}" aria-expanded="false">
                                     <iconify-icon icon="ion:id-card"></iconify-icon>
                                     <span class="hide-menu">Pases</span>
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'motivos' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'motivos' %}" href="{% url 'motivos' %}" aria-expanded="false">
                                     <iconify-icon icon="icon-park-outline:setting-web"></iconify-icon>
                                     <span class="hide-menu">Motivos</span>
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link" href="{% url 'acciones' %}" aria-expanded="false">
+                                <a class="sidebar-link {% active 'acciones' %}" href="{% url 'acciones' %}" aria-expanded="false">
                                     <iconify-icon icon="ant-design:setting-filled"></iconify-icon>
                                     <span class="hide-menu">Acciones</span>
                                 </a>
@@ -279,13 +285,6 @@
                     <li>
                         <span class="sidebar-divider lg"></span>
                     </li>
-                    
-                    <!-- <li class="sidebar-item">
-                        <a class="sidebar-link" href="{% url 'logout' %}" aria-expanded="false">
-                            <iconify-icon icon="solar:logout-3-line-duotone" class="text-danger"></iconify-icon>
-                            <span class="hide-menu text-danger">Cerrar Sesión</span>
-                        </a>
-                    </li> -->
                 </ul>
             </nav>
         <!-- End Sidebar navigation -->
@@ -355,9 +354,29 @@
 
     <!-- solar icons -->
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+
+    <!-- AOS Animate -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Configuración Global -->
     <script>
-        AOS.init();
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inicializar AOS Animate
+            AOS.init();
+
+            // Inicializar Select2
+            $('.select2').select2({
+                placeholder: 'Seleccione un lente',
+                theme: 'bootstrap-5',
+                allowClear: true
+            });
+        });
+    </script>
+    <script>
+        document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function (event) {
+                AOS.refresh();
+            });
+        });
     </script>
 </body>
 </html>

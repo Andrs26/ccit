@@ -73,7 +73,7 @@
                     <select class="form-select" name="persona_visitada">
                         <option value="{{ visita.persona_visitada }}" selected>{{ visita.persona_visitada }}</option>
                         {% for colab in colaboradores %}
-                            <option value="{{ colab.nombre }}">{{ colab.nombre }}</option>
+                            <option value="{{ colab.usuario }}">{{ colab.nombre }}</option>
                         {% endfor %}
                     </select>
                 </div>

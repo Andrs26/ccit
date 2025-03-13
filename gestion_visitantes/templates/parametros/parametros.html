@@ -64,7 +64,7 @@
 </style>
 <div class="row">
     <div class="mb-3">
-        <div class="row">
+        <div class="row" data-aos="zoom-in">
             <div class="col-6">
                 <h3>Motivos de visita</h3>
             </div>
@@ -107,7 +107,7 @@
         </div>
     </div>
 
-    <table class="table table-hover table-sm">
+    <table class="table table-hover table-sm" data-aos="zoom-in">
         <thead>
             <tr>
                 <th>N.</th>
@@ -131,37 +131,37 @@
                 </td>                
                 <td>
                     <a href="{% url 'editar_motivo' motivo.id %}" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarMotivo{{motivo.id}}"><i class='bx bx-edit-alt'></i> Editar</a>
-                    <!-- Modal -->
-                    <div class="modal fade" id="editarMotivo{{motivo.id}}" tabindex="-1" aria-labelledby="editarMotivoLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <form action="{% url 'editar_motivo' motivo.id %}" method="POST">
-                                    {% csrf_token %}
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="agregarMotivoLabel">Editando Motivo de Visita</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label for="exampleFormControlInput1" class="form-label">Motivo:</label>
-                                            <input type="text" class="form-control" name="descripcion" id="descripcion" value="{{motivo.descripcion}}">
-                                        </div>
-                
-                                        <div class="mb-3">
-                                            <label for="exampleFormControlTextarea1" class="form-label">Acción</label>
-                                            <textarea class="form-control" name="accion" id="accion" rows="3">{{motivo.accion}}</textarea>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar motivo</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 </td>
             </tr>
+            <!-- Modal -->
+            <div class="modal fade" id="editarMotivo{{motivo.id}}" tabindex="-1" aria-labelledby="editarMotivoLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form action="{% url 'editar_motivo' motivo.id %}" method="POST">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="agregarMotivoLabel">Editando Motivo de Visita</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="exampleFormControlInput1" class="form-label">Motivo:</label>
+                                    <input type="text" class="form-control" name="descripcion" id="descripcion" value="{{motivo.descripcion}}">
+                                </div>
+        
+                                <div class="mb-3">
+                                    <label for="exampleFormControlTextarea1" class="form-label">Acción</label>
+                                    <textarea class="form-control" name="accion" id="accion" rows="3">{{motivo.accion}}</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                <button type="submit" class="btn btn-primary">Guardar motivo</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             {% empty %}
                 <tr>
                     <td colspan="5" class="text-center">No hay motivos registrados.</td>

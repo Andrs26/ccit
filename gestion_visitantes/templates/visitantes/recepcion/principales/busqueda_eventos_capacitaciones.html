@@ -14,7 +14,7 @@
 </style>
 <div>
     <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" role="tablist" data-aos="zoom-in">
         <li class="nav-item">
             <a class="nav-link d-flex" href="{% url 'eventos_capacitaciones' %}">
                 <span><i class='bx bxs-home-alt-2'></i></i></span>
@@ -29,7 +29,7 @@
     </ul>
 
     <div class="tab-pane" id="eventos_capacitaciones" role="tabpanel">
-        <div class="row p-3">
+        <div class="row p-3" data-aos="zoom-in">
             <div class="mb-3 row d-flex">
                 <form action="{% url 'buscar_eventos_recepcion' %}" class="d-flex">
                     <input type="search" class="form-control" name="q" id="search_visita" placeholder="Buscar evento/participante..." style="border-radius: 15px 0px 0px 15px; width: 40%;" {% if query %} value="{{query}}" {% endif %}>
@@ -49,7 +49,7 @@
 
         <div class="row p-3">
             {% for evento in resultados_eventos %}
-                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" data-aos="zoom-in">
                     <div class="card hover-img card-visita-dentro">
                         <div class="card-body p-2 text-center border-none">
                             <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
@@ -72,7 +72,7 @@
                     </div>
                 </div>
             {% empty %}
-                <div class="col-12 text-center text-secondary">
+                <div class="col-12 text-center" data-aos="zoom-in">
                     No se encontraron resultados
                 </div>
             {% endfor %}

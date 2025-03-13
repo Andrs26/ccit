@@ -24,7 +24,7 @@
     }
 </style>
 <div>
-    <div class="mb-3 row d-flex justify-content-between">
+    <div class="mb-3 row d-flex justify-content-between" data-aos="zoom-in">
         <div class="col">
             <h4>Visitas & Eventos Hoy</h4>
         </div>
@@ -42,7 +42,7 @@
         </div>
     </div>
     <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" role="tablist" data-aos="zoom-in">
         <li class="nav-item">
             <a class="nav-link d-flex active" data-bs-toggle="tab" href="#v_dentro" role="tab">
                 <span><i class='bx bx-run'></i></span>
@@ -68,7 +68,7 @@
         <div class="tab-pane active" id="v_dentro" role="tabpanel">
             <div class="row p-3">
                 {% for visita in visitas_dentro %}
-                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
                     <div class="card hover-img card-visita-dentro">
                         <div class="card-body p-2 text-center border-none">
                             <img src="{% static '/assets/images/profile/user-3.jpg' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
@@ -83,279 +83,280 @@
                             <button class="btn btn-light btn-sm text-secondary d-flex align-items-center justify-content-center text-center fs-3" data-bs-toggle="modal" data-bs-target="#cambiarPaseVisitante{{visita.id}}" style="margin-right: 4px;">
                                 <i class='bx bxs-user-badge' style="margin-right: 4px;"></i> Pase
                             </button>
-                            <!-- Modal -->
-                            <div class="modal fade" id="cambiarPaseVisitante{{visita.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <form action="{% url 'cambiar_pase' %}" method="post" enctype="multipart/form-data">
-                                            {% csrf_token %}
-                                            <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Cambiar pase a visitante</h1>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <!-- Nav tabs -->
-                                                <ul class="nav nav-tabs" role="tablist">
-                                                    <li class="nav-item">
-                                                        <a class="nav-link d-flex active" data-bs-toggle="tab" href="#cambiarPaseVisitante{{visita.id}}" role="tab">
-                                                            <span><i class='bx bx-barcode-reader'></i></span>
-                                                            <span class="d-none d-md-block ms-2">Pase</span>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            <!-- Tabs -->
-                                                <div class="tab-content">
-                                                    <div class="tab-pane active" id="cambiarPaseVisitante{{visita.id}}" role="tabpanel">
-                                                        <table class="table table-bordered table-hover table-sm" id="tabla-pases-1">
-                                                            <thead class="thead-dark">
-                                                                <tr>
-                                                                    <th>Pase Entregado</th>
-                                                                    <th>Lugares Acceso</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {% if visita.num_pase %}
-                                                                {% for p in pases %}
-                                                                    {% if p.numero_pase == visita.num_pase %}
-                                                                    <tr>
-                                                                        <td>{{ p.numero_pase }}</td>
-                                                                        <td>{{ p.lugares_acceso }}</td>
-                                                                    </tr>
-                                                                    {% endif %}
-                                                                {% empty %}
-                                                                <tr>
-                                                                    <td colspan="4">No se encuentra información de el pase entregado</td>
-                                                                </tr>
-                                                                {% endfor %}
-                                                            {% else %}
-                                                                <tr>
-                                                                    <td colspan="4">No se encuentra un pase entregado</td>
-                                                                </tr>
-                                                            {% endif %}
-                                                            </tbody>
-                                                        </table>
-                                                        <br>
-                                                        <h5>Seleccione el nuevo pase a entregar</h5>
-                                                        <table class="table table-bordered table-hover table-sm" id="tabla-pases-nuevo">
-                                                            <thead class="thead-dark">
-                                                                <tr>
-                                                                    <th>Número Pase</th>
-                                                                    <th>Lugar de Acceso</th>
-                                                                    <th>Estado</th>
-                                                                    <th>Seleccionar</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {% if pases_disponibles > 0 %}
-                                                                    {% for pase in pases %}
-                                                                        {% if pase.estado_pase == 'Disponible' %}
-                                                                            <tr>
-                                                                                <td>{{ pase.numero_pase }}</td>
-                                                                                <td>{{ pase.lugares_acceso }}</td>
-                                                                                <td>{{ pase.estado_pase }}</td>
-                                                                                <td>
-                                                                                    <input type="radio" name="pase_seleccionado" value="{{ pase.numero_pase }}">
-                                                                                </td>
-                                                                            </tr>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% else %}
-                                                                    <tr>
-                                                                        <td colspan="4">No hay pases disponibles</td>
-                                                                    </tr>
-                                                                {% endif %}
-                                                            </tbody>
-                                                        </table> 
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <input type="hidden" name="id" value="{{visita.id}}">
-                                                {% if visita.num_pase %}
-                                                    <input type="hidden" name="pase_actual" value="{{visita.num_pase}}">
-                                                {% endif %}
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                <button type="submit" class="btn btn-primary">Cambiar pase</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
 
                             <button class="btn btn-danger btn-sm text-white d-flex align-items-center justify-content-center text-center fs-3" data-bs-toggle="modal" data-bs-target="#registrarSalidaVisitante{{visita.id}}">
                                 <i class='bx bx-log-out' style="margin-right: 4px;"></i> Salida
                             </button>
-                            <!-- Modal -->
-                            <div class="modal fade" id="registrarSalidaVisitante{{visita.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <form action="{% url 'salida_visita' %}" method="post" enctype="multipart/form-data">
-                                            {% csrf_token %}
-                                            <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar salida de visita</h1>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <!-- Nav tabs -->
-                                                <ul class="nav nav-tabs" role="tablist">
-                                                    <li class="nav-item">
-                                                        <a class="nav-link d-flex active" data-bs-toggle="tab" href="#visitantesVisita{{visita.id}}" role="tab">
-                                                            <span><i class='bx bx-male-female'></i></span>
-                                                            <span class="d-none d-md-block ms-2">Visitante/Visitantes</span>
-                                                        </a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link d-flex" data-bs-toggle="tab" href="#documentoIdentificacion{{visita.id}}" role="tab">
-                                                            <span><i class='bx bx-id-card'></i></span>
-                                                            <span class="d-none d-md-block ms-2">Documento de Identificación</span>
-                                                        </a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link d-flex" data-bs-toggle="tab" href="#pertenenciasVisitantes{{visita.id}}" role="tab">
-                                                            <span><i class='bx bx-package'></i></i> </span>
-                                                            <span class="d-none d-md-block ms-2">Materiales/Equipos/Articulos</span>
-                                                        </a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link d-flex" data-bs-toggle="tab" href="#paseVisitante{{visita.id}}" role="tab">
-                                                            <span><i class='bx bx-barcode-reader'></i></span>
-                                                            <span class="d-none d-md-block ms-2">Pase</span>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            <!-- Tabs -->
-                                                <div class="tab-content">
-                                                    <div class="tab-pane active" id="visitantesVisita{{visita.id}}" role="tabpanel">
-                                                        <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
-                                                            <thead class="thead-dark">
-                                                                <tr>
-                                                                    <th>Nombre Visitante</th>
-                                                                    <th>Documento de Identificación</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {% for cod, info in visitas_info.items %}
-                                                                {% for v in info.visitantes %}
-                                                                    {% if v.cod_visita == visita.cod_visita %}
-                                                                        <tr>
-                                                                            <td class="col-6">{{v.nombre}}</td>
-                                                                            <td class="col-6">{{v.documento_identificacion}}</td>
-                                                                        </tr>
-                                                                    {% endif %}
-                                                                {% empty %}
-                                                                <tr>
-                                                                    <td colspan="2">No hay visitantes</td>
-                                                                </tr>
-                                                                {% endfor %}
-                                                            {% endfor %}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-
-                                                    <div class="tab-pane" id="pertenenciasVisitantes{{visita.id}}" role="tabpanel">
-                                                        <table class="table table-bordered table-hover table-sm" id="tabla-material">
-                                                            <thead class="thead-dark">
-                                                                <tr>
-                                                                    <th>Nombre Visitante</th>
-                                                                    <th>Entrada</th>
-                                                                    <th>Salida</th>
-                                                                    <th>Doc. Soporte</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {% for cod, info in visitas_info.items %}
-                                                                {% for p in info.pertenencias %}
-                                                                    {% if p.cod_visita == visita.cod_visita %}
-                                                                        <tr>
-                                                                            <td class="col-auto">{{ visitante_por_documento|dict_get:p.identificacion_visitante }}</td>
-                                                                            <td class="col-auto">{{p.pertenencias_entrada}}</td>
-                                                                            <td class="col-auto">
-                                                                                {% if p.pertenencias_salida %}
-                                                                                    <input type="text" name="pertenencias_salida_{{ p.id }}" class="form-control pertenencias-salida" value="{{p.pertenencias_salida}}">
-                                                                                {% else %}
-                                                                                    <input type="text" name="pertenencias_salida_{{ p.id }}" class="form-control pertenencias-salida">
-                                                                                {% endif %}
-                                                                            </td>
-                                                                            <td class="col-auto">
-                                                                                {% if p.documento_soporte %}
-                                                                                    <div class="mt-1">
-                                                                                        <a href="{{ p.documento_soporte.url }}" target="_blank" class="btn btn-success btn-sm small"><i class='bx bxs-file'></i> Ver archivo</a>
-                                                                                    </div>
-                                                                                {% else %}
-                                                                                    <label class="btn btn-outline-success btn-sm">
-                                                                                        <i class='bx bxs-file-plus'></i> Cargar
-                                                                                        <input type="file" name="doc_soporte_{{ p.id }}" class="d-none doc-soporte-input">
-                                                                                    </label>
-                                                                                {% endif %}
-                                                                            </td>
-                                                                        </tr>
-                                                                    {% endif %}
-                                                                {% empty %}           
-                                                                <tr>
-                                                                    <td colspan="4">No hay registros para mostrar</td>
-                                                                </tr>
-                                                                {% endfor %}
-                                                            {% endfor %}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-
-                                                    <div class="tab-pane" id="documentoIdentificacion{{visita.id}}" role="tabpanel">
-                                                        {% if visita.foto_documento_identificacion %}
-                                                            <div class="row d-flex justify-content-center align-items-center m-3">
-                                                                <img src="{{ visita.foto_documento_identificacion.url }}" alt="Foto Documento" style="width:80%;">
-                                                            </div>
-                                                        {% endif %}
-                                                    </div>
-
-                                                    <div class="tab-pane" id="paseVisitante{{visita.id}}" role="tabpanel">
-                                                        <table class="table table-bordered table-hover table-sm">
-                                                            <thead class="thead-dark">
-                                                                <tr>
-                                                                    <th>Número Pase</th>
-                                                                    <th>Lugares Acceso</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {% if visita.num_pase %}
-                                                                {% for p in pases %}
-                                                                    {% if p.numero_pase == visita.num_pase %}
-                                                                    <tr>
-                                                                        <td>{{ p.numero_pase }}</td>
-                                                                        <td>{{ p.lugares_acceso }}</td>
-                                                                    </tr>
-                                                                    {% endif %}
-                                                                {% empty %}
-                                                                <tr>
-                                                                    <td colspan="4">No se encuentra información de el pase entregado</td>
-                                                                </tr>
-                                                                {% endfor %}
-                                                            {% endif %}
-                                                            {% if not visita.num_pase %}
-                                                                <tr>
-                                                                    <td colspan="4">No se encuentra un pase entregado</td>
-                                                                </tr>
-                                                            {% endif %}
-                                                            </tbody>
-                                                        </table>                
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <input type="hidden" name="cod_visita" value="{{visita.cod_visita}}">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                <button type="submit" class="btn btn-danger">Regitrar Salida</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                         </ul>
                     </div>
                 </div>
+                <!-- Modal -->
+                <div class="modal fade" id="cambiarPaseVisitante{{visita.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <form action="{% url 'cambiar_pase' %}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Cambiar pase a visitante</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Nav tabs -->
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link d-flex active" data-bs-toggle="tab" href="#cambiarPaseVisitante{{visita.id}}" role="tab">
+                                                <span><i class='bx bx-barcode-reader'></i></span>
+                                                <span class="d-none d-md-block ms-2">Pase</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                <!-- Tabs -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="cambiarPaseVisitante{{visita.id}}" role="tabpanel">
+                                            <table class="table table-bordered table-hover table-sm" id="tabla-pases-1">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th>Pase Entregado</th>
+                                                        <th>Lugares Acceso</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% if visita.num_pase %}
+                                                    {% for p in pases %}
+                                                        {% if p.numero_pase == visita.num_pase %}
+                                                        <tr>
+                                                            <td>{{ p.numero_pase }}</td>
+                                                            <td>{{ p.lugares_acceso }}</td>
+                                                        </tr>
+                                                        {% endif %}
+                                                    {% empty %}
+                                                    <tr>
+                                                        <td colspan="4">No se encuentra información de el pase entregado</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="4">No se encuentra un pase entregado</td>
+                                                    </tr>
+                                                {% endif %}
+                                                </tbody>
+                                            </table>
+                                            <br>
+                                            <h5>Seleccione el nuevo pase a entregar</h5>
+                                            <table class="table table-bordered table-hover table-sm" id="tabla-pases-nuevo">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th>Número Pase</th>
+                                                        <th>Lugar de Acceso</th>
+                                                        <th>Estado</th>
+                                                        <th>Seleccionar</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% if pases_disponibles > 0 %}
+                                                        {% for pase in pases %}
+                                                            {% if pase.estado_pase == 'Disponible' %}
+                                                                <tr>
+                                                                    <td>{{ pase.numero_pase }}</td>
+                                                                    <td>{{ pase.lugares_acceso }}</td>
+                                                                    <td>{{ pase.estado_pase }}</td>
+                                                                    <td>
+                                                                        <input type="radio" name="pase_seleccionado" value="{{ pase.numero_pase }}">
+                                                                    </td>
+                                                                </tr>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <tr>
+                                                            <td colspan="4">No hay pases disponibles</td>
+                                                        </tr>
+                                                    {% endif %}
+                                                </tbody>
+                                            </table> 
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="hidden" name="id" value="{{visita.id}}">
+                                    {% if visita.num_pase %}
+                                        <input type="hidden" name="pase_actual" value="{{visita.num_pase}}">
+                                    {% endif %}
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                    <button type="submit" class="btn btn-primary">Cambiar pase</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal -->
+                <div class="modal fade" id="registrarSalidaVisitante{{visita.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <form action="{% url 'salida_visita' %}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar salida de visita</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Nav tabs -->
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link d-flex active" data-bs-toggle="tab" href="#visitantesVisita{{visita.id}}" role="tab">
+                                                <span><i class='bx bx-male-female'></i></span>
+                                                <span class="d-none d-md-block ms-2">Visitante/Visitantes</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link d-flex" data-bs-toggle="tab" href="#documentoIdentificacion{{visita.id}}" role="tab">
+                                                <span><i class='bx bx-id-card'></i></span>
+                                                <span class="d-none d-md-block ms-2">Documento de Identificación</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link d-flex" data-bs-toggle="tab" href="#pertenenciasVisitantes{{visita.id}}" role="tab">
+                                                <span><i class='bx bx-package'></i></i> </span>
+                                                <span class="d-none d-md-block ms-2">Materiales/Equipos/Articulos</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link d-flex" data-bs-toggle="tab" href="#paseVisitante{{visita.id}}" role="tab">
+                                                <span><i class='bx bx-barcode-reader'></i></span>
+                                                <span class="d-none d-md-block ms-2">Pase</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                <!-- Tabs -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="visitantesVisita{{visita.id}}" role="tabpanel">
+                                            <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th>Nombre Visitante</th>
+                                                        <th>Documento de Identificación</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for cod, info in visitas_info.items %}
+                                                    {% for v in info.visitantes %}
+                                                        {% if v.cod_visita == visita.cod_visita %}
+                                                            <tr>
+                                                                <td class="col-6">{{v.nombre}}</td>
+                                                                <td class="col-6">{{v.documento_identificacion}}</td>
+                                                            </tr>
+                                                        {% endif %}
+                                                    {% empty %}
+                                                    <tr>
+                                                        <td colspan="2">No hay visitantes</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="tab-pane" id="pertenenciasVisitantes{{visita.id}}" role="tabpanel">
+                                            <table class="table table-bordered table-hover table-sm" id="tabla-material">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th>Nombre Visitante</th>
+                                                        <th>Entrada</th>
+                                                        <th>Salida</th>
+                                                        <th>Doc. Soporte</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for cod, info in visitas_info.items %}
+                                                    {% for p in info.pertenencias %}
+                                                        {% if p.cod_visita == visita.cod_visita %}
+                                                            <tr>
+                                                                <td class="col-auto">{{ visitante_por_documento|dict_get:p.identificacion_visitante }}</td>
+                                                                <td class="col-auto">{{p.pertenencias_entrada}}</td>
+                                                                <td class="col-auto">
+                                                                    {% if p.pertenencias_salida %}
+                                                                        <input type="text" name="pertenencias_salida_{{ p.id }}" class="form-control pertenencias-salida" value="{{p.pertenencias_salida}}">
+                                                                    {% else %}
+                                                                        <input type="text" name="pertenencias_salida_{{ p.id }}" class="form-control pertenencias-salida">
+                                                                    {% endif %}
+                                                                </td>
+                                                                <td class="col-auto">
+                                                                    {% if p.documento_soporte %}
+                                                                        <div class="mt-1">
+                                                                            <a href="{{ p.documento_soporte.url }}" target="_blank" class="btn btn-success btn-sm small"><i class='bx bxs-file'></i> Ver archivo</a>
+                                                                        </div>
+                                                                    {% else %}
+                                                                        <label class="btn btn-outline-success btn-sm">
+                                                                            <i class='bx bxs-file-plus'></i> Cargar
+                                                                            <input type="file" name="doc_soporte_{{ p.id }}" class="d-none doc-soporte-input">
+                                                                        </label>
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                        {% endif %}
+                                                    {% empty %}           
+                                                    <tr>
+                                                        <td colspan="4">No hay registros para mostrar</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="tab-pane" id="documentoIdentificacion{{visita.id}}" role="tabpanel">
+                                            {% if visita.foto_documento_identificacion %}
+                                                <div class="row d-flex justify-content-center align-items-center m-3">
+                                                    <img src="{{ visita.foto_documento_identificacion.url }}" alt="Foto Documento" style="width:80%;">
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="tab-pane" id="paseVisitante{{visita.id}}" role="tabpanel">
+                                            <table class="table table-bordered table-hover table-sm">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th>Número Pase</th>
+                                                        <th>Lugares Acceso</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% if visita.num_pase %}
+                                                    {% for p in pases %}
+                                                        {% if p.numero_pase == visita.num_pase %}
+                                                        <tr>
+                                                            <td>{{ p.numero_pase }}</td>
+                                                            <td>{{ p.lugares_acceso }}</td>
+                                                        </tr>
+                                                        {% endif %}
+                                                    {% empty %}
+                                                    <tr>
+                                                        <td colspan="4">No se encuentra información de el pase entregado</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+                                                {% if not visita.num_pase %}
+                                                    <tr>
+                                                        <td colspan="4">No se encuentra un pase entregado</td>
+                                                    </tr>
+                                                {% endif %}
+                                                </tbody>
+                                            </table>                
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="hidden" name="cod_visita" value="{{visita.cod_visita}}">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                    <button type="submit" class="btn btn-danger">Regitrar Salida</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 {% empty %}
-                <div class="col-12 text-center">
-                    <h1 style="color: rgb(206, 206, 206);">
+                <div class="col-12 d-flex align-items-center" data-aos="zoom-in">
+                    <h1 style="color: rgb(206, 206, 206); margin-right: 7px;">
                         <i class='bx bxs-happy-beaming'></i>
                     </h1>
                     <h4 style="color: rgb(206, 206, 206);">
@@ -370,7 +371,7 @@
             <div class="row p-3">
                 <h5>Agendadas hoy</h5>
                 {% for visita in visitas_agendadas_hoy %}
-                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
                     <div class="card hover-img card-visita-dentro">
                         <div class="card-body p-2 text-center border-none">
                             <img src="{% static '/assets/images/profile/user-3.jpg' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
@@ -393,7 +394,7 @@
                     </div>
                 </div>
                 {% empty %}
-                    <div class="col-12 text-center text-secondary">
+                    <div class="col-12" data-aos="zoom-in">
                         No hay visitas agendadas
                     </div>
                 {% endfor %}
@@ -402,7 +403,7 @@
             <div class="row p-3">
                 <h5>Próximas visitas</h5>
                 {% for visita in visitas_agendadas %}
-                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
                     <div class="card hover-img card-visita-dentro">
                         <div class="card-body p-2 text-center border-none">
                             <img src="{% static '/assets/images/profile/user-3.jpg' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
@@ -425,7 +426,7 @@
                     </div>
                 </div>
                 {% empty %}
-                    <div class="col-12 text-center text-secondary">
+                    <div class="col-12" data-aos="zoom-in">
                         No hay visitas agendadas
                     </div>
                 {% endfor %}
@@ -436,7 +437,7 @@
             <div class="row p-3">
                 <h5>Eventos Hoy</h5>
                 {% for evento in eventos_hoy %}
-                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" data-aos="zoom-in">
                         <div class="card hover-img card-visita-dentro">
                             <div class="card-body p-2 text-center border-none">
                                 <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
@@ -459,7 +460,7 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div class="col-12 text-center text-secondary">
+                    <div class="col-12" data-aos="zoom-in">
                         No hay eventos para hoy
                     </div>
                 {% endfor %}
@@ -468,7 +469,7 @@
             <div class="row p-3">
                 <h5>Próximos Eventos</h5>
                 {% for evento in eventos_proximos %}
-                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" data-aos="zoom-in">
                         <div class="card hover-img card-visita-dentro">
                             <div class="card-body p-2 text-center border-none">
                                 <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
@@ -491,7 +492,7 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div class="col-12 text-center text-secondary">
+                    <div class="col-12" data-aos="zoom-in">
                         No hay eventos para los próximos días
                     </div>
                 {% endfor %}

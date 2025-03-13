@@ -43,7 +43,7 @@
     }
 </style>
 <div>
-    <div class="mb-3 row d-flex" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
+    <div class="mb-3 row d-flex" style="border-bottom: 1px solid #000; padding-bottom: 15px;" data-aos="zoom-in">
         <div class="col" style="display: flex; flex-direction: column; justify-content: flex-end;">
             <h4>Ingreso de visita agendada </h4>
         </div>
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <form id="formNewVisita" method="post" action="{% url 'guardar_ingresar_visita_agendada' %}" enctype="multipart/form-data">
+    <form id="formNewVisita" method="post" action="{% url 'guardar_ingresar_visita_agendada' %}" enctype="multipart/form-data" data-aos="zoom-in">
         {% csrf_token %}
         <!-- Los campos generales de la visita -->
         <div class="mb-3 row">

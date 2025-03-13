@@ -324,7 +324,7 @@ def change_password(request, user_id):
                 user_profile.save()
 
             messages.success(request, "Contraseña y PIN cambiados correctamente.")
-            return redirect('home')
+            return redirect('inicio')
         else:
             # 🔹 Agregar errores al sistema de mensajes
             for error in form.errors.values():
@@ -354,7 +354,7 @@ def change_password_reset(request, user_id):
                 user_profile.save()
 
             messages.success(request, "Contraseña y PIN cambiados correctamente.")
-            return redirect('home')
+            return redirect('inicio')
         else:
             # 🔹 Agregar errores al sistema de mensajes
             for error in form.errors.values():
@@ -521,8 +521,7 @@ def eventos(request):
         cod_asambleas_unicos = Eventos.objects.values_list("cod_asamblea", flat=True).distinct()
         usuarios_unicos = Eventos.objects.values_list("usuario_registro", flat=True).distinct()
         
-        asamblea = Votacion.objects.filter(estado='Iniciada')
-        disabled = asamblea.count()
+        disabled = 1
 
         paginator = Paginator(logs, 10)  # 10 empresas por página
         page = request.GET.get('page')

@@ -1,0 +1,188 @@
+{% load static %}
+{% load menu_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCIT | {% block title %}Registro de Votos{% endblock %}</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="{% static 'img/favicon/apple-icon-57x57.png' %}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{% static 'img/favicon/apple-icon-60x60.png' %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static 'img/favicon/apple-icon-72x72.png' %}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/favicon/apple-icon-76x76.png' %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static 'img/favicon/apple-icon-114x114.png' %}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'img/favicon/apple-icon-120x120.png' %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'img/favicon/apple-icon-144x144.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'img/favicon/apple-icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicon/apple-icon-180x180.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192"  href="{% static 'img/favicon/android-icon-192x192.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'img/favicon/favicon-96x96.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicon/favicon-16x16.png' %}">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Box Icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- AOS Animate -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- SweetAlert2 CSS -->
+    <!-- Agregar el CDN de SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.min.js"></script>
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="{% static '/assets/css/styles.min.css' %}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <!-- AOS Animate -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <style>
+        .btn{
+            border-radius: 25px;
+        }
+
+        .sidebar-nav ul .sidebar-item.selected>.sidebar-link.active, .sidebar-nav ul .sidebar-item.selected>.sidebar-link, .sidebar-nav ul .sidebar-item>.sidebar-link.active {
+            border-radius: 25px;
+        }
+        
+        .sidebar-nav ul .sidebar-item.selected>.sidebar-link.active, .sidebar-nav ul .sidebar-item.selected>.sidebar-link, .sidebar-nav ul .sidebar-item>.sidebar-link:hover {
+            border-radius: 25px;
+            background-color: #a7adba;
+            color: #18314F;
+            padding-left: 18px;
+        }
+        .body-wrapper .container-fluid{
+            max-width: 1500px;
+        }
+        /* Definimos la animación "zoom-in" */
+        @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+        }
+
+        /* Clase base para aplicar la animación */
+        .zoom-in {
+        /* Puedes ajustar el retraso o la duración según necesites */
+        animation: zoomIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    {% if messages %}
+        {% for m in messages %}
+            {% if m.tags == 'success' %}
+                <script>
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    Toast.fire({
+                        icon: "success",
+                        title: "¡Éxito!",
+                        text: "{{m}}",
+                    });
+                </script>
+            {% elif m.tags == 'error' %}
+                <script>
+                    Swal.fire({
+                        title: "Algo Salió Mal :(",
+                        text: "{{m}}",
+                        icon: "{{m.tags}}",
+                        confirmButtonColor: "#57647D",
+                        focusConfirm: false,
+                    });
+                </script>
+            {% elif m.tags == 'warning' %}
+                <script>
+                    Swal.fire({
+                        title: "Atención",
+                        text: "{{m}}",
+                        icon: "{{m.tags}}",
+                        confirmButtonColor: "#FDBD15",
+                        focusConfirm: false,
+                    });
+                </script>
+            {% elif m.tags == 'info' %}
+                <script>
+                    Swal.fire({
+                        title: "Información",
+                        text: "{{m}}",
+                        icon: "{{m.tags}}",
+                        confirmButtonColor: "#18314F",
+                        focusConfirm: false,
+                    });
+                </script>
+            {% elif m.tags == 'debug' %}
+                <script>
+                    Swal.fire({
+                        title: "Mensaje Técnico",
+                        text: "{{m}}",
+                        icon: "{{m.tags}}",
+                        confirmButtonColor: "#18314F",
+                        focusConfirm: false,
+                    });
+                </script>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="body-wrapper-inner">
+        <div class="container-fluid">
+            {% block content %} {% endblock %}
+        </div>
+    </div>
+    <script src="{% static '/assets/libs/jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static '/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static '/assets/js/sidebarmenu.js' %}"></script>
+    <script src="{% static '/assets/js/app.min.js' %}"></script>
+    <script src="{% static '/assets/libs/simplebar/dist/simplebar.js' %}"></script>
+
+    <!-- solar icons -->
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+
+    <!-- AOS Animate -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Configuración Global -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inicializar AOS Animate
+            AOS.init();
+
+            // Inicializar Select2
+            $('.select2').select2({
+                placeholder: 'Seleccione un lente',
+                theme: 'bootstrap-5',
+                allowClear: true
+            });
+        });
+    </script>
+    <script>
+        document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function (event) {
+                AOS.refresh();
+            });
+        });
+    </script>
+</body>
+</html>

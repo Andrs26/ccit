@@ -43,13 +43,13 @@
     }
 </style>
 <div class="container my-4">
-    <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
+    <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;" data-aos="zoom-in">
         <div class="col">
             <h4>{{ evento.nombre }} - {{ evento.organizador }} </h4>
         </div>
     </div>
     
-    <div class="mb-3 row">
+    <div class="mb-3 row" data-aos="zoom-in">
         <div class="col-md-3">
             <label class="form-label">Fecha de Evento</label>
             <input type="text" name="fecha" class="form-control" value="{{ evento.fecha }}" readonly>
@@ -69,7 +69,7 @@
     </div>
     
     <!-- Tab de Participantes -->
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" role="tablist" data-aos="zoom-in">
         <li class="nav-item">
             <a class="nav-link d-flex active" data-bs-toggle="tab" href="#participantes" role="tab">
                 <span><i class='bx bx-male-female'></i></span>
@@ -84,7 +84,7 @@
         </li>
     </ul>
     
-    <div class="tab-content my-3">
+    <div class="tab-content my-3" data-aos="zoom-in">
         <!-- Tab: Participantes Manuales -->
         <div class="tab-pane active" id="participantes" role="tabpanel">
             <table class="table table-bordered table-hover table-sm" id="tabla-asistencia">

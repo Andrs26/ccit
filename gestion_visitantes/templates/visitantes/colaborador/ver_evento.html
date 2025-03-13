@@ -43,7 +43,7 @@
     }
 </style>
 <div class="container my-4">
-    <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;">
+    <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;" data-aos="zoom-in">
         <div class="col">
             <h4>Crear Evento</h4>
         </div>
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <form id="formNuevoEvento" method="post" action="{% url 'guardar_evento' %}" enctype="multipart/form-data">
+    <form id="formNuevoEvento" method="post" action="{% url 'guardar_evento' %}" enctype="multipart/form-data" data-aos="zoom-in">
         {% csrf_token %}
         <!-- Campos generales del evento -->
         <div class="mb-3 row">
