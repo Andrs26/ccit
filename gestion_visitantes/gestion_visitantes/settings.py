@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     'lista_negra',
     'pertenencias',
     'colaboradores',
+
+    # Aplicacion para Server
+    'sslserver',
 ]
 
 MIDDLEWARE = [
