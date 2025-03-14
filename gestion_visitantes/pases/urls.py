@@ -11,4 +11,5 @@ urlpatterns = [
     path('editar_pase/<int:id>', views.editar_pase, name='editar_pase'),
     path('edit_pase/', views.edit_pase, name='edit_pase'),
     path('eliminar_pase/<int:id>', views.eliminar_pase, name='eliminar_pase'),
+    path('reportar_pase/<int:id>', views.reportar_pase, name='reportar_pase'),
 ]

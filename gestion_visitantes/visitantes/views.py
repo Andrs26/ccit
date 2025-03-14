@@ -464,7 +464,7 @@ def eventos_capacitaciones(request):
 
 @login_required
 def pases(request):
-    pases = PaseAcceso.objects.filter(estado='activo')
+    pases = PaseAcceso.objects.filter(estado='activo').exclude(estado_pase='Perdido')
     visitas = Visita.objects.all()
 
     return render(request, 'visitantes/recepcion/principales/pases.html', {

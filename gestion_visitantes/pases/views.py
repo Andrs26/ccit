@@ -116,6 +116,51 @@ def eliminar_pase(request, id):
     messages.info(request, "Pase eliminado.")
     return redirect('pases')
 
+from django.core.mail import send_mail
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+@login_required
+def reportar_pase(request, id):
+    pase = PaseAcceso.objects.get(id=id)
+    visitas = Visita.objects.filter(estado_visitante = 'in', num_pase=pase.numero_pase).count()
+    num_pase = pase.numero_pase
+    if visitas > 0:
+        messages.warning(request, f"El pase {num_pase} se encuentra asignado a una visita, no se puede reportar un pase en uso.")
+        return redirect('pases_recepcion')
+    else:
+        comentario_reporte = request.POST['comentario_reporte']
+        nuevo_estado = request.POST['estado_pase']
+
+        pase.comentario_reporte = comentario_reporte
+        pase.estado_pase = nuevo_estado
+        pase.save()
+        
+        # Enviar correo a todos los usuarios en el grupo "visitas_it_group"
+        try:
+            grupo_visitas = Group.objects.get(name="visitas_it_group")
+            usuarios_destino = grupo_visitas.user_set.filter(email__isnull=False).exclude(email="")  # Solo usuarios con email
+
+            if usuarios_destino.exists():
+                subject = f"Notificación: Reporte de pase {nuevo_estado}."
+                message = f"Hola,\n\nSe ha reportado el pase de acceso {num_pase} como {nuevo_estado}, motivo: {comentario_reporte}.\n\nSaludos,\nEquipo CCIT"
+                recipient_list = [usuario.email for usuario in usuarios_destino]
+
+                send_mail(
+                    subject,
+                    message,
+                    None,  # Puedes cambiarlo a DEFAULT_FROM_EMAIL si lo tienes configurado en settings.py
+                    recipient_list,
+                    fail_silently=False,
+                )
+                print(f"Correo enviado a: {', '.join(recipient_list)}")
+            else:
+                print("No hay usuarios en el grupo con correo electrónico.")
+        except Group.DoesNotExist:
+            print("El grupo 'visitas_it_group' no existe.")
+
+        messages.info(request, f"Pase {num_pase} reportado.")
+        return redirect('pases_recepcion')
 
 def cambiar_estado_pase(request, pase_id):
     try:

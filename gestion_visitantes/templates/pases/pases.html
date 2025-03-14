@@ -184,6 +184,7 @@
                 <th>Número Pase</th>
                 <th>Lugares Acceso</th>
                 <th>Estado Pase</th>
+                <th>Comentario</th>
                 <th>Estado</th>
                 <th>Acciones</th>
             </tr>
@@ -195,6 +196,11 @@
                     <td>{{ pase.numero_pase }}</td>
                     <td>{{ pase.lugares_acceso }}</td>
                     <td>{{ pase.estado_pase }}</td>
+                    <td>
+                        {% if pase.comentario_reporte %}
+                            {{ pase.comentario_reporte }}
+                        {% endif %}
+                    </td>
                     <td>
                         <label class="ios-switch">
                             <input type="checkbox" class="pase-status" data-pase-id="{{ pase.id }}" {% if pase.estado == 'activo' %}checked{% endif %}>
@@ -235,7 +241,7 @@
                 </div>
             {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center">No hay pases.</td>
+                    <td colspan="7" class="text-center">No hay pases.</td>
                 </tr>
             {% endfor %}
         </tbody>

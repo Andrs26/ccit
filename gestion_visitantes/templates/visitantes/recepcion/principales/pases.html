@@ -179,7 +179,7 @@
                     <td class="col-auto">{{ pase.lugares_acceso }}</td>
                     <td class="col-auto">{{ pase.estado_pase }}</td>
                     <td class="col-auto">
-                        <button class="btn btn-warning btn-sm text-secondary" data-url="{% url 'delete_user' user.id %}" data-bs-toggle="modal" data-bs-target="#modalEliminarPase{{pase.id}}">
+                        <button class="btn btn-light btn-sm text-danger" data-url="{% url 'delete_user' user.id %}" data-bs-toggle="modal" data-bs-target="#modalEliminarPase{{pase.id}}">
                             <i class='bx bxs-no-entry'></i> Reportar pase
                         </button>
                     </td>
@@ -188,7 +188,7 @@
                 <!-- Modal para eliminar usuario (solo visible si el usuario es Super Admin) -->
                 <div class="modal fade" id="modalEliminarPase{{pase.id}}" tabindex="-1" aria-labelledby="modalEliminarUsuarioLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-centered">
-                        <form method="POST" action="{% url 'eliminar_pase' pase.id %}">
+                        <form method="POST" action="{% url 'reportar_pase' pase.id %}">
                             {% csrf_token %}
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -196,20 +196,6 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <!-- <div class="mb-3 row">
-                                        <div class="col">
-                                            <h5>Pase en visitas:</h5>
-                                            <div class="list-group">
-                                                {% for v in visitas %}
-                                                    {% if pase.numero_pase == v.num_pase %}
-                                                        <a class="list-group-item list-group-item-action" href="{% url 'detalle_visita_agendada' v.id %}">
-                                                            <i class='bx bxs-user-detail' style='margin-right: 4px;' ></i>  <b>Visitante:</b> {{v.visitante}} - <b>Fecha:</b> {{v.fecha_visita | date:'d-m-Y'}} - <b>Colaborador:</b> {{v.persona_visitada}} - <b>Estado Visita:</b> {{v.estado_visitante}}
-                                                        </a>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    </div> -->
                                     <div class="mb-3 row">
                                         <div class="col-auto">
                                             <label for="exampleFormControlInput1" class="form-label">Tipo de Reporte</label>
@@ -224,13 +210,13 @@
                                     <div class="mb-3 row">
                                         <div class="col">
                                             <label for="exampleFormControlTextarea1" class="form-label">Motivo del estado</label>
-                                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
+                                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" name="comentario_reporte"></textarea>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                    <button type="submit" class="btn btn-light">Eliminar</button>
+                                    <button type="submit" class="btn btn-light">Reportar</button>
                                 </div>
                             </div>
                         </form>

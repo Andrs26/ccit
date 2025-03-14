@@ -203,12 +203,24 @@
         <!-- Campo para seleccionar el rol (grupo) -->
         <div class="input-container mb-3">
             <select name="estado_pase" required>
-                <option value="{{ pase.estado_pase }}">{{ pase.estado_pase }}</option>
-                {% if pase.estado_pase == 'Disponible' %}
-                    <option value="En uso">En uso</option>
-                {% elif pase.estado_pase == 'En uso' %}
-                    <option value="Disponible">Disponible</option>
-                {% endif %}
+              <option value="{{ pase.estado_pase }}">{{ pase.estado_pase }}</option>
+              {% if pase.estado_pase == 'En uso' %}
+                <option value="Disponible">Disponible</option>
+                <option value="Dañado">Dañado</option>
+                <option value="Perdido">Perdido</option>
+              {% elif pase.estado_pase == 'Disponible' %}
+                <option value="En uso">En uso</option>
+                <option value="Dañado">Dañado</option>
+                <option value="Perdido">Perdido</option>
+              {% elif pase.estado_pase == 'Dañado' %}
+              <option value="En uso">En uso</option>
+              <option value="Disponible">Disponible</option>
+              <option value="Perdido">Perdido</option>
+              {% elif pase.estado_pase == 'Perdido' %}
+              <option value="En uso">En uso</option>
+              <option value="Disponible">Disponible</option>
+              <option value="Dañado">Dañado</option>
+              {% endif %}
             </select>
             <label for="select">Seleccione el estado</label>
         </div>
