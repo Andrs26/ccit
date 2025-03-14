@@ -526,12 +526,6 @@ def guardar_visita(request):
         num_pase = request.POST.get("pase_seleccionado")
         estado_visitante = 'in'
         agendado_presente = 'presente'
-
-        if num_pase:
-            pase = PaseAcceso.objects.get(numero_pase=num_pase)
-            pase.estado_pase = 'En uso'
-            
-            print("1. Pase ahora está En Uso")
         
         # Obtener los datos JSON
         visitantes_json = request.POST.get("visitantes_data", "[]")
@@ -602,7 +596,11 @@ def guardar_visita(request):
             foto_documento_identificacion=foto_documento
         )
         print("2. Visita Guardada")
-        pase.save()
+        if num_pase:
+            pase = PaseAcceso.objects.get(numero_pase=num_pase)
+            pase.estado_pase = 'En uso'
+            pase.save()
+            print("1. Pase ahora está En Uso")
 
         # Crear registros de Visitante (sin foto)
         for index, dato in enumerate(visitantes_data):
