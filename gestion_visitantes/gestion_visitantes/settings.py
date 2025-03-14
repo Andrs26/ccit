@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
     # Aplicacion para Server
     'sslserver',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
