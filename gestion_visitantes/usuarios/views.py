@@ -360,7 +360,7 @@ def change_password(request, user_id):
                 user_profile.save()
 
             messages.success(request, "Contraseña y PIN cambiados correctamente.")
-            return redirect('inicio')
+            return redirect('home')
         else:
             # 🔹 Agregar errores al sistema de mensajes
             for error in form.errors.values():
@@ -390,7 +390,7 @@ def change_password_reset(request, user_id):
                 user_profile.save()
 
             messages.success(request, "Contraseña y PIN cambiados correctamente.")
-            return redirect('inicio')
+            return redirect('home')
         else:
             # 🔹 Agregar errores al sistema de mensajes
             for error in form.errors.values():
