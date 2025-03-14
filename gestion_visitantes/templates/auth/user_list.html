@@ -2,61 +2,6 @@
 {% block title %} Inicio {% endblock %}
 {% block content %}
 {% load static %}
-{% if messages %}
-    {% for m in messages %}
-        {% if m.tags == 'success' %}
-            <script>
-                Swal.fire({
-                    title: "LISTO!",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    showConfirmButton: false,
-                    timer: 2500,
-                });
-            </script>
-        {% elif m.tags == 'error' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#57647D",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'warning' %}
-            <script>
-                Swal.fire({
-                    title: "ADVERTENCIA",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#FDBD15",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'info' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% elif m.tags == 'debug' %}
-            <script>
-                Swal.fire({
-                    title: "{{m.tags|upper}}",
-                    text: "{{m}}",
-                    icon: "{{m.tags}}",
-                    confirmButtonColor: "#18314F",
-                    focusConfirm: false,
-                });
-            </script>
-        {% endif %}
-    {% endfor %}
-{% endif %}
 <style>
 /* Botón de login */
 .btn-edit {
@@ -269,14 +214,20 @@
                             </td>
         
                         <!-- ✅ Admin puede cambiar el estado solo de usuarios estándar -->
-                        {% elif is_admin_group and user.is_estandar_group %}
+                        {% elif is_admin_group and user.is_visitas_colaborador_group or user.is_visitas_recepcion_group %}
                             <td>
                                 <label class="ios-switch">
                                     <input type="checkbox" class="user-status" {% if user.is_active %}checked{% endif %} data-user-id="{{ user.id }}">
                                     <span class="slider"></span>
                                 </label>
                             </td>
-                        
+                        {% elif is_it_group and user.is_visitas_colaborador_group or user.is_visitas_recepcion_group %}
+                            <td>
+                                <label class="ios-switch">
+                                    <input type="checkbox" class="user-status" {% if user.is_active %}checked{% endif %} data-user-id="{{ user.id }}">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
                         <!-- ❌ Si es admin pero el usuario NO es estándar_group, no puede cambiar el estado -->
                         {% else %}
                             <td></td>
@@ -292,10 +243,12 @@
                                 <a href="{% url 'reset_user_password' user.id %}" class="btn btn-warning btn-sm btn-pass"><i class="bx bx-key"></i></a>
                             
                             <!-- ✅ Admin solo puede editar y resetear la contraseña de estándar_group -->
-                            {% elif is_admin_group and user.is_estandar_group %}
+                            {% elif is_admin_group and user.is_visitas_colaborador_group or user.is_visitas_recepcion_group %}
                                 <a href="{% url 'edit_user' user.id %}" class="btn btn-custom btn-sm btn-edit"><i class='bx bx-edit-alt'></i></a>
                                 <a href="{% url 'reset_user_password' user.id %}" class="btn btn-warning btn-sm btn-pass"><i class="bx bx-key"></i></a>
-                            
+                            {% elif is_it_group and user.is_visitas_colaborador_group or user.is_visitas_recepcion_group %}
+                                <a href="{% url 'edit_user' user.id %}" class="btn btn-custom btn-sm btn-edit"><i class='bx bx-edit-alt'></i></a>
+                                <a href="{% url 'reset_user_password' user.id %}" class="btn btn-warning btn-sm btn-pass"><i class="bx bx-key"></i></a>
                             {% endif %}
                         </td>
                     </tr>

@@ -124,7 +124,9 @@ def user_list(request):
     # Filtrar usuarios según el grupo del usuario autenticado
     if is_super_admin_group:
         users = User.objects.prefetch_related('groups').all()  # Super admin ve todos los usuarios
-    elif is_admin_group or is_it_group:
+    elif is_admin_group:
+        users = User.objects.prefetch_related('groups').exclude(groups__name="super_admin")  # Admin NO ve super_admin
+    elif is_it_group:
         users = User.objects.prefetch_related('groups').exclude(groups__name="super_admin")  # Admin NO ve super_admin
     else:
         messages.error(request, "Acceso no permitido.")
@@ -132,7 +134,8 @@ def user_list(request):
 
     # Agregar un atributo a cada usuario para facilitar la lógica en el template
     for user in users:
-        user.is_estandar_group = user.groups.filter(name="estandar_group").exists()
+        user.is_visitas_colaborador_group = user.groups.filter(name="visitas_colaborador_group").exists()
+        user.is_visitas_recepcion_group = user.groups.filter(name="visitas_recepcion_group").exists()
 
     # Registrar acceso en eventos
     Eventos.objects.create(
@@ -144,6 +147,7 @@ def user_list(request):
     return render(request, 'auth/user_list.html', {
         'users': users,
         'is_admin_group': is_admin_group,
+        'is_it_group': is_it_group,
         'is_super_admin_group': is_super_admin_group
     })
 
@@ -160,7 +164,9 @@ def buscar_user(request):
     # Seleccionar usuarios según permisos
     if is_super_admin_group:
         users = User.objects.prefetch_related('groups').all()
-    elif is_admin_group or is_it_group:
+    elif is_admin_group:
+        users = User.objects.prefetch_related('groups').exclude(groups__name="super_admin")
+    elif is_it_group:
         users = User.objects.prefetch_related('groups').exclude(groups__name="super_admin")
     else:
         messages.error(request, "Acceso no permitido.")
@@ -172,7 +178,8 @@ def buscar_user(request):
 
     # Agregar atributo a cada usuario para usar en el template
     for user in users:
-        user.is_estandar_group = user.groups.filter(name="estandar_group").exists()
+        user.is_visitas_colaborador_group = user.groups.filter(name="visitas_colaborador_group").exists()
+        user.is_visitas_recepcion_group = user.groups.filter(name="visitas_recepcion_group").exists()
 
     # Registrar el evento (opcional)
     Eventos.objects.create(
@@ -184,6 +191,7 @@ def buscar_user(request):
     return render(request, 'auth/user_list.html', {
         'users': users,
         'is_admin_group': is_admin_group,
+        'is_it_group': is_it_group,
         'is_super_admin_group': is_super_admin_group,
         'username_query': username_query,  # Para mantener el criterio en el template si lo deseas
     })
