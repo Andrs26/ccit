@@ -78,7 +78,7 @@ def login_view(request):
             evento = Eventos(
                 cod_asamblea='ASAM_2025',
                 accion='Inició sesión',
-                usuario_registro=request.user.username
+                usuario_registro=request.user.id
             )
             evento.save()
 
@@ -101,12 +101,6 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    evento = Eventos(
-        cod_asamblea = 'ASAM_2025',
-        accion = f'Cerró sesión',
-        usuario_registro = request.user.username
-    )
-    evento.save()
     return redirect('login')
 
 @login_required
@@ -125,11 +119,12 @@ def home(request):
 def user_list(request):
     is_super_admin_group = request.user.groups.filter(name='super_admin').exists()
     is_admin_group = request.user.groups.filter(name='admin_group').exists()
+    is_it_group = request.user.groups.filter(name='visitas_it_group').exists()
 
     # Filtrar usuarios según el grupo del usuario autenticado
     if is_super_admin_group:
         users = User.objects.prefetch_related('groups').all()  # Super admin ve todos los usuarios
-    elif is_admin_group:
+    elif is_admin_group or is_it_group:
         users = User.objects.prefetch_related('groups').exclude(groups__name="super_admin")  # Admin NO ve super_admin
     else:
         messages.error(request, "Acceso no permitido.")
@@ -143,7 +138,7 @@ def user_list(request):
     Eventos.objects.create(
         cod_asamblea='ASAM_2025',
         accion='Accedió al listado de usuarios',
-        usuario_registro=request.user.username
+        usuario_registro=request.user.id
     )
 
     return render(request, 'auth/user_list.html', {
@@ -152,15 +147,56 @@ def user_list(request):
         'is_super_admin_group': is_super_admin_group
     })
 
+@login_required
+def buscar_user(request):
+    # Verificar permisos del usuario autenticado
+    is_super_admin_group = request.user.groups.filter(name='super_admin').exists()
+    is_admin_group = request.user.groups.filter(name='admin_group').exists()
+    is_it_group = request.user.groups.filter(name='visitas_it_group').exists()
+
+    # Obtener el parámetro de búsqueda desde la URL (ej: ?username=algo)
+    username_query = request.GET.get('username', '').strip()
+
+    # Seleccionar usuarios según permisos
+    if is_super_admin_group:
+        users = User.objects.prefetch_related('groups').all()
+    elif is_admin_group or is_it_group:
+        users = User.objects.prefetch_related('groups').exclude(groups__name="super_admin")
+    else:
+        messages.error(request, "Acceso no permitido.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+    # Filtrar por username si se proporcionó el criterio
+    if username_query:
+        users = users.filter(username__icontains=username_query)
+
+    # Agregar atributo a cada usuario para usar en el template
+    for user in users:
+        user.is_estandar_group = user.groups.filter(name="estandar_group").exists()
+
+    # Registrar el evento (opcional)
+    Eventos.objects.create(
+        cod_asamblea='ASAM_2025',
+        accion=f'Buscó usuario por username: {username_query}',
+        usuario_registro=request.user.id
+    )
+
+    return render(request, 'auth/user_list.html', {
+        'users': users,
+        'is_admin_group': is_admin_group,
+        'is_super_admin_group': is_super_admin_group,
+        'username_query': username_query,  # Para mantener el criterio en el template si lo deseas
+    })
+
 #? Vista para crear un nuevo usuario
 @login_required
 def create_user(request):
-    if request.user.groups.filter(name='admin_group').exists() or request.user.groups.filter(name='super_admin').exists():
+    if request.user.groups.filter(name='admin_group').exists() or request.user.groups.filter(name='super_admin').exists() or request.user.groups.filter(name='visitas_it_group').exists():
         if request.method == 'POST':
             username = request.POST['username']
-            password = request.POST['password']
+            # password = request.POST['password']
             email = request.POST['email']
-            pin = request.POST['pin']
+            # pin = request.POST['pin']
             first_name = request.POST['first_name']
             last_name = request.POST['last_name']
             selected_groups = request.POST.getlist('groups[]')
@@ -172,7 +208,7 @@ def create_user(request):
 
             # Crear el usuario
             user = get_user_model().objects.create_user(
-                username=username, password=password, email=email,
+                username=username, password='ccit', email=email,
                 first_name=first_name, last_name=last_name
             )
 
@@ -182,17 +218,17 @@ def create_user(request):
                 user.groups.add(group)
 
             # Crear el perfil del usuario con el PIN
-            user_profile = UserProfile(user=user, pin=pin)
+            user_profile = UserProfile(user=user, pin='0000')
             user_profile.save()
 
             evento = Eventos(
                 cod_asamblea = 'ASAM_2025',
                 accion = f'Creó al usuario {username}',
-                usuario_registro = request.user.username
+                usuario_registro = request.user.id
             )
             evento.save()
 
-            messages.success(request, "Usuario creado correctamente.")
+            messages.success(request, "Usuario creado. \n Contraseña temporal: [ccit]. \n El usuario debe cambiar su contraseña y establecer un PIN en el siguiente inicio de sesión.")
             return redirect('user_list')
         
         # Pasamos los grupos disponibles al template para seleccionarlos
@@ -212,7 +248,7 @@ def create_user(request):
 #? Vista para editar la información de un usuario
 @login_required
 def edit_user(request, user_id):
-    if request.user.groups.filter(name='admin_group').exists() or request.user.groups.filter(name='super_admin').exists():
+    if request.user.groups.filter(name='admin_group').exists() or request.user.groups.filter(name='super_admin').exists() or request.user.groups.filter(name='visitas_it_group').exists():
         user = get_object_or_404(User, pk=user_id)  # Obtener el usuario por id
         current_group = user.groups.first() if user.groups.exists() else None  # Obtener el grupo actual del usuario
 
@@ -243,7 +279,7 @@ def edit_user(request, user_id):
             evento = Eventos(
                 cod_asamblea = 'ASAM_2025',
                 accion = f'Editó al {user.username}',
-                usuario_registro = request.user.username
+                usuario_registro = request.user.id
             )
             evento.save()
 
@@ -276,7 +312,7 @@ def delete_user(request, user_id):
         evento = Eventos(
             cod_asamblea = 'ASAM_2025',
             accion = f'Eliminó el usuario {user.username}',
-            usuario_registro = request.user.username
+            usuario_registro = request.user.id
         )
         evento.save()
 
@@ -377,7 +413,7 @@ def reset_user_password(request, user_id):
     user = get_object_or_404(User, pk=user_id)
 
     # Establecer la nueva contraseña genérica
-    nueva_contraseña = "Camara20*"
+    nueva_contraseña = "ccit"
     user.password = make_password(nueva_contraseña)  # Encriptar la nueva contraseña
     user.save()
 
@@ -503,7 +539,7 @@ def cambiar_estado_usuario(request, user_id):
         Eventos.objects.create(
             cod_asamblea='ASAM_2025',
             accion=f'Cambió el estado del usuario {user.username}',
-            usuario_registro=request.user.username
+            usuario_registro=request.user.id
         )
 
         return JsonResponse({'success': True, 'new_status': user.is_active})

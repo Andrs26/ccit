@@ -21,6 +21,7 @@ from django.utils.timezone import now
 from django.http import JsonResponse
 from django.utils import timezone
 from django.urls import reverse
+from django.db.models import Q
 import pandas as pd
 import traceback  # Para imprimir el error completo en la consola
 import random
@@ -38,10 +39,30 @@ from pases.models import *
 # Create your views here.
 @login_required
 def pases(request):
-    pases = PaseAcceso.objects.all()
+    pases_base = PaseAcceso.objects.all()
+
+    paginator_pases = Paginator(pases_base, 10)
+    page_pases = request.GET.get('page_pases')
+    pases = paginator_pases.get_page(page_pases)
 
     return render(request, 'pases/pases.html', {
         'pases': pases
+    })
+
+@login_required
+def buscar_pase(request):
+    search_query = request.GET.get('search', '').strip()
+    
+    if search_query:
+        queryset = PaseAcceso.objects.filter(
+            Q(numero_pase__icontains=search_query) | Q(lugares_acceso__icontains=search_query)
+        )
+    else:
+        queryset = PaseAcceso.objects.all()
+    
+    return render(request, 'pases/pases.html', {
+        'pases': queryset,
+        'search_query': search_query,
     })
 
 @login_required

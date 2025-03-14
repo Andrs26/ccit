@@ -61,9 +61,9 @@
                 <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
                     <label for="exampleFormControlInput1" class="form-label">A quien visita</label>
                     <select class="form-select" aria-label="Default select example" name="persona_visitada">
-                        <option value="{{ request.user.username }}" selected>{{ request.user.first_name }} {{ request.user.last_name }}</option>
-                        {% for colab in colaboradores %}
-                            <option value="{{colab.usuario}}">{{colab.nombre}}</option>
+                        <option value="{{ request.user.id }}" selected>{{ request.user.first_name }} {{ request.user.last_name }}</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
                         {% endfor %}
                     </select>
                 </div>

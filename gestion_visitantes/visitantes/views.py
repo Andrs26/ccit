@@ -151,7 +151,10 @@ def buscar_inicio_recepcion(request):
 def buscar_visitas_recepcion(request):
     # Recuperar parámetros de búsqueda
     q = request.GET.get('q', '').strip()
-    persona = request.GET.get('persona_visitada', '').strip()  # valor seleccionado en el <select>
+
+    persona_visitada_id = request.GET.get('persona_visitada')
+    persona = User.objects.get(pk=persona_visitada_id)
+
     fecha_str = request.GET.get('fecha', '').strip()  # formato YYYY-MM-DD
     today = timezone.localdate()
     fecha_filter = None
@@ -178,7 +181,7 @@ def buscar_visitas_recepcion(request):
         visitantes_match = VisitanesVisita.objects.filter(nombre__icontains=q)
         cod_visitas = visitantes_match.values_list('cod_visita', flat=True).distinct()
         filtros_visita &= Q(cod_visita__in=cod_visitas)
-    if persona and persona.lower() != "colaborador":
+    if persona:
         filtros_visita &= Q(persona_visitada=persona)
     if fecha_filter:
         filtros_visita &= Q(fecha_visita=fecha_filter)
@@ -201,7 +204,7 @@ def buscar_visitas_recepcion(request):
         eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos)
     
     # Filtrar eventos por organizador (si se selecciona un colaborador distinto al valor por defecto)
-    if persona and persona.lower() != "colaborador":
+    if persona:
         eventos_result = eventos_result.filter(organizador=persona)
     
     eventos_result = eventos_result.order_by('fecha', 'hora_inicio')
@@ -516,7 +519,10 @@ def guardar_visita(request):
         # Recoger los datos del formulario
         motivo = request.POST.get("motivo")
         area_departamento = request.POST.get("area_departamento")
-        persona_visitada = request.POST.get("persona_visitada")
+
+        persona_visitada_id = request.POST.get("persona_visitada")
+        persona_visitada_instance = User.objects.get(pk=persona_visitada_id)
+
         num_pase = request.POST.get("pase_seleccionado")
         estado_visitante = 'in'
         agendado_presente = 'presente'
@@ -524,7 +530,7 @@ def guardar_visita(request):
         if num_pase:
             pase = PaseAcceso.objects.get(numero_pase=num_pase)
             pase.estado_pase = 'En uso'
-            pase.save()
+            
             print("1. Pase ahora está En Uso")
         
         # Obtener los datos JSON
@@ -551,7 +557,7 @@ def guardar_visita(request):
         nombre_primero = visitantes_data[0]["nombre"] if visitantes_data else ""
         fecha_visita = hoy
         hora_ingreso = timezone.localtime().time()
-        usuario_registro = request.user.username if request.user.is_authenticated else "Anonimo"
+        usuario_registro = request.user.id if request.user.is_authenticated else "Anonimo"
         
        # Procesar la foto: si se adjunta un archivo, o se captura mediante la cámara
         foto_documento = None
@@ -586,16 +592,17 @@ def guardar_visita(request):
             motivo=motivo,
             tipo=tipo,
             area_departamento=area_departamento,
-            persona_visitada=persona_visitada,
+            persona_visitada=persona_visitada_instance,
             fecha_visita=fecha_visita,
             hora_ingreso=hora_ingreso,
-            usuario_registro=usuario_registro,
+            usuario_registro=request.user,
             num_pase=num_pase,
             estado_visitante=estado_visitante,
             agendado_presente=agendado_presente,
             foto_documento_identificacion=foto_documento
         )
         print("2. Visita Guardada")
+        pase.save()
 
         # Crear registros de Visitante (sin foto)
         for index, dato in enumerate(visitantes_data):
@@ -635,10 +642,10 @@ def guardar_visita(request):
         
         # Enviar correo al usuario visitado
         try:
-            usuario_destino = User.objects.get(username=persona_visitada)
+            usuario_destino = User.objects.get(id=persona_visitada_id)
             if usuario_destino.email:
                 subject = "Notificación: Nueva Visita Registrada"
-                message = f"Hola {usuario_destino.first_name},\n\nSe ha registrado una nueva visita para ti con el código {cod_visita} con fecha {fecha_visita} y hora de ingreso {hora_ingreso}.\n\nSaludos,\nEquipo CCIT"
+                message = f"Hola {usuario_destino.first_name},\n\nSe ha registrado una nueva visita para ti del visitante: {nombre_primero}, con fecha {fecha_visita} y hora de ingreso {hora_ingreso}.\n\nSaludos,\nEquipo CCIT"
                 send_mail(
                     subject,
                     message,
@@ -702,9 +709,9 @@ def guardar_ingresar_visita_agendada(request):
         visita = get_object_or_404(Visita, id=id)
 
         # Recoger datos del formulario
-        motivo = request.POST.get("motivo")
-        area_departamento = request.POST.get("area_departamento")
-        persona_visitada = request.POST.get("persona_visitada")
+        persona_visitada_id = request.POST.get("persona_visitada")
+        persona_visitada_instance = User.objects.get(pk=persona_visitada_id)
+        print(f'{persona_visitada_id} - {persona_visitada_instance}')
         num_pase = request.POST.get("pase_seleccionado")
         
         cod_visita = visita.cod_visita
@@ -731,7 +738,7 @@ def guardar_ingresar_visita_agendada(request):
         tipo = "Individual" if len(visitantes_data) == 1 else "Grupal"
         nombre_primero = visitantes_data[0]["nombre"] if visitantes_data else ""
         hora_ingreso = timezone.localtime().time()
-        usuario_registro = request.user.username if request.user.is_authenticated else "Anonimo"
+        usuario_registro = request.user if request.user.is_authenticated else "Anonimo"
         
         # Procesar la foto: archivo o Data URL.
         foto_documento = None
@@ -759,10 +766,7 @@ def guardar_ingresar_visita_agendada(request):
         
         # Actualizar la Visita
         visita.visitante = nombre_primero
-        visita.motivo = motivo
         visita.tipo = tipo
-        visita.area_departamento = area_departamento
-        visita.persona_visitada = persona_visitada
         visita.hora_ingreso = hora_ingreso
         visita.usuario_registro = usuario_registro
         if num_pase:
@@ -815,10 +819,11 @@ def guardar_ingresar_visita_agendada(request):
 
         # Enviar correo al usuario visitado
         try:
-            usuario_destino = User.objects.get(username=persona_visitada)
+            usuario_destino = User.objects.get(id=persona_visitada_id)
             if usuario_destino.email:
                 subject = "Notificación: Nueva Visita Registrada"
-                message = f"Hola {usuario_destino.first_name},\n\nSe ha registrado una nueva visita para ti con el código {cod_visita} con fecha {visita.fecha_visita} y hora de ingreso {hora_ingreso}.\n\nSaludos,\nEquipo CCIT"
+                hora_ingreso_formateada = hora_ingreso.strftime("%H:%M")
+                message = f"Hola {usuario_destino.first_name},\n\nSe ha registrado una nueva visita para ti del visitante: '{nombre_primero}', con fecha {visita.fecha_visita} y hora de ingreso {hora_ingreso_formateada}.\n\nSaludos,\nEquipo CCIT"
                 send_mail(
                     subject,
                     message,
@@ -938,11 +943,16 @@ def cambiar_estado_motivo(request):
 #* ************************************************************************ Parametros: Acciones
 @login_required
 def acciones(request):
-    acciones = AccionVisita.objects.all()
+    acciones_base = AccionVisita.objects.all()
+
+    paginator_acciones = Paginator(acciones_base, 10)
+    page_acciones = request.GET.get('page_acciones')
+    acciones = paginator_acciones.get_page(page_acciones)
 
     return render(request, 'parametros/acciones.html', {
         'acciones': acciones
     })
+    
 
 def crear_accion(request):
     if request.method == 'POST':
@@ -990,6 +1000,21 @@ def colaboradores(request):
 
     return render(request, 'parametros/colaboradores.html', {
         'colaboradores': colaboradores
+    })
+
+@login_required
+def buscar_colaboradores(request):
+    nombre_query = request.GET.get('nombre', '').strip()
+
+    if nombre_query:
+        # Filtrar colaboradores por el campo 'nombre' que contenga el criterio (insensible a mayúsculas/minúsculas)
+        colaboradores = Colaborador.objects.filter(nombre__icontains=nombre_query)
+    else:
+        colaboradores = Colaborador.objects.all()
+
+    return render(request, 'parametros/colaboradores.html', {
+        'colaboradores': colaboradores,
+        'nombre_query': nombre_query,  # Para mantener el valor en el formulario si lo deseas
     })
 
 def crear_colaborador(request):
@@ -1106,7 +1131,7 @@ def salida_visita(request):
                 p.aceptacion = archivo2
 
             # Registrar quien hizo la salida (usuario en sesión)
-            p.usuario_registro_salida = request.user.username if request.user.is_authenticated else "Anonimo"
+            p.usuario_registro_salida = request.user.id if request.user.is_authenticated else "Anonimo"
             p.save()
 
         messages.success(request, "Salida registrada exitosamente.")

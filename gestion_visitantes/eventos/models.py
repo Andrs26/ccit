@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class EventoCapacitacion(models.Model):
     """Registro de eventos o capacitaciones con visitantes"""
     nombre = models.CharField(max_length=255)
-    organizador = models.CharField(max_length=255, null=True, blank=True)
+    organizador = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha = models.DateField()
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()

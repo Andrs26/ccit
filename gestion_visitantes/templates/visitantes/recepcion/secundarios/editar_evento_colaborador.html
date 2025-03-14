@@ -67,7 +67,7 @@
             <div class="col-md-4">
                 <label class="form-label">Organizador</label>
                 <select class="form-select" name="organizador">
-                    <option value="{{ request.user.username }}" {% if evento.organizador == request.user.username %}selected{% endif %}>
+                    <option value="{{ request.user.id }}" {% if evento.organizador == request.user.id %}selected{% endif %}>
                         {{ request.user.first_name }} {{ request.user.last_name }}
                     </option>
                     {% for colab in colaboradores %}

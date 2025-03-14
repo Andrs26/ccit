@@ -65,9 +65,9 @@
             <div class="col-md-4">
                 <label class="form-label">Organizador</label>
                 <select class="form-select" name="organizador">
-                    <option value="{{ request.user.username }}" selected>{{ request.user.first_name }} {{ request.user.last_name }}</option>
-                    {% for colab in colaboradores %}
-                        <option value="{{ colab.usuario }}">{{ colab.nombre }}</option>
+                    <option value="{{ request.user.id }}" selected>{{ request.user.first_name }} {{ request.user.last_name }}</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
                     {% endfor %}
                 </select>
             </div>

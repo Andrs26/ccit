@@ -61,15 +61,16 @@
             <div class="mb-3 row">
                 <div class="col-12 col-md-4">
                     <label class="form-label">Motivo de Visita</label>
-                    <input type="text" class="form-control" name="motivo" value="{{visita.motivo}}" readonly>
+                    <input type="text" class="form-control" name="motivo" value="{{visita.motivo}}" disabled>
                 </div>
                 <div class="col-12 col-md-4">
                     <label class="form-label">A quien visita</label>
-                    <input type="text" class="form-control" name="persona_visitada" value="{{visita.persona_visitada}}" readonly>
+                    <input type="text" class="form-control" value="{{visita.persona_visitada.first_name}} {{visita.persona_visitada.last_name}}" disabled>
+                    <input type="hidden" class="form-control" name="persona_visitada" value="{{visita.persona_visitada.id}}">
                 </div>
                 <div class="col-12 col-md-4">
                     <label class="form-label">Area / Departamento</label>
-                    <input type="text" class="form-control" name="area_departamento" value="{{visita.area_departamento}}" readonly>
+                    <input type="text" class="form-control" name="area_departamento" value="{{visita.area_departamento}}" disabled>
                 </div>
             </div>
         </div>

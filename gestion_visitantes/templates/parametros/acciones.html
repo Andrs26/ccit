@@ -157,6 +157,45 @@
             {% endfor %}
         </tbody>
     </table>
+    <nav aria-label="Paginación de visitas agendadas" data-aos="zoom-in">
+        <ul class="pagination justify-content-center">
+            {% if acciones.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page_acciones={{ acciones.previous_page_number }}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+            {% endif %}
+
+            {% for num in acciones.paginator.page_range %}
+                {% if acciones.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page_acciones={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if acciones.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page_acciones={{ acciones.next_page_number }}" aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
 </div>
 <!-- Incluye SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

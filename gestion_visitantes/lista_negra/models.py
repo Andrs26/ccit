@@ -8,7 +8,7 @@ class ListaNegra(models.Model):
     nombre = models.CharField(max_length=255)
     foto_documento_identificacion = models.ImageField(upload_to='lista_negra/', blank=True, null=True)
     motivo = models.TextField()
-    usuario_registro = models.CharField(max_length=255)
+    usuario_registro = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

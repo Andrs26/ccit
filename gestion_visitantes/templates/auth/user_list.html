@@ -223,7 +223,12 @@
             <div class="col">
                 <h3 class="mb-3">Usuarios Registrados</h3>
             </div>
-            <div class="col d-flex justify-content-end">
+            <div class="col-auto d-flex justify-content-end">
+                <form method="get" action="{% url 'buscar_user' %}">
+                    <input type="search" class="form-control" name="username" placeholder="Buscar por username" value="{{ username_query }}">
+                </form>
+            </div>
+            <div class="col-auto d-flex justify-content-end">
                 <a href="{% url 'create_user' %}" class="btn btn-custom mb-3">Crear Usuario</a>
             </div>
         </div>
@@ -231,7 +236,7 @@
             <thead>
                 <tr>
                     <th>N.</th>
-                    <th>Nombre de Usuario</th>
+                    <th>Username</th>
                     <th>Nombre</th>
                     <th>Rol</th>
                     <th>Estado</th>

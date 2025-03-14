@@ -6,6 +6,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('inicio/', views.home, name='home'),
     path('users/', views.user_list, name='user_list'),  # Ver todos los usuarios
+    path('users/buscar_user', views.buscar_user, name='buscar_user'),  # Buscar usuarios
     path('user/edit/<int:user_id>/', views.edit_user, name='edit_user'),  # Editar un usuario
     path('user/delete/<int:user_id>/', views.delete_user, name='delete_user'),  # Eliminar un usuario
     path('user/reset_user_password/<int:user_id>/', views.reset_user_password, name='reset_user_password'),  #* Restablecer contraseña desde Admin

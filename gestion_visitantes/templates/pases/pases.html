@@ -168,7 +168,12 @@
         <div class="col">
             <h3 class="mb-3">Pases de Acceso</h3>
         </div>
-        <div class="col d-flex justify-content-end">
+        <div class="col-auto d-flex justify-content-end">
+            <form method="get" action="{% url 'buscar_pase' %}">
+                <input type="search" class="form-control" name="search" placeholder="Pase o lugar de acceso" value="{{ search_query }}">
+            </form>
+        </div>
+        <div class="col-auto d-flex justify-content-end">
             <a href="{% url 'crear_pase' %}" class="btn btn-custom mb-3">Crear Pase</a>
         </div>
     </div>
@@ -230,11 +235,50 @@
                 </div>
             {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center">No hay usuarios registrados.</td>
+                    <td colspan="6" class="text-center">No hay pases.</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    <nav aria-label="Paginación de visitas agendadas" data-aos="zoom-in">
+        <ul class="pagination justify-content-center">
+            {% if pases.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page_pases={{ pases.previous_page_number }}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+            {% endif %}
+
+            {% for num in pases.paginator.page_range %}
+                {% if pases.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page_pases={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if pases.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page_pases={{ pases.next_page_number }}" aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
 </div>
 <script>
 document.querySelectorAll('.pase-status').forEach(function(switchElement) {

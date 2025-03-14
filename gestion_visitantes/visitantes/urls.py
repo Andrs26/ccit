@@ -33,7 +33,8 @@ urlpatterns = [
     path('editar_accion/<int:accion_id>', views.editar_accion, name='editar_accion'),
     path('cambiar_estado_accion/', views.cambiar_estado_accion, name='cambiar_estado_accion'),
     #? *************************************************************************************************** Parametros: Colaboradores
-    path('empleados/', views.colaboradores, name='colaboradores'),
+    path('visitas/colaboradores', views.colaboradores, name='colaboradores'),
+    path('visitas/buscar_colaboradores', views.buscar_colaboradores, name='buscar_colaboradores'),
     path('crear_colaborador/', views.crear_colaborador, name='crear_colaborador'),
     path('editar_colaborador/<int:colaborador_id>', views.editar_colaborador, name='editar_colaborador'),
     path('cambiar_estado_colaborador/', views.cambiar_estado_colaborador, name='cambiar_estado_colaborador'),

@@ -45,7 +45,7 @@ class TipoVisita(models.Model):
 
 class Colaborador(models.Model):
     nombre = models.CharField(max_length=255)
-    usuario = models.CharField(max_length=255)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     estado = models.CharField(max_length=50, choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -66,11 +66,11 @@ class Visita(models.Model):
     agendado_presente = models.CharField(max_length=500, null=True, blank=True)
     estado_visitante = models.CharField(max_length=500, null=True, blank=True)
     area_departamento = models.CharField(max_length=255)
-    persona_visitada = models.CharField(max_length=255)
     fecha_visita = models.DateField()
     hora_ingreso = models.TimeField()
     hora_salida = models.TimeField(null=True, blank=True)
-    usuario_registro = models.CharField(max_length=50)
+    persona_visitada = models.ForeignKey(User, on_delete=models.CASCADE, related_name='visitas_recibidas')
+    usuario_registro = models.ForeignKey(User, on_delete=models.CASCADE, related_name='visitas_registradas')
     num_pase = models.CharField(max_length=50, null=True, blank=True)
     foto_documento_identificacion = models.ImageField(upload_to='visitantes/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -76,8 +76,8 @@
                     <label for="exampleFormControlInput1" class="form-label">A quien visita</label>
                     <select class="form-select" aria-label="Default select example" name="persona_visitada">
                         <option selected>Seleccione al colaborador...</option>
-                        {% for colab in colaboradores %}
-                        <option value="{{colab.usuario}}">{{colab.nombre}}</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
                         {% endfor %}
                     </select>
                 </div>

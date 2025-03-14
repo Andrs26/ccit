@@ -41,23 +41,23 @@ from eventos.models import *
 @login_required
 def colaboradores_home(request):
     today = timezone.localdate()
-    visitas_dentro = Visita.objects.filter(estado_visitante='in', persona_visitada=request.user.username).order_by('fecha_visita','hora_ingreso')
+    visitas_dentro = Visita.objects.filter(estado_visitante='in', persona_visitada=request.user.id).order_by('fecha_visita','hora_ingreso')
     
     visitas_agendadas_hoy = Visita.objects.filter(
-        Q(estado_visitante='agendado', agendado_presente='agendado', persona_visitada=request.user.username),
+        Q(estado_visitante='agendado', agendado_presente='agendado', persona_visitada=request.user.id),
         fecha_visita=today
     ).order_by('fecha_visita', 'hora_ingreso')
 
     visitas_agendadas = Visita.objects.filter(
-        Q(estado_visitante='agendado', agendado_presente='agendado', persona_visitada= request.user.username),
+        Q(estado_visitante='agendado', agendado_presente='agendado', persona_visitada= request.user.id),
         fecha_visita__gt=today
     ).order_by('fecha_visita', 'hora_ingreso')
 
     visitantes_visita = VisitanesVisita.objects.all()
     pertenencias = PertenenciasVisitante.objects.all()
     pases = PaseAcceso.objects.all()
-    eventos_hoy = EventoCapacitacion.objects.filter(organizador= request.user.username, fecha=today).order_by('fecha', 'hora_inicio')
-    eventos_proximos = EventoCapacitacion.objects.filter(organizador= request.user.username, fecha__gt=today).order_by('fecha', 'hora_inicio')
+    eventos_hoy = EventoCapacitacion.objects.filter(organizador= request.user.id, fecha=today).order_by('fecha', 'hora_inicio')
+    eventos_proximos = EventoCapacitacion.objects.filter(organizador= request.user.id, fecha__gt=today).order_by('fecha', 'hora_inicio')
 
     # Crear un diccionario: { documento_identificacion: nombre }
     visitante_por_documento = {v.documento_identificacion: v.nombre for v in visitantes_visita}
@@ -90,29 +90,29 @@ def colaboradores_home(request):
 @login_required
 def visitas_colaborador(request):
     today = timezone.localdate()
-    visitas_dentro = Visita.objects.filter(estado_visitante='out', persona_visitada= request.user.username).order_by('fecha_visita', 'hora_ingreso')
+    visitas_dentro = Visita.objects.filter(estado_visitante='out', persona_visitada= request.user.id).order_by('fecha_visita', 'hora_ingreso')
     
     visitas_agendadas = Visita.objects.filter(
-        Q(estado_visitante='agendado', agendado_presente='agendado', persona_visitada= request.user.username),
+        Q(estado_visitante='agendado', agendado_presente='agendado', persona_visitada= request.user.id),
         fecha_visita=today
     ).order_by('fecha_visita', 'hora_ingreso')
     
     visitas_proximas_agendadas = Visita.objects.filter(
-        Q(estado_visitante='agendado', agendado_presente='agendado', persona_visitada= request.user.username),
+        Q(estado_visitante='agendado', agendado_presente='agendado', persona_visitada= request.user.id),
         fecha_visita__gt=today
     ).order_by('fecha_visita', 'hora_ingreso')
     
     visitas_agendadas_anteriormente = Visita.objects.filter(
-        Q(agendado_presente='agendado', persona_visitada= request.user.username),
+        Q(agendado_presente='agendado', persona_visitada= request.user.id),
         fecha_visita__lt=today
     ).exclude(estado_visitante='in').order_by('fecha_visita', 'hora_ingreso')
 
     visitantes_visita = VisitanesVisita.objects.all()
     pertenencias = PertenenciasVisitante.objects.all()
     pases = PaseAcceso.objects.all()
-    eventos_hoy = EventoCapacitacion.objects.filter(organizador= request.user.username, fecha=today).order_by('fecha', 'hora_inicio')
-    eventos_proximos = EventoCapacitacion.objects.filter(organizador= request.user.username, fecha__gt=today).order_by('fecha', 'hora_inicio')
-    eventos_anteriores = EventoCapacitacion.objects.filter(organizador= request.user.username, fecha__lt=today).order_by('fecha', 'hora_inicio')
+    eventos_hoy = EventoCapacitacion.objects.filter(organizador= request.user.id, fecha=today).order_by('fecha', 'hora_inicio')
+    eventos_proximos = EventoCapacitacion.objects.filter(organizador= request.user.id, fecha__gt=today).order_by('fecha', 'hora_inicio')
+    eventos_anteriores = EventoCapacitacion.objects.filter(organizador= request.user.id, fecha__lt=today).order_by('fecha', 'hora_inicio')
 
     # Crear un diccionario: { documento_identificacion: nombre }
     visitante_por_documento = {v.documento_identificacion: v.nombre for v in visitantes_visita}
@@ -180,10 +180,10 @@ def visitas_colaborador(request):
 @login_required
 def eventos_capacitaciones_colaborador(request):
     today = timezone.localdate()
-    eventos = EventoCapacitacion.objects.filter(organizador= request.user.username)
-    eventos_hoy = EventoCapacitacion.objects.filter(organizador= request.user.username, fecha=today).order_by('fecha', 'hora_inicio')
-    eventos_proximos = EventoCapacitacion.objects.filter(organizador= request.user.username, fecha__gt=today).order_by('fecha', 'hora_inicio')
-    eventos_anteriores = EventoCapacitacion.objects.filter(organizador= request.user.username, fecha__lt=today).order_by('fecha', 'hora_inicio')
+    eventos = EventoCapacitacion.objects.filter(organizador= request.user.id)
+    eventos_hoy = EventoCapacitacion.objects.filter(organizador= request.user.id, fecha=today).order_by('fecha', 'hora_inicio')
+    eventos_proximos = EventoCapacitacion.objects.filter(organizador= request.user.id, fecha__gt=today).order_by('fecha', 'hora_inicio')
+    eventos_anteriores = EventoCapacitacion.objects.filter(organizador= request.user.id, fecha__lt=today).order_by('fecha', 'hora_inicio')
 
     return render(request, 'visitantes/colaborador/eventos_capacitaciones.html', {
         'eventos': eventos,
@@ -224,15 +224,15 @@ def buscar_inicio_colaborador(request):
     # Obtener los cod_visita de los visitantes encontrados
     cod_visitas = visitantes_match.values_list('cod_visita', flat=True).distinct()
     # Filtrar visitas cuya cod_visita esté en los encontrados y cuyo estado sea 'in'
-    visitas_result = Visita.objects.filter(cod_visita__in=cod_visitas, estado_visitante='in', persona_visitada = request.user.username).order_by('hora_ingreso')
-    visitas_agendadas_result = Visita.objects.filter(cod_visita__in=cod_visitas, estado_visitante='agendado', fecha_visita=today, persona_visitada = request.user.username).order_by('hora_ingreso')
+    visitas_result = Visita.objects.filter(cod_visita__in=cod_visitas, estado_visitante='in', persona_visitada = request.user.id).order_by('hora_ingreso')
+    visitas_agendadas_result = Visita.objects.filter(cod_visita__in=cod_visitas, estado_visitante='agendado', fecha_visita=today, persona_visitada = request.user.id).order_by('hora_ingreso')
     
     # Buscar en EventoVisitante (para eventos)
     evento_visitantes_match = EventoVisitante.objects.filter(nombre_visitante__icontains=q)
     # Obtener los id_evento (como cadena o número) de los registros encontrados
     id_eventos = evento_visitantes_match.values_list('id_evento', flat=True).distinct()
     # Filtrar eventos cuya id esté en los encontrados y que tengan fecha >= hoy
-    eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, fecha=today, organizador = request.user.username).order_by('fecha', 'hora_inicio')
+    eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, fecha=today, organizador = request.user.id).order_by('fecha', 'hora_inicio')
 
     # Crear un diccionario para cada visita (clave = cod_visita)
     visitas_info = {}
@@ -264,7 +264,7 @@ def buscar_visitas_colaborador(request):
     # Recuperar parámetros de búsqueda
     q = request.GET.get('q', '').strip()
     fecha_str = request.GET.get('fecha', '').strip()  # formato YYYY-MM-DD
-    persona = request.user.username
+    persona = request.user.id
     today = timezone.localdate()
     fecha_filter = None
     if fecha_str:
@@ -294,7 +294,7 @@ def buscar_visitas_colaborador(request):
         filtros_visita &= Q(fecha_visita=fecha_filter)
     
     # Aquí se filtran las visitas según el estado deseado (por ejemplo, 'agendado')
-    visitas_result = Visita.objects.filter(filtros_visita, persona_visitada = request.user.username).order_by('fecha_visita', 'hora_ingreso')
+    visitas_result = Visita.objects.filter(filtros_visita, persona_visitada = request.user.id).order_by('fecha_visita', 'hora_ingreso')
     
     # --- Filtrar eventos ---
     # Primero, filtrar en EventoVisitante por participante (q) si se proporciona
@@ -306,9 +306,9 @@ def buscar_visitas_colaborador(request):
     
     # Filtrar eventos por fecha
     if fecha_filter:
-        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, fecha=fecha_filter, organizador = request.user.username)
+        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, fecha=fecha_filter, organizador = request.user.id)
     else:
-        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, organizador = request.user.username)
+        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, organizador = request.user.id)
     
     # Filtrar eventos por organizador (si se selecciona un colaborador distinto al valor por defecto)
     if persona and persona.lower() != "colaborador":
@@ -354,7 +354,7 @@ def buscar_visitas_colaborador(request):
 def buscar_eventos_colaborador(request):
     # Recuperar parámetros de búsqueda
     q = request.GET.get('q', '').strip()
-    persona = request.user.username
+    persona = request.user.id
     fecha_str = request.GET.get('fecha', '').strip()
     
     today = timezone.localdate()
@@ -384,9 +384,9 @@ def buscar_eventos_colaborador(request):
     
     # Filtrar eventos por fecha
     if fecha_filter:
-        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, fecha=fecha_filter, organizador = request.user.username)
+        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, fecha=fecha_filter, organizador = request.user.id)
     else:
-        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, organizador = request.user.username)
+        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, organizador = request.user.id)
     
     # Filtrar eventos por organizador (si se selecciona un colaborador distinto al valor por defecto)
     if persona and persona.lower() != "colaborador":
@@ -477,7 +477,9 @@ def guardar_visita(request):
         motivo = request.POST.get("motivo")
         accion = request.POST.get("accion")
         area_departamento = request.POST.get("area_departamento")
-        persona_visitada = request.POST.get("persona_visitada")
+        
+        persona_visitada_id = request.POST.get("persona_visitada")
+        persona_visitada_instance = User.objects.get(pk=persona_visitada_id)
 
         estado_visitante = 'agendado'
         agendado_presente = 'agendado'
@@ -511,10 +513,11 @@ def guardar_visita(request):
             accion=accion,
             tipo=tipo,
             area_departamento=area_departamento,
-            persona_visitada=persona_visitada,
+            persona_visitada=persona_visitada_instance,
             fecha_visita=fecha_visita,
             hora_ingreso=hora_ingreso,
             estado_visitante=estado_visitante,
+            usuario_registro = request.user,
             agendado_presente=agendado_presente,
         )
         print("2. Visita Agendada")
@@ -554,13 +557,13 @@ def guardar_visita(request):
                 usuario_destino = usuario_recepcion.email  # Correo del usuario destino
                 
                 # Obtener el usuario organizador a partir del username contenido en la variable "organizador"
-                usuario_visitado = User.objects.get(username=persona_visitada)
+                usuario_visitado = User.objects.get(id=persona_visitada_id)
                 
                 subject = "Notificación: Visita Programada"
                 message = (
                     f"Hola {usuario_recepcion.first_name},\n\n"
-                    f"Se ha agendado una nueva visita '{tipo}' para '{usuario_visitado.first_name} {usuario_visitado.last_name}' con fecha: {fecha_visita} a las {hora_ingreso}."
-                    f"El visitante será: '{nombre_primero}', la acción solicitada es: '{accion}'.\n\n"
+                    f"Se ha agendado una nueva visita '{tipo}' para '{usuario_visitado.first_name} {usuario_visitado.last_name}' del visitante '{nombre_primero}' con fecha: {fecha_visita} a las {hora_ingreso}.\n"
+                    f"El visitante es: '{nombre_primero}', la acción solicitada es: '{accion}'.\n\n"
                     "Saludos,\nEquipo CCIT"
                 )
                 send_mail(
@@ -634,7 +637,7 @@ def salida_mea_visita(request):
                 p.aceptacion = archivo2
 
             # Registrar quien hizo la salida (usuario en sesión)
-            p.usuario_registro_salida = request.user.username if request.user.is_authenticated else "Anonimo"
+            p.usuario_registro_salida = request.user.id if request.user.is_authenticated else "Anonimo"
             p.save()
 
         messages.success(request, "Salida de [Material/Equipo/Articulos] registrada exitosamente.")
@@ -699,7 +702,7 @@ def editar_visita_agendada(request):
 
         tipo = "Individual" if len(visitantes_data) == 1 else "Grupal"
         nombre_primero = visitantes_data[0]["nombre"] if visitantes_data else ""
-        usuario_registro = request.user.username if request.user.is_authenticated else "Anonimo"
+        usuario_registro = request.user.id if request.user.is_authenticated else "Anonimo"
         
         # Procesar la foto: archivo o Data URL.
         

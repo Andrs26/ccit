@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('pases/', views.pases, name='pases'),
+    path('pases/buscar_pase', views.buscar_pase, name='buscar_pase'),
     path('pases/cambiar_estado_pase/<int:pase_id>/', views.cambiar_estado_pase, name='cambiar_estado_pase'),
     path('crear_pase/', views.crear_pase, name='crear_pase'),
     path('save_pase/', views.save_pase, name='save_pase'),

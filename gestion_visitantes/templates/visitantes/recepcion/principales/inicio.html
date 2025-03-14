@@ -74,7 +74,7 @@
                             <img src="{% static '/assets/images/profile/user-3.jpg' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
                             <h4 class="card-title mb-1">{{visita.visitante}}</h4>
                             <div class=" mb-1 row">
-                                <span class="fs-2">{{visita.persona_visitada}}</span>
+                                <span class="fs-2">{{visita.persona_visitada.first_name}} {{visita.persona_visitada.last_name}}</span>
                             </div>
                             <span class="badge text-bg-success text-white"><i class='bx bxs-time' ></i> {{visita.hora_ingreso}}</span>
                         </div>
@@ -377,7 +377,7 @@
                             <img src="{% static '/assets/images/profile/user-3.jpg' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
                             <h4 class="card-title mb-1">{{visita.visitante}}</h4>
                             <div class=" mb-1 row">
-                                <span class="fs-2">{{visita.persona_visitada}}</span>
+                                <span class="fs-2">{{visita.persona_visitada.first_name}} {{visita.persona_visitada.last_name}}</span>
                             </div>
                             <span class="badge text-bg-light text-secondary">
                                 <i class='bx bxs-calendar'></i> {{visita.fecha_visita | date:'d/m/Y' }}
@@ -409,7 +409,7 @@
                             <img src="{% static '/assets/images/profile/user-3.jpg' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
                             <h4 class="card-title mb-1">{{visita.visitante}}</h4>
                             <div class=" mb-1 row">
-                                <span class="fs-2">{{visita.persona_visitada}}</span>
+                                <span class="fs-2">{{visita.persona_visitada.first_name}} {{visita.persona_visitada.last_name}}</span>
                             </div>
                             <span class="badge text-bg-light text-secondary">
                                 <i class='bx bxs-calendar'></i> {{visita.fecha_visita | date:'d/m/Y' }}
@@ -443,7 +443,7 @@
                                 <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
                                 <h4 class="card-title mb-1">{{evento.nombre}}</h4>
                                 <div class=" mb-1 row">
-                                    <span class="fs-2">{{evento.organizador}}</span>
+                                    <span class="fs-2">{{evento.organizador.first_name}} {{evento.organizador.last_name}}</span>
                                 </div>
                                 <span class="badge text-bg-light text-secondary">
                                     <i class='bx bxs-calendar'></i> {{evento.fecha | date:'d/m/Y' }}
@@ -475,7 +475,7 @@
                                 <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
                                 <h4 class="card-title mb-1">{{evento.nombre}}</h4>
                                 <div class=" mb-1 row">
-                                    <span class="fs-2">{{evento.organizador}}</span>
+                                    <span class="fs-2">{{evento.organizador.first_name}} {{evento.organizador.last_name}}</span>
                                 </div>
                                 <span class="badge text-bg-light text-secondary">
                                     <i class='bx bxs-calendar'></i> {{evento.fecha | date:'d/m/Y' }}

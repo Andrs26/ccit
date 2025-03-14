@@ -16,6 +16,10 @@ def guardar_evento(request):
     if request.method == "POST":
         nombre = request.POST.get("nombre")
         organizador = request.POST.get("organizador")
+
+        organizador_id = request.POST.get("organizador")
+        organizador_instance = User.objects.get(pk=organizador_id)
+
         fecha = request.POST.get("fecha")  # formato YYYY-MM-DD
         hora_inicio = request.POST.get("hora_inicio")
         hora_fin = request.POST.get("hora_fin")
@@ -61,7 +65,7 @@ def guardar_evento(request):
         # Crear el evento
         evento = EventoCapacitacion.objects.create(
             nombre = nombre,
-            organizador = organizador,
+            organizador = organizador_instance,
             fecha = fecha,
             hora_inicio = hora_inicio,
             hora_fin = hora_fin,
@@ -88,13 +92,13 @@ def guardar_evento(request):
                 usuario_destino = usuario_recepcion.email  # Correo del usuario destino
                 
                 # Obtener el usuario organizador a partir del username contenido en la variable "organizador"
-                usuario_organizador = User.objects.get(username=organizador)
+                usuario_organizador = User.objects.get(id=organizador)
                 
                 subject = "Notificación: Nuevo Evento"
                 message = (
                     f"Hola {usuario_recepcion.first_name},\n\n"
-                    f"Se ha registrado el evento [{nombre}] con fecha: {fecha} en horario: {hora_inicio} - {hora_fin}, "
-                    f"organizado por {usuario_organizador.first_name} {usuario_organizador.last_name}.\n\n"
+                    f"Se ha registrado el evento '{nombre}' con fecha: {fecha} en horario: {hora_inicio} - {hora_fin}, "
+                    f"organizado por '{usuario_organizador.first_name} {usuario_organizador.last_name}'.\n\n"
                     "Saludos,\nEquipo CCIT"
                 )
                 send_mail(
