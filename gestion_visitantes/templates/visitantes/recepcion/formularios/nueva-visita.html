@@ -54,10 +54,10 @@
         </div>
     </div>
 
-    <div class="busqueda-container mb-3" data-aos="zoom-in">
+    <!-- <div class="busqueda-container mb-3" data-aos="zoom-in">
         <input type="text" id="buscar-visitante" placeholder="Buscar visitante..." class="form-control">
         <div id="resultados-visitante"></div>
-    </div>
+    </div> -->
 
     <form id="formNewVisita" method="post" action="{% url 'guardar_visita' %}" enctype="multipart/form-data" data-aos="zoom-in">
         {% csrf_token %}

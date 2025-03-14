@@ -236,7 +236,7 @@ def create_user(request):
             )
             evento.save()
 
-            messages.success(request, "Usuario creado. \n Contraseña temporal: [ccit]. \n El usuario debe cambiar su contraseña y establecer un PIN en el siguiente inicio de sesión.")
+            messages.info(request, "Usuario creado exitosamente. <br> Contraseña temporal: [ccit].")
             return redirect('user_list')
         
         # Pasamos los grupos disponibles al template para seleccionarlos
