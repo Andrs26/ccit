@@ -133,10 +133,17 @@ def buscar_inicio_recepcion(request):
             'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
         }
     
+    cont_visitas_result = visitas_result.count()
+    cont_visitas_agendadas_result = visitas_agendadas_result.count()
+    cont_eventos_result = eventos_result.count()
+    
     context = {
         'resultados_visitas': visitas_result,
+        'cont_visitas_result': cont_visitas_result,
         'visitas_agendadas_result': visitas_agendadas_result,
+        'cont_visitas_agendadas_result': cont_visitas_agendadas_result,
         'resultados_eventos': eventos_result,
+        'cont_eventos_result': cont_eventos_result,
         'query': q,
         'visitantes_visita': visitantes_visita,
         'pertenencias': pertenencias,
@@ -153,7 +160,10 @@ def buscar_visitas_recepcion(request):
     q = request.GET.get('q', '').strip()
 
     persona_visitada_id = request.GET.get('persona_visitada')
-    persona = User.objects.get(pk=persona_visitada_id)
+    if persona_visitada_id == 'Colaborador':
+        persona = ''
+    else:
+        persona = User.objects.get(pk=persona_visitada_id)
 
     fecha_str = request.GET.get('fecha', '').strip()  # formato YYYY-MM-DD
     today = timezone.localdate()

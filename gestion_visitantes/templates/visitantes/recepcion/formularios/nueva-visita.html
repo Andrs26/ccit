@@ -127,6 +127,7 @@
                         <tr>
                             <th>Nombre</th>
                             <th>Documento de Identificación</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -134,11 +135,14 @@
                             <!-- Estas celdas son contenteditable para permitir edición -->
                             <td contenteditable="true" class="nuevo-nombre col-6" placeholder="Nombre..."></td>
                             <td contenteditable="true" class="nuevo-documento col-6" placeholder="Documento..."></td>
+                            <td>
+                                <button type="button" class="btn btn-warning text-light btn-sm limpiar-fila">Limpiar</button>
+                            </td>
                         </tr>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="2" class="text-center">
+                            <td colspan="3" class="text-center">
                                 <button id="btn-agregar-fila" class="btn btn-light btn-sm">
                                     <span class="d-flex align-items-center">
                                         <i class='bx bx-plus'></i> Agregar fila
@@ -456,6 +460,52 @@
         });
     
     });
-</script>    
-    
+</script>
+<script>
+    $(document).ready(function(){
+
+        // 1️⃣ Función para limpiar datos de una fila sin eliminarla
+        $('#tabla-asistencia').on('click', '.limpiar-fila', function(){
+            let fila = $(this).closest('tr');
+            fila.find('.nuevo-nombre').text('');
+            fila.find('.nuevo-documento').text('');
+        });
+
+        // 2️⃣ Validar que al menos una fila tenga datos antes de enviar el formulario
+        $('form').submit(function(event){
+            let tieneDatos = false;
+            $('#tabla-asistencia tbody tr').each(function(){
+                let nombre = $(this).find('.nuevo-nombre').text().trim();
+                let documento = $(this).find('.nuevo-documento').text().trim();
+                if (nombre !== '' || documento !== '') {
+                    tieneDatos = true;
+                    return false; // Salir del loop
+                }
+            });
+
+            if (!tieneDatos) {
+                Swal.fire({
+                    title: "Ups...!",
+                    text: "Debe ingresar al menos un visitante.",
+                    icon: "warning",
+                    confirmButtonText: "Aceptar"
+                });
+                event.preventDefault(); // Detener el envío del formulario
+            }
+        });
+
+        // 3️⃣ Permitir deseleccionar un pase
+        $('input[name="pase_seleccionado"]').click(function() {
+            if ($(this).hasClass('seleccionado')) {
+                $(this).prop('checked', false).removeClass('seleccionado');
+            } else {
+                $('input[name="pase_seleccionado"]').removeClass('seleccionado');
+                $(this).addClass('seleccionado');
+            }
+        });
+
+        // 4️⃣ Hacer que los select sean obligatorios
+        $('select').attr('required', true);
+    });
+</script>
 {% endblock %}
