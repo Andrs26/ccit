@@ -308,8 +308,12 @@ def buscar_eventos_recepcion(request):
         eventos_result = eventos_result.filter(fecha=fecha_filter)
 
     # Filtrar eventos por organizador (si se selecciona un colaborador distinto al valor por defecto)
-    if persona and persona.lower() != "colaborador":
-        eventos_result = eventos_result.filter(organizador=persona)
+    if persona:
+        try:
+            organizador = User.objects.get(id=persona)  # Obtener la instancia de User
+            eventos_result = eventos_result.filter(organizador=organizador)
+        except User.DoesNotExist:
+            eventos_result = eventos_result.none()
 
     eventos_result = eventos_result.order_by('fecha', 'hora_inicio')
 

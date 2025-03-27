@@ -23,7 +23,7 @@
         <li class="nav-item">
             <a class="nav-link d-flex active" data-bs-toggle="tab" href="#eventos_capacitaciones" role="tab">
                 <span><i class='bx bx-globe'></i></i> </span>
-                <span class="d-none d-md-block ms-2">Eventos/Capacitaciones {% if persona != 'Colaborador' %} de {{persona}} {% endif %}</span>
+                <span class="d-none d-md-block ms-2">Eventos/Capacitaciones</span>
             </a>
         </li>
     </ul>
@@ -35,8 +35,8 @@
                     <input type="search" class="form-control" name="q" id="search_visita" placeholder="Buscar evento/participante..." style="border-radius: 15px 0px 0px 15px; width: 40%;" {% if query %} value="{{query}}" {% endif %}>
                     <select class="form-select busqueda_visita" name="persona_visitada" id="persona_visitada" style="border-radius: 0px; width: 18%;" >
                         <option selected>Colaborador</option>
-                        {% for colaborador in colaboradores %}
-                            <option value="{{colaborador.nombre}}">{{colaborador.nombre}}</option>
+                        {% for user in users %}
+                            <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
                         {% endfor %}
                     </select>
                     <input type="date" class="form-control" name="fecha" id="fecha" style="border-radius: 0px; width: 15%;" {% if fecha %} value="{{fecha}}" {% endif %}>
