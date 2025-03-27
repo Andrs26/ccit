@@ -57,7 +57,7 @@
                             <img src="{% static '/img/eventos.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
                             <h4 class="card-title mb-1">{{evento.nombre}}</h4>
                             <div class=" mb-1 row">
-                                <span class="fs-2">{{evento.organizador}}</span>
+                                <span class="fs-2">{{evento.organizador.first_name}} {{evento.organizador.last_name}}</span>
                             </div>
                             <span class="badge text-bg-light text-secondary">
                                 <i class='bx bxs-calendar'></i> {{evento.fecha | date:'d/m/Y' }}
