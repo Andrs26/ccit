@@ -92,7 +92,8 @@
                         <i class='bx bx-download' style="font-size: 1.2rem;"></i>
                     </a>
                 </label>
-                <input type="file" name="participantes_file" class="form-control" accept=".xls,.xlsx">
+                <input type="file" id="participantes_excel" class="form-control" accept=".xls,.xlsx">
+
             </div>
         </div>
         
@@ -147,77 +148,129 @@
         </div>
     </form>
 </div>
+<!-- Librería para leer archivos Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<!-- Script para manejar la tabla de participantes y la búsqueda AJAX -->
 <script>
 $(document).ready(function(){
-    // Función para sincronizar la tabla de materiales (no aplicable en este template, se mantiene para referencia)
-    function sincronizarMateriales() {
-        // En este ejemplo, no tenemos tabla de materiales
-    }
-    
-    // Función para recopilar datos de la tabla de participantes e incluir el id (si lo hubiera)
-    function recopilarVisitantes() {
-        var visitantes = [];
-        $('#tabla-asistencia tbody tr').each(function(){
-            var id = $(this).attr('data-visitante-id') || "";
-            var nombre = $(this).find('.nuevo-nombre').text().trim();
-            var documento = $(this).find('.nuevo-documento').text().trim();
-            if(nombre || documento){
-                visitantes.push({id: id, nombre: nombre, documento: documento});
-            }
-        });
-        $('#visitantes_data').val(JSON.stringify(visitantes));
-    }
-    
-    // Al enviar el formulario, recopilar datos de participantes.
-    $('form').submit(function(){
-        recopilarVisitantes();
+
+    /* =============================
+       1️⃣ PROCESAR ARCHIVO EXCEL 
+       ============================= */
+    $("#participantes_excel").change(function(event) {
+        var file = event.target.files[0]; // Obtener archivo
+        if (!file) return;
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var data = new Uint8Array(e.target.result);
+            var workbook = XLSX.read(data, { type: "array" });
+
+            // Leer la primera hoja del archivo
+            var sheet = workbook.Sheets[workbook.SheetNames[0]];
+            var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+            // Eliminar encabezado si existe
+            jsonData.shift();
+
+            // Eliminar filas vacías antes de agregar datos del archivo
+            eliminarFilasVacias();
+
+            // Agregar cada fila del Excel a la tabla
+            jsonData.forEach(function(row) {
+                var nombre = row[0] ? row[0].toString().trim() : "";
+                var documento = row[1] ? row[1].toString().trim() : "";
+
+                if(nombre && documento && !verificarDuplicado(documento)) {
+                    agregarFilaTabla(nombre, documento);
+                }
+            });
+
+            // Limpiar el input de archivo para permitir cargar otro
+            $("#participantes_excel").val("");
+
+            Swal.fire({
+                title: "Archivo procesado",
+                text: "Los datos del archivo se han agregado a la tabla.",
+                icon: "success",
+                confirmButtonText: "Aceptar"
+            });
+        };
+
+        reader.readAsArrayBuffer(file);
     });
-    
-    // Evento para agregar una nueva fila manualmente
+
+    /* =============================
+       2️⃣ AGREGAR Y ELIMINAR FILAS MANUALMENTE
+       ============================= */
+
     $('#btn-agregar-fila').click(function(e) {
         e.preventDefault();
 
-        // Intentar encontrar una fila vacía antes de agregar una nueva
-        let inserted = false;
-        $('#tabla-asistencia tbody tr').each(function(){
-            let currentNombre = $(this).find('.nuevo-nombre').text().trim();
-            let currentDocumento = $(this).find('.nuevo-documento').text().trim();
-            if(currentNombre === "" && currentDocumento === ""){
-                Swal.fire({
-                    title: "Upps!",
-                    text: "Debe completar la fila vacía antes de agregar una nueva.",
-                    icon: "info",
-                    confirmButtonText: "Aceptar",
-                    confirmButtonColor: "#57647D"
-                });
-                inserted = true;
-                return false; // Detener la iteración si se encuentra una fila vacía
-            }
-        });
-
-        if (inserted) {
-            return; // Evita agregar una nueva fila si ya había una vacía
+        // Si hay una fila vacía, mostrar alerta y evitar agregar nueva fila
+        if (existeFilaVacia()) {
+            Swal.fire({
+                title: "Upps!",
+                text: "Debe completar la fila vacía antes de agregar una nueva.",
+                icon: "info",
+                confirmButtonText: "Aceptar",
+                confirmButtonColor: "#57647D"
+            });
+            return;
         }
 
-        // Si no hay filas vacías, agregar una nueva fila
-        var nuevaFila = $('<tr></tr>');
-        nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');
-        nuevaFila.append('<td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>');
-        nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
-        $('#tabla-asistencia tbody').append(nuevaFila);
+        // Agregar nueva fila
+        agregarFilaTabla("", "");
     });
-    
-    // Evento para eliminar una fila.
+
     $('#tabla-asistencia').on('click', '.eliminar-fila', function(){
         $(this).closest('tr').remove();
     });
-    
-    // (Opcional) Búsqueda AJAX para participantes manuales.
+
+    /* =============================
+       3️⃣ RECOGER DATOS DE LA TABLA ANTES DE ENVIAR
+       ============================= */
+
+    $('form').submit(function(){
+        recopilarVisitantes();
+    });
+
+    /* =============================
+       4️⃣ LIMPIAR TABLA
+       ============================= */
+
+    $('#btn-limpiar-tabla').click(function(){
+        Swal.fire({
+            title: "¿Está seguro?",
+            text: "Se eliminarán todos los participantes de la tabla.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, limpiar",
+            confirmButtonColor: "#57647D",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#tabla-asistencia tbody').empty();
+                agregarFilaTabla("", ""); // Agregar fila vacía
+                Swal.fire({
+                    title: "Tabla limpiada",
+                    text: "Todos los datos han sido eliminados.",
+                    icon: "success",
+                    confirmButtonText: "Aceptar",
+                    confirmButtonColor: "#57647D"
+                });
+            }
+        });
+    });
+
+    /* =============================
+       5️⃣ BUSQUEDA AJAX DE VISITANTES
+       ============================= */
+
     $('#buscar-visitante').on('input', function(){
         var query = $(this).val().trim();
         var resultadosDiv = $('#resultados-visitante');
+
         if(query.length > 2){
             $.ajax({
                 url: '{% url "buscar_visitante_ajax" %}',
@@ -227,7 +280,9 @@ $(document).ready(function(){
                     resultadosDiv.empty();
                     response.forEach(function(visitante){
                         resultadosDiv.append(
-                            '<div class="resultado" data-id="'+ visitante.id +'" data-nombre="'+ visitante.nombre +'" data-documento="'+ visitante.documento +'">'+ visitante.nombre +'</div>'
+                            `<div class="resultado" data-id="${visitante.id}" data-nombre="${visitante.nombre}" data-documento="${visitante.documento}">
+                                ${visitante.nombre}
+                            </div>`
                         );
                     });
                 },
@@ -239,14 +294,48 @@ $(document).ready(function(){
             resultadosDiv.empty();
         }
     });
-    
-    // Al hacer clic en un resultado de búsqueda, agregar el participante a la tabla.
+
     $('#resultados-visitante').on('click', '.resultado', function(){
         var nombre = $(this).data('nombre');
         var documento = $(this).data('documento');
-        var participanteId = $(this).data('id'); // si existe
-        
-        // Verificar duplicados
+
+        if(verificarDuplicado(documento)) {
+            Swal.fire({
+                title: "Información",
+                text: "El documento de identidad ya se encuentra en la lista.",
+                icon: "info",
+                confirmButtonText: "Aceptar"
+            });
+            return;
+        }
+
+        // Intentar insertar en una fila vacía
+        var inserted = false;
+        $('#tabla-asistencia tbody tr').each(function(){
+            var currentNombre = $(this).find('.nuevo-nombre').text().trim();
+            var currentDocumento = $(this).find('.nuevo-documento').text().trim();
+            if(currentNombre === "" && currentDocumento === ""){
+                $(this).find('.nuevo-nombre').text(nombre);
+                $(this).find('.nuevo-documento').text(documento);
+                inserted = true;
+                return false;
+            }
+        });
+
+        // Si no encontró fila vacía, agregar una nueva
+        if (!inserted) {
+            agregarFilaTabla(nombre, documento);
+        }
+
+        $('#resultados-visitante').empty();
+        $('#buscar-visitante').val('');
+    });
+
+    /* =============================
+       6️⃣ FUNCIONES AUXILIARES
+       ============================= */
+
+    function verificarDuplicado(documento) {
         var duplicado = false;
         $('#tabla-asistencia tbody tr').each(function(){
             var docExistente = $(this).find('.nuevo-documento').text().trim();
@@ -255,82 +344,47 @@ $(document).ready(function(){
                 return false;
             }
         });
-        if(duplicado) {
-            Swal.fire({
-                title: "Información",
-                text: "El documento de identidad ya se encuentra en la lista.",
-                icon: "info",
-                confirmButtonText: "Aceptar"
-            });
-            $('#resultados-visitante').empty();
-            $('#buscar-visitante').val('');
-            return;
-        }
-    
-        // Intentar insertar en una fila vacía.
-        var inserted = false;
-        $('#tabla-asistencia tbody tr').each(function(){
-            var currentNombre = $(this).find('.nuevo-nombre').text().trim();
-            var currentDocumento = $(this).find('.nuevo-documento').text().trim();
-            if(currentNombre === "" && currentDocumento === ""){
-                $(this).find('.nuevo-nombre').text(nombre);
-                $(this).find('.nuevo-documento').text(documento);
-                if(participanteId) {
-                    $(this).attr('data-visitante-id', participanteId);
-                }
-                inserted = true;
-                return false;
-            }
-        });
-        if(!inserted) {
-            var nuevaFila = $('<tr></tr>');
-            if(participanteId) {
-                nuevaFila.attr('data-visitante-id', participanteId);
-            }
-            nuevaFila.append('<td contenteditable="true" class="nuevo-nombre">' + nombre + '</td>');
-            nuevaFila.append('<td contenteditable="true" class="nuevo-documento">' + documento + '</td>');
-            nuevaFila.append('<td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>');
-            $('#tabla-asistencia tbody').append(nuevaFila);
-        }
-    
-        $('#resultados-visitante').empty();
-        $('#buscar-visitante').val('');
-    });
-});
-</script>
-<script>
-$(document).ready(function(){
-    $('#btn-limpiar-tabla').click(function(){
-        Swal.fire({
-            title: "¿Está seguro?",
-            text: "Se eliminarán todos los participantes de el evento.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Sí, limpiar",
-            confirmButtonColor: "#57647D",
-            cancelButtonText: "Cancelar"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Limpiar todas las filas de la tabla
-                $('#tabla-asistencia tbody').empty();
-                
-                // Agregar una fila vacía después de limpiar
-                var nuevaFila = $('<tr></tr>');
-                nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');
-                nuevaFila.append('<td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>');
-                nuevaFila.append('<td></td>');
-                $('#tabla-asistencia tbody').append(nuevaFila);
+        return duplicado;
+    }
 
-                Swal.fire({
-                    title: "Tabla limpiada",
-                    text: "Todos los datos han sido eliminados.",
-                    icon: "success",
-                    confirmButtonText: "Aceptar",
-                    confirmButtonColor: "#57647D"
-                });
+    function agregarFilaTabla(nombre, documento) {
+        var nuevaFila = `<tr>
+            <td contenteditable="true" class="nuevo-nombre">${nombre}</td>
+            <td contenteditable="true" class="nuevo-documento">${documento}</td>
+            <td><button type="button" class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>
+        </tr>`;
+        $('#tabla-asistencia tbody').append(nuevaFila);
+    }
+
+    function recopilarVisitantes() {
+        var participantes = [];
+        $('#tabla-asistencia tbody tr').each(function(){
+            var nombre = $(this).find('.nuevo-nombre').text().trim();
+            var documento = $(this).find('.nuevo-documento').text().trim();
+            if (nombre && documento) {
+                participantes.push({nombre: nombre, documento: documento});
             }
         });
-    });
+        $('#visitantes_data').val(JSON.stringify(participantes));
+    }
+
+    function eliminarFilasVacias() {
+        $('#tabla-asistencia tbody tr').each(function(){
+            var nombre = $(this).find('.nuevo-nombre').text().trim();
+            var documento = $(this).find('.nuevo-documento').text().trim();
+            if (nombre === "" && documento === "") {
+                $(this).remove();
+            }
+        });
+    }
+
+    function existeFilaVacia() {
+        return $('#tabla-asistencia tbody tr').filter(function(){
+            return $(this).find('.nuevo-nombre').text().trim() === "" &&
+                   $(this).find('.nuevo-documento').text().trim() === "";
+        }).length > 0;
+    }
+
 });
 </script>
 {% endblock %}
