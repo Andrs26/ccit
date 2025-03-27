@@ -34,26 +34,26 @@ def guardar_evento(request):
             participantes_manual = []
         
         # Procesar archivo Excel si se adjunta
-        participantes_excel = []
-        if "participantes_file" in request.FILES:
-            file = request.FILES["participantes_file"]
-            try:
-                wb = openpyxl.load_workbook(file)
-                ws = wb.active
-                # Asumir que la primera fila es header, y las columnas son: Nombre, Documento (en ese orden)
-                for row in ws.iter_rows(min_row=2, values_only=True):
-                    nombre_excel = row[0] if row[0] is not None else ""
-                    documento_excel = row[1] if row[1] is not None else ""
-                    participantes_excel.append({
-                        "nombre": str(nombre_excel).strip(),
-                        "documento": str(documento_excel).strip()
-                    })
-            except Exception as e:
-                messages.error(request, "Error al procesar el archivo Excel: " + str(e))
-                return redirect(request.META.get('HTTP_REFERER', '/'))
+        # participantes_excel = []
+        # if "participantes_file" in request.FILES:
+        #     file = request.FILES["participantes_file"]
+        #     try:
+        #         wb = openpyxl.load_workbook(file)
+        #         ws = wb.active
+        #         # Asumir que la primera fila es header, y las columnas son: Nombre, Documento (en ese orden)
+        #         for row in ws.iter_rows(min_row=2, values_only=True):
+        #             nombre_excel = row[0] if row[0] is not None else ""
+        #             documento_excel = row[1] if row[1] is not None else ""
+        #             participantes_excel.append({
+        #                 "nombre": str(nombre_excel).strip(),
+        #                 "documento": str(documento_excel).strip()
+        #             })
+        #     except Exception as e:
+        #         messages.error(request, "Error al procesar el archivo Excel: " + str(e))
+        #         return redirect(request.META.get('HTTP_REFERER', '/'))
         
         # Combinar participantes manuales y del Excel
-        todos_participantes = participantes_manual + participantes_excel
+        todos_participantes = participantes_manual
         
         # Eliminar duplicados: si hay un participante con documento, usarlo; si no, por nombre.
         participantes_unicos = []
