@@ -37,7 +37,12 @@
                     <input type="search" class="form-control busqueda_visita busqueda_visita_first" name="q" id="search_visita" placeholder="Buscar visitante...">
                 {% endif %}
                 <select class="form-select busqueda_visita" name="persona_visitada" id="persona_visitada">
+                    {% if persona %}
+                    <option selected value="{{persona.id}}">{{persona.first_name}} {{persona.last_name}}</option>
+                    <option value="Colaborador"></option>
+                    {% else %}
                     <option selected>Colaborador</option>
+                    {% endif %}
                     {% for user in users %}
                         <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
                     {% endfor %}

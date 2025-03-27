@@ -23,6 +23,8 @@ def guardar_evento(request):
         fecha = request.POST.get("fecha")  # formato YYYY-MM-DD
         hora_inicio = request.POST.get("hora_inicio")
         hora_fin = request.POST.get("hora_fin")
+
+        estado = 'activo'
         
         # Recopilar participantes ingresados manualmente (en formato JSON)
         participantes_json = request.POST.get("visitantes_data", "[]")
@@ -69,6 +71,7 @@ def guardar_evento(request):
             fecha = fecha,
             hora_inicio = hora_inicio,
             hora_fin = hora_fin,
+            estado = estado,
             cantidad_visitantes = len(participantes_unicos)
         )
         
@@ -133,7 +136,16 @@ def save_editar_evento(request):
         evento = get_object_or_404(EventoCapacitacion, id=id)
 
         nombre = request.POST.get("nombre")
-        organizador = request.POST.get("organizador")
+        from django.contrib.auth.models import User  # Importar el modelo User
+
+        # Buscar el usuario correspondiente al ID
+        organizador_id = request.POST.get("organizador")
+        try:
+            organizador = User.objects.get(id=organizador_id)  # Obtener la instancia de User
+        except User.DoesNotExist:
+            messages.error(request, "El organizador seleccionado no es válido.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+        
         fecha = request.POST.get("fecha")  # formato YYYY-MM-DD
         hora_inicio = request.POST.get("hora_inicio")
         hora_fin = request.POST.get("hora_fin")
@@ -213,6 +225,30 @@ def editar_evento(request, id):
         'evento': evento,
         'participantes_evento': participantes_evento,
     })
+
+@login_required
+def cancelar_evento(request, id):
+    evento = get_object_or_404(EventoCapacitacion, id=id)
+    estado = 'cancelado'
+    evento.estado = estado
+    evento.save()
+    
+    messages.success(request, "Evento cancelado.")
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+def reanudar_evento(request, id):
+    evento = get_object_or_404(EventoCapacitacion, id=id)
+    if evento.estado == 'cancelado':
+        estado = 'activo'
+        evento.estado = estado
+        evento.save()
+    
+        messages.success(request, "Evento cancelado.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    else:
+        messages.error(request, "No se puede completar la acción.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
 
 import json
 from django.http import JsonResponse

@@ -1,5 +1,5 @@
 {% extends 'layout/layout.html' %}
-{% block title %} Crear evento {% endblock %}
+{% block title %} Editar evento {% endblock %}
 {% block content %}
 {% load static %}
 <style>
@@ -43,15 +43,28 @@
     }
 </style>
 <div class="container my-4">
-    <div class="mb-3 row d-flex justify-content-between" style="border-bottom: 1px solid #000; padding-bottom: 15px;" data-aos="zoom-in">
+    <div class="mb-3 row d-flex" style="border-bottom: 1px solid #000; padding-bottom: 15px;" data-aos="zoom-in">
         <div class="col">
-            <h4>Editar Evento: {{ evento.nombre }}</h4>
+            <h4>Editando: {{ evento.nombre }} {% if evento.estado == 'cancelado' %} <span class="text-danger">({{evento.estado}})</span> {% endif %} </h4>
         </div>
-        <div class="col d-flex justify-content-end align-items-center">
+        {% if evento.estado == 'activo' %}
+        <div class="col-auto d-flex justify-content-end align-items-center">
+            <a class="btn btn-danger" href="{% url 'cancelar_evento' evento.id %}">
+                <i class='bx bxs-save'></i> Cancelar Evento
+            </a>
+        </div>
+        <div class="col-auto d-flex justify-content-end align-items-center">
             <button type="submit" form="formEditarEvento" class="btn btn-primary">
                 <i class='bx bxs-save'></i> Guardar Cambios
             </button>
         </div>
+        {% elif evento.estado == 'cancelado' %}
+        <div class="col-auto d-flex justify-content-end align-items-center">
+            <a form="formEditarEvento" class="btn btn-success" href="{% url 'reanudar_evento' evento.id %}">
+                <i class='bx bx-reset'></i> Reanudar Evento
+            </a>
+        </div>
+        {% endif %}
     </div>
 
     <form id="formEditarEvento" method="post" action="{% url 'save_editar_evento' %}" enctype="multipart/form-data" data-aos="zoom-in">

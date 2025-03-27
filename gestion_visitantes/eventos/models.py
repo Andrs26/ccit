@@ -10,6 +10,7 @@ class EventoCapacitacion(models.Model):
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()
     cantidad_visitantes = models.IntegerField()
+    estado = models.CharField(max_length=255, default='activo')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

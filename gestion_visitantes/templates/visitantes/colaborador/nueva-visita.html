@@ -69,7 +69,7 @@
                 </div>
                 <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
                     <label for="fecha" class="form-label">Fecha de visita</label>
-                    <input type="date" id="fecha-vista" class="form-control" name="fecha">
+                    <input type="date" id="fecha-vista" class="form-control" name="fecha" value="{{fecha_hoy}}">
                 </div>
                 <div class="col-12 col-sm-12 col-md-6 col-lg-auto col-xl-auto">
                     <label for="fecha" class="form-label">Hora de visita</label>
@@ -233,9 +233,32 @@
             sincronizarMateriales();
         });
     
-        // Evento para agregar una nueva fila manualmente (botón "Agregar fila")
+       // Evento para agregar una nueva fila manualmente (botón "Agregar fila")
         $('#btn-agregar-fila').click(function(e) {
             e.preventDefault();
+
+            // Verificar si hay una fila vacía antes de agregar una nueva
+            let filaVacia = false;
+            $('#tabla-asistencia tbody tr').each(function() {
+                let nombre = $(this).find('.nuevo-nombre').text().trim();
+                let documento = $(this).find('.nuevo-documento').text().trim();
+                if (nombre === '' || documento === '') {
+                    filaVacia = true;
+                    return false; // Salir del loop si se encuentra una fila vacía
+                }
+            });
+
+            if (filaVacia) {
+                Swal.fire({
+                    title: "Upps!",
+                    text: "Debe completar la fila vacía antes de agregar una nueva.",
+                    icon: "info",
+                    confirmButtonText: "Aceptar",
+                    confirmButtonColor: "#57647D"
+                });
+                return;
+            }
+
             // Crear una nueva fila con celdas editables y botón para eliminar
             var nuevaFila = $('<tr></tr>');
             nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');

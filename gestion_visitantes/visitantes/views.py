@@ -102,11 +102,11 @@ def buscar_inicio_recepcion(request):
 
     # Crear un diccionario: { documento_identificacion: nombre }
     visitante_por_documento = {v.documento_identificacion: v.nombre for v in visitantes_visita}
-    
+
     # Si no se proporciona query, retornamos resultados vacíos
     if not q:
         return redirect('inicio_recepcion')
-    
+
     # Buscar en VisitanesVisita (para visitas)
     visitantes_match = VisitanesVisita.objects.filter(nombre__icontains=q)
     # Obtener los cod_visita de los visitantes encontrados
@@ -114,13 +114,19 @@ def buscar_inicio_recepcion(request):
     # Filtrar visitas cuya cod_visita esté en los encontrados y cuyo estado sea 'in'
     visitas_result = Visita.objects.filter(cod_visita__in=cod_visitas, estado_visitante='in').order_by('hora_ingreso')
     visitas_agendadas_result = Visita.objects.filter(cod_visita__in=cod_visitas, estado_visitante='agendado', fecha_visita=today).order_by('hora_ingreso')
-    
+
     # Buscar en EventoVisitante (para eventos)
     evento_visitantes_match = EventoVisitante.objects.filter(nombre_visitante__icontains=q)
     # Obtener los id_evento (como cadena o número) de los registros encontrados
-    id_eventos = evento_visitantes_match.values_list('id_evento', flat=True).distinct()
-    # Filtrar eventos cuya id esté en los encontrados y que tengan fecha >= hoy
-    eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, fecha=today).order_by('fecha', 'hora_inicio')
+    id_eventos_visitantes = evento_visitantes_match.values_list('id_evento', flat=True).distinct()
+
+    # Buscar en EventoCapacitacion por nombre
+    eventos_capacitacion_match = EventoCapacitacion.objects.filter(nombre__icontains=q)
+
+    # Combinar los eventos encontrados en ambas búsquedas
+    eventos_result = EventoCapacitacion.objects.filter(
+        Q(id__in=id_eventos_visitantes) | Q(id__in=eventos_capacitacion_match)
+    ).filter(fecha=today).order_by('fecha', 'hora_inicio')
 
     # Crear un diccionario para cada visita (clave = cod_visita)
     visitas_info = {}
@@ -132,11 +138,11 @@ def buscar_inicio_recepcion(request):
             # Filtrar pertenencias cuyo cod_visita coincida
             'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
         }
-    
+
     cont_visitas_result = visitas_result.count()
     cont_visitas_agendadas_result = visitas_agendadas_result.count()
     cont_eventos_result = eventos_result.count()
-    
+
     context = {
         'resultados_visitas': visitas_result,
         'cont_visitas_result': cont_visitas_result,
@@ -163,7 +169,10 @@ def buscar_visitas_recepcion(request):
     if persona_visitada_id == 'Colaborador':
         persona = ''
     else:
-        persona = User.objects.get(pk=persona_visitada_id)
+        try:
+            persona = User.objects.get(pk=persona_visitada_id)  # Obtener instancia del usuario
+        except User.DoesNotExist:
+            persona = None  # Si el usuario no existe, evitar errores
 
     fecha_str = request.GET.get('fecha', '').strip()  # formato YYYY-MM-DD
     today = timezone.localdate()
@@ -277,31 +286,36 @@ def buscar_eventos_recepcion(request):
 
     # Diccionario: documento_identificacion -> nombre
     visitante_por_documento = {v.documento_identificacion: v.nombre for v in visitantes_visita}
-    
+
     # --- Filtrar eventos ---
-    # Primero, filtrar en EventoVisitante por participante (q) si se proporciona
+    # Filtrar por nombre del visitante en EventoVisitante
     if q:
         evento_visitantes_match = EventoVisitante.objects.filter(nombre_visitante__icontains=q)
+        id_eventos_visitantes = evento_visitantes_match.values_list('id_evento', flat=True).distinct()
+        
+        # Filtrar eventos por nombre en EventoCapacitacion
+        eventos_capacitacion_match = EventoCapacitacion.objects.filter(nombre__icontains=q)
+        
+        # Combinar ambos conjuntos de eventos
+        eventos_result = EventoCapacitacion.objects.filter(
+            Q(id__in=id_eventos_visitantes) | Q(id__in=eventos_capacitacion_match)
+        )
     else:
-        evento_visitantes_match = EventoVisitante.objects.all()
-    id_eventos = evento_visitantes_match.values_list('id_evento', flat=True).distinct()
-    
+        eventos_result = EventoCapacitacion.objects.all()
+
     # Filtrar eventos por fecha
     if fecha_filter:
-        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, fecha=fecha_filter)
-    else:
-        eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos)
-    
+        eventos_result = eventos_result.filter(fecha=fecha_filter)
+
     # Filtrar eventos por organizador (si se selecciona un colaborador distinto al valor por defecto)
     if persona and persona.lower() != "colaborador":
         eventos_result = eventos_result.filter(organizador=persona)
-    
+
     eventos_result = eventos_result.order_by('fecha', 'hora_inicio')
-    
-    
+
     # Para el select de colaboradores
     colaboradores = Colaborador.objects.filter(estado='activo')
-    
+
     context = {
         'resultados_eventos': eventos_result,
         'query': q,

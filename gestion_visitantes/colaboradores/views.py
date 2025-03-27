@@ -244,11 +244,23 @@ def buscar_inicio_colaborador(request):
             # Filtrar pertenencias cuyo cod_visita coincida
             'pertenencias': [p for p in pertenencias if p.cod_visita == visita.cod_visita],
         }
-    
+
+    t_visitas_result = 0
+    t_visitas_result = visitas_result.count()
+
+    t_visitas_agendadas_result = 0
+    t_visitas_agendadas_result = visitas_agendadas_result.count()
+
+    t_eventos_result = 0
+    t_eventos_result = eventos_result.count()
+
     context = {
         'resultados_visitas': visitas_result,
+        't_visitas_result': t_visitas_result,
         'visitas_agendadas_result': visitas_agendadas_result,
+        't_visitas_agendadas_result': t_visitas_agendadas_result,
         'resultados_eventos': eventos_result,
+        't_eventos_result': t_eventos_result,
         'query': q,
         'visitantes_visita': visitantes_visita,
         'pertenencias': pertenencias,
@@ -309,10 +321,6 @@ def buscar_visitas_colaborador(request):
         eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, fecha=fecha_filter, organizador = request.user.id)
     else:
         eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, organizador = request.user.id)
-    
-    # Filtrar eventos por organizador (si se selecciona un colaborador distinto al valor por defecto)
-    if persona and persona.lower() != "colaborador":
-        eventos_result = eventos_result.filter(organizador=persona)
     
     eventos_result = eventos_result.order_by('fecha', 'hora_inicio')
     
@@ -455,6 +463,8 @@ def detalle_visita_dentro(request,id):
 
 @login_required
 def nueva_visita(request):
+    hoy = timezone.localdate()
+    fecha_hoy = hoy.strftime("%Y-%m-%d")
     motivos = MotivoVisita.objects.filter(estado='activo')
     colaboradores = Colaborador.objects.filter(estado='activo')
     areasdeptos = AreaDepto.objects.filter(estado='activo')
@@ -465,6 +475,7 @@ def nueva_visita(request):
         'colaboradores': colaboradores,
         'areasdeptos': areasdeptos,
         'pases': pases,
+        'fecha_hoy': fecha_hoy,
     })
 
 from django.core.mail import send_mail
@@ -687,7 +698,17 @@ def editar_visita_agendada(request):
         motivo = request.POST.get("motivo")
         accion = request.POST.get("accion")
         area_departamento = request.POST.get("area_departamento")
-        persona_visitada = request.POST.get("persona_visitada")
+
+        from django.contrib.auth.models import User  # Importar el modelo User
+
+        # Buscar el usuario correspondiente al ID
+        persona_visitada_id = request.POST.get("persona_visitada")
+        try:
+            persona_visitada = User.objects.get(id=persona_visitada_id)  # Obtener la instancia de User
+        except User.DoesNotExist:
+            messages.error(request, "persona_visitada seleccionado no es válido.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+        
         hora_ingreso = request.POST.get("hora")
         fecha_visita = request.POST.get("fecha")
         cod_visita = visita.cod_visita
@@ -702,7 +723,14 @@ def editar_visita_agendada(request):
 
         tipo = "Individual" if len(visitantes_data) == 1 else "Grupal"
         nombre_primero = visitantes_data[0]["nombre"] if visitantes_data else ""
-        usuario_registro = request.user.id if request.user.is_authenticated else "Anonimo"
+
+        usuario_registro_id = request.user.id
+        try:
+            usuario_registro = User.objects.get(id=usuario_registro_id)  # Obtener la instancia de User
+        except User.DoesNotExist:
+            messages.error(request, "usuario_registro seleccionado no es válido.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
         
         # Procesar la foto: archivo o Data URL.
         

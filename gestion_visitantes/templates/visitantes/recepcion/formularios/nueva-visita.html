@@ -54,11 +54,6 @@
         </div>
     </div>
 
-    <!-- <div class="busqueda-container mb-3" data-aos="zoom-in">
-        <input type="text" id="buscar-visitante" placeholder="Buscar visitante..." class="form-control">
-        <div id="resultados-visitante"></div>
-    </div> -->
-
     <form id="formNewVisita" method="post" action="{% url 'guardar_visita' %}" enctype="multipart/form-data" data-aos="zoom-in">
         {% csrf_token %}
         <div class="mb-3 row">
@@ -365,6 +360,29 @@
         // Evento para agregar una nueva fila manualmente (botón "Agregar fila")
         $('#btn-agregar-fila').click(function(e) {
             e.preventDefault();
+
+            // Verificar si hay una fila vacía antes de agregar una nueva
+            let filaVacia = false;
+            $('#tabla-asistencia tbody tr').each(function() {
+                let nombre = $(this).find('.nuevo-nombre').text().trim();
+                let documento = $(this).find('.nuevo-documento').text().trim();
+                if (nombre === '' || documento === '') {
+                    filaVacia = true;
+                    return false; // Salir del loop si se encuentra una fila vacía
+                }
+            });
+
+            if (filaVacia) {
+                Swal.fire({
+                    title: "Upps!",
+                    text: "Debe completar la fila vacía antes de agregar una nueva.",
+                    icon: "info",
+                    confirmButtonText: "Aceptar",
+                    confirmButtonColor: "#57647D"
+                });
+                return;
+            }
+
             // Crear una nueva fila con celdas editables y botón para eliminar
             var nuevaFila = $('<tr></tr>');
             nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');

@@ -86,11 +86,22 @@
                 <input type="time" name="hora_fin" class="form-control" required>
             </div>
             <div class="col-md-3">
-                <label class="form-label">Adjuntar participantes (Excel)</label>
+                <label class="form-label d-flex align-items-center">
+                    Adjuntar participantes (Excel)
+                    <a href="{% static 'plantillas/plantilla_participantes.xlsx' %}" download class="ms-2 text-primary" title="Descargar plantilla">
+                        <i class='bx bx-download' style="font-size: 1.2rem;"></i>
+                    </a>
+                </label>
                 <input type="file" name="participantes_file" class="form-control" accept=".xls,.xlsx">
             </div>
         </div>
         
+        <div class="text-end mt-2">
+            <button id="btn-limpiar-tabla" type="button" class="btn btn-danger btn-sm">
+                <i class="bx bx-trash"></i> Borrar participantes
+            </button>
+        </div>
+
         <!-- Tab para ingresar participantes manualmente -->
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item">
@@ -109,6 +120,7 @@
                         <tr>
                             <th>Nombre</th>
                             <th>Documento de Identificación</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-asistencia-body">
@@ -117,11 +129,12 @@
                         <tr>
                             <td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>
                             <td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>
+                            <td></td>
                         </tr>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="2" class="text-center">
+                            <td colspan="3" class="text-center">
                                 <button id="btn-agregar-fila" class="btn btn-light btn-sm">
                                     <i class='bx bx-plus'></i> Agregar fila
                                 </button>
@@ -162,9 +175,33 @@ $(document).ready(function(){
         recopilarVisitantes();
     });
     
-    // Evento para agregar una nueva fila manualmente.
+    // Evento para agregar una nueva fila manualmente
     $('#btn-agregar-fila').click(function(e) {
         e.preventDefault();
+
+        // Intentar encontrar una fila vacía antes de agregar una nueva
+        let inserted = false;
+        $('#tabla-asistencia tbody tr').each(function(){
+            let currentNombre = $(this).find('.nuevo-nombre').text().trim();
+            let currentDocumento = $(this).find('.nuevo-documento').text().trim();
+            if(currentNombre === "" && currentDocumento === ""){
+                Swal.fire({
+                    title: "Upps!",
+                    text: "Debe completar la fila vacía antes de agregar una nueva.",
+                    icon: "info",
+                    confirmButtonText: "Aceptar",
+                    confirmButtonColor: "#57647D"
+                });
+                inserted = true;
+                return false; // Detener la iteración si se encuentra una fila vacía
+            }
+        });
+
+        if (inserted) {
+            return; // Evita agregar una nueva fila si ya había una vacía
+        }
+
+        // Si no hay filas vacías, agregar una nueva fila
         var nuevaFila = $('<tr></tr>');
         nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');
         nuevaFila.append('<td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>');
@@ -258,6 +295,41 @@ $(document).ready(function(){
     
         $('#resultados-visitante').empty();
         $('#buscar-visitante').val('');
+    });
+});
+</script>
+<script>
+$(document).ready(function(){
+    $('#btn-limpiar-tabla').click(function(){
+        Swal.fire({
+            title: "¿Está seguro?",
+            text: "Se eliminarán todos los participantes de el evento.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, limpiar",
+            confirmButtonColor: "#57647D",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Limpiar todas las filas de la tabla
+                $('#tabla-asistencia tbody').empty();
+                
+                // Agregar una fila vacía después de limpiar
+                var nuevaFila = $('<tr></tr>');
+                nuevaFila.append('<td contenteditable="true" class="nuevo-nombre" placeholder="Nombre..."></td>');
+                nuevaFila.append('<td contenteditable="true" class="nuevo-documento" placeholder="Documento..."></td>');
+                nuevaFila.append('<td></td>');
+                $('#tabla-asistencia tbody').append(nuevaFila);
+
+                Swal.fire({
+                    title: "Tabla limpiada",
+                    text: "Todos los datos han sido eliminados.",
+                    icon: "success",
+                    confirmButtonText: "Aceptar",
+                    confirmButtonColor: "#57647D"
+                });
+            }
+        });
     });
 });
 </script>

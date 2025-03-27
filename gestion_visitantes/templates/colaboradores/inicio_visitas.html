@@ -181,10 +181,13 @@
                                                                             <a href="{{ p.documento_soporte.url }}" target="_blank" class="btn btn-success btn-sm small"><i class='bx bxs-file'></i> Ver archivo</a>
                                                                         </div>
                                                                     {% else %}
-                                                                        <label class="btn btn-outline-success btn-sm">
+                                                                        <label class="btn btn-outline-success btn-sm file-label" id="label-{{ p.id }}">
                                                                             <i class='bx bxs-file-plus'></i> Cargar
-                                                                            <input type="file" name="doc_soporte_{{ p.id }}" class="d-none doc-soporte-input">
+                                                                            <input type="file" name="doc_soporte_{{ p.id }}" class="d-none doc-soporte-input" id="file-input-{{ p.id }}">
                                                                         </label>
+                                                                        <span id="file-loaded-{{ p.id }}" class="text-success d-none">
+                                                                            <i class="bx bx-check"></i> Archivo adjuntado
+                                                                        </span>
                                                                     {% endif %}
                                                                 </td>
                                                             </tr>
@@ -385,4 +388,20 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Seleccionar todos los inputs de archivo
+    document.querySelectorAll(".doc-soporte-input").forEach(function (input) {
+        input.addEventListener("change", function () {
+            let fileLabel = document.getElementById("label-" + this.id.split("-").pop());
+            let fileLoadedMsg = document.getElementById("file-loaded-" + this.id.split("-").pop());
+
+            if (this.files.length > 0) {
+                fileLabel.classList.add("d-none"); // Oculta el botón de carga
+                fileLoadedMsg.classList.remove("d-none"); // Muestra el mensaje de archivo cargado
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
