@@ -34,7 +34,7 @@
                 <form action="{% url 'buscar_eventos_recepcion' %}" class="d-flex">
                     <input type="search" class="form-control" name="q" id="search_visita" placeholder="Buscar evento/participante..." style="border-radius: 15px 0px 0px 15px; width: 40%;" {% if query %} value="{{query}}" {% endif %}>
                     <select class="form-select busqueda_visita" name="persona_visitada" id="persona_visitada" style="border-radius: 0px; width: 18%;" >
-                        <option selected>Colaborador</option>
+                        <option>Colaborador</option>
                         {% for user in users %}
                             <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
                         {% endfor %}

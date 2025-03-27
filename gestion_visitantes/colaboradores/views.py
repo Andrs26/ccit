@@ -396,12 +396,6 @@ def buscar_eventos_colaborador(request):
     else:
         eventos_result = EventoCapacitacion.objects.filter(id__in=id_eventos, organizador = request.user.id)
     
-    # Filtrar eventos por organizador (si se selecciona un colaborador distinto al valor por defecto)
-    if persona and persona.lower() != "colaborador":
-        eventos_result = eventos_result.filter(organizador=persona)
-    
-    eventos_result = eventos_result.order_by('fecha', 'hora_inicio')
-    
     # Para el select de colaboradores
     colaboradores = Colaborador.objects.filter(estado='activo')
     
