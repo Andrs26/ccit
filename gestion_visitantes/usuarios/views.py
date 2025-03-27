@@ -256,59 +256,59 @@ def create_user(request):
 #? Vista para editar la información de un usuario
 @login_required
 def edit_user(request, user_id):
-    if request.user.groups.filter(name='admin_group').exists() or request.user.groups.filter(name='super_admin').exists() or request.user.groups.filter(name='visitas_it_group').exists():
-        user = get_object_or_404(User, pk=user_id)  # Obtener el usuario por id
-        current_group = user.groups.first() if user.groups.exists() else None  # Obtener el grupo actual del usuario
+    if request.user.groups.filter(name__in=['admin_group', 'super_admin', 'visitas_it_group']).exists():
+        user = get_object_or_404(User, pk=user_id)  # Obtener el usuario por ID
+        current_groups = list(user.groups.values_list('name', flat=True))  # Obtener todos los grupos actuales del usuario
 
         if request.method == 'POST':
             user.first_name = request.POST['first_name']
             user.last_name = request.POST['last_name']
             user.email = request.POST['email']
             pin = request.POST['pin']
-            # Obtener el nuevo grupo del formulario
+            
+            # Obtener los nuevos grupos seleccionados
             group_names = request.POST.getlist('groups')
 
-            # Actualizar grupo (rol)
-            if group_names:
-                user.groups.clear()
-                for group_name in group_names:
-                    group = Group.objects.get(name=group_name)
-                    user.groups.add(group)
+            # Actualizar grupos del usuario
+            user.groups.clear()
+            for group_name in group_names:
+                group = Group.objects.get(name=group_name)
+                user.groups.add(group)
 
             # Guardar cambios del usuario y su perfil (PIN)
             user.save()
+            user.userprofile.pin = pin
+            user.userprofile.save()
 
-            # Si tienes un modelo de perfil de usuario, lo puedes actualizar aquí también.
-            # Actualiza el PIN en el perfil de usuario si tienes UserProfile
-            user_profile = user.userprofile
-            user_profile.pin = pin
-            user_profile.save()
-
+            # Registrar el evento
             evento = Eventos(
-                cod_asamblea = 'ASAM_2025',
-                accion = f'Editó al {user.username}',
-                usuario_registro = request.user.id
+                cod_asamblea='ASAM_2025',
+                accion=f'Editó al usuario {user.username}',
+                usuario_registro=request.user.id
             )
             evento.save()
 
             messages.success(request, "Usuario actualizado correctamente.")
             return redirect('user_list')
 
-        # Obtener todos los grupos para mostrarlos en el formulario
+        # Obtener todos los grupos disponibles
         groups = Group.objects.all()
 
-        return render(request, 'auth/edit_user.html', {'user': user, 'groups': groups, 'current_group': current_group})
-        
-    # Si el usuario está en el grupo 'estándar_group', lo redirigimos y mostramos mensaje
-    elif request.user.groups.filter(name='estándar_group').exists():
-        messages.error(request, "Acceso no permitido. No tiene los permisos necesarios para acceder.")
-        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
-    
-    # En caso de que no pertenezca a ninguno de los grupos, también redirigimos
-    else:
-        messages.error(request, "Acceso no permitido. No tiene los permisos necesarios.")
-        return redirect(request.META.get('HTTP_REFERER', '/'))  # Regresa donde estaba
+        return render(request, 'auth/edit_user.html', {
+            'user': user, 
+            'groups': groups, 
+            'current_groups': current_groups  # Pasamos todos los grupos del usuario
+        })
 
+    # Si el usuario pertenece a 'estándar_group', no tiene acceso
+    elif request.user.groups.filter(name='estándar_group').exists():
+        messages.error(request, "Acceso no permitido. No tiene los permisos necesarios.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    
+    # Si el usuario no pertenece a ningún grupo permitido
+    else:
+        messages.error(request, "Acceso no permitido.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
 
 #? Vista para eliminar un usuario
 @login_required
