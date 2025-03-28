@@ -50,7 +50,7 @@
         {% for grupo in user_grupos %}
             {% if grupo.name == "visitas_colaborador_group" or grupo.name == 'visitas_it_group' or grupo.name == "super_admin" %}
                 <div class="col d-flex justify-content-end align-items-center">
-                    <a class="btn btn-warning text-secondary" href="{% url 'editar_evento' evento.id %}">
+                    <a class="btn btn-light" href="{% url 'editar_evento' evento.id %}">
                         <i class='bx bx-calendar-edit' style="margin-right: 4px;"></i> Editar evento
                     </a>
                 </div>

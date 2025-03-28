@@ -381,5 +381,13 @@
             });
         });
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let today = new Date().toISOString().split("T")[0]; // Obtener la fecha actual en formato YYYY-MM-DD
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                input.setAttribute("min", today);
+            });
+        });
+    </script>
 </body>
 </html>
