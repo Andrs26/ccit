@@ -1,0 +1,208 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Talento Humano | Asistencias {% endblock %}
+{% block content %}
+{% load static %}
+{% load custom_tags %}
+<div id="sync-loader" class="d-none justify-content-center align-items-center bg-primary rounded text-white p-5"
+     style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;">
+    <div class="text-center">
+        <div class="spinner-border text-white" role="status"></div>
+        <p class="mt-3">Sincronizando datos con el reloj biométrico...</p>
+    </div>
+</div>
+
+<div class="row mb-4" data-aos="zoom-in">
+    <a class="btn btn-light col-auto" href="{% url 'home_rrhh' %}">
+        <i class='bx bx-arrow-back' style="margin-right: 7px;"></i>
+        Volver
+    </a>
+</div>
+
+<div class="row" data-aos="zoom-in">
+    <div class="col">
+        <h3 class="mb-3">Asistencias Registradas</h3>
+    </div>
+    <div class="col d-flex justify-content-end">
+        <form method="get" class="me-2" action="{% url 'listar_asistencias' %}">
+            <input type="search" class="form-control" name="busqueda" placeholder="Buscar por nombre o ID" value="{{ busqueda }}">
+        </form>
+        <div class="col-auto d-flex justify-content-end">
+            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalFiltros">
+                Filtros <i class="bx bx-filter"></i>
+            </button>
+            <button class="btn btn-outline-success" id="btn-sincronizar">
+                <i class="bx bx-sync"></i> Sincronizar ahora
+            </button>
+        </div>
+    </div>
+</div>
+
+<table class="table table-hover table-sm" data-aos="zoom-in">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Fecha</th>
+            <th>Hora Entrada</th>
+            <th>Hora Salida</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in asistencias %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ a.usuario_nombre }}</td>
+                <td>{{ a.fecha }}</td>
+                <td>{{ a.entrada }}</td>
+                <td>
+                    {% if a.entrada != a.salida %}
+                        {{ a.salida }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal"
+                            data-bs-target="#modalDetalle{{ a.clave }}">
+                        Ver detalles
+                    </button>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No hay asistencias en el rango seleccionado.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    <!-- Modal Filtros -->
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalFiltrosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <form method="get" action="{% url 'listar_asistencias' %}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalFiltrosLabel">Filtrar asistencias</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <label>Desde:</label>
+                            <input type="date" class="form-control" name="fecha_inicio" value="{{ fecha_inicio }}">
+                        </div>
+                        <div class="col">
+                            <label>Hasta:</label>
+                            <input type="date" class="form-control" name="fecha_fin" value="{{ fecha_fin }}">
+                        </div>
+                    </div>
+
+                    <label class="mt-2">Usuario:</label>
+                    <select class="form-control" name="usuario_id">
+                        <option value="">-- Todos --</option>
+                        {% for u in usuarios %}
+                            <option value="{{ u.user_id }}" {% if usuario_id == u.user_id %}selected{% endif %}>{{ u.user_id }} - {{ u.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</table>
+
+<!-- Modales de detalles de asistencias -->
+{% for a in asistencias %}
+    <div class="modal fade" id="modalDetalle{{ a.clave }}" tabindex="-1"
+         aria-labelledby="modalDetalleLabel{{ a.clave }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles - {{ a.usuario_nombre }} ({{ a.fecha }})</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Tipo de Evento</th>
+                                <th>Método</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in detalles_asistencias|get_item:a.clave %}
+                                <tr>
+                                    <td>{{ r.hora }}</td>
+                                    <td>{{ r.tipo_evento }}</td>
+                                    <td>{{ r.metodo_autenticacion }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center">No hay registros.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("btn-sincronizar");
+
+        btn.addEventListener("click", function () {
+            Swal.fire({
+                title: 'Sincronizando...',
+                text: 'Obteniendo registros desde el reloj biométrico',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            fetch(window.location.origin + "{% url 'sincronizar_datos' %}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        const cantidad = data.nuevos || 0;
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Sincronización completada!',
+                            html: `Se guardaron <strong>${cantidad}</strong> registros nuevos.`,
+                            confirmButtonText: 'Ver asistencias',
+                            confirmButtonColor: "#18314F",
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al sincronizar',
+                            text: data.message || 'Ocurrió un problema inesperado.',
+                            confirmButtonText: 'Cerrar',
+                            confirmButtonColor: "#18314F",
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de conexión',
+                        text: 'No se pudo conectar al servidor: ' + error,
+                        confirmButtonText: 'Cerrar',
+                        confirmButtonColor: "#18314F",
+                    });
+                });
+        });
+    });
+</script>
+{% endblock %}

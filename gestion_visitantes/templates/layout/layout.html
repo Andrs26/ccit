@@ -365,13 +365,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             // Inicializar AOS Animate
             AOS.init();
-
-            // Inicializar Select2
-            $('.select2').select2({
-                placeholder: 'Seleccione un lente',
-                theme: 'bootstrap-5',
-                allowClear: true
-            });
         });
     </script>
     <script>
@@ -381,13 +374,13 @@
             });
         });
     </script>
-    <script>
+    <!-- <script>
         document.addEventListener("DOMContentLoaded", function() {
             let today = new Date().toISOString().split("T")[0]; // Obtener la fecha actual en formato YYYY-MM-DD
             document.querySelectorAll('input[type="date"]').forEach(input => {
                 input.setAttribute("min", today);
             });
         });
-    </script>
+    </script> -->
 </body>
 </html>

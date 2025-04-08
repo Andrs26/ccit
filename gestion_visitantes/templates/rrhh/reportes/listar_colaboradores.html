@@ -1,0 +1,83 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Reporte de Asistencias {% endblock %}
+{% block content %}
+<div class="row mb-4" data-aos="zoom-in">
+    <a class="btn btn-light col-auto" href="{% url 'home_rrhh' %}">
+        <i class='bx bx-arrow-back' style="margin-right: 7px;"></i>
+        Volver
+    </a>
+</div>
+<div class="row mb-3">
+    <div class="col">
+        <h3>Reporte de Horas - Colaboradores</h3>
+    </div>
+    <div class="col-auto">
+        <form method="get" action="">
+            <input type="search" name="busqueda" class="form-control" placeholder="Buscar por nombre o código" value="{{ busqueda }}">
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <table class="table table-hover table-sm" data-aos="zoom-in">
+        <thead>
+            <tr>
+                <th>N.</th>
+                <th>Código Empleado</th>
+                <th>Nombre de Colaborador</th>
+                <th class="text-end">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in colaboradores %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ c.codigo_empleado }}</td>
+                <td>{{ c.nombre_completo }}</td>
+                <td class="d-flex justify-content-end">
+                    <button class="btn btn-light btn-sm col-auto" data-bs-toggle="modal" data-bs-target="#modalFechas{{ c.id }}">
+                        <i class='bx bxs-file' style="margin-right: 7px;"></i> Reporte
+                    </button>
+                </td>
+            </tr>
+            <!-- Modal para fechas -->
+            <div class="modal fade" id="modalFechas{{ c.id }}" tabindex="-1" aria-labelledby="modalFechasLabel{{ c.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <form method="get" action="{% url 'pdf_reporte_colaborador' c.id %}" target="_blank">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Rango de fechas - {{ c.nombre_completo }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <label>Desde:</label>
+                                        <input type="date" name="fecha_inicio" class="form-control" required>
+                                    </div>
+                                    <div class="col">
+                                        <label>Hasta:</label>
+                                        <input type="date" name="fecha_fin" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-success" type="submit">
+                                    <i class='bx bxs-file-pdf' style="margin-right: 7px;"></i> Generar PDF
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% empty %}
+            <tr>
+                <td colspan="4">No se encontraron colaboradores.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

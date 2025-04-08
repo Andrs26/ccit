@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Horas - {{ colaborador.nombre_completo }}</title>
+</head>
+<body>
+    <!-- Encabezado institucional sin tabla -->
+    <div id="encabezado" style="position: running(header); overflow: hidden;">
+        <!-- Logo alineado a la izquierda -->
+        <div style="float: left; width: 80px; text-align: center;">
+            <img src="{{ request.build_absolute_uri }}/static/img/logo_ccit.png"
+                alt="Logo CCIT"
+                style="width: 70px; height: 70px; border-radius: 50%;">
+        </div>
+
+        <!-- Texto alineado al centro pero desplazado con margen -->
+        <div style="margin-left: 100px; text-align: center;">
+            <h2 style="margin: 0;">CÁMARA DE COMERCIO E INDUSTRIA DE TEGUCIGALPA</h2>
+            <h4 style="margin: 5px 0; font-weight: normal;">REPORTE DE ASISTENCIA</h4>
+            <p style="margin: 5px 0; font-size: 12px;">
+                <strong>Nombre del colaborador:</strong> {{ colaborador.nombre_completo }}<br>
+                <strong>Rango de fechas:</strong> {{ fecha_inicio|date:"d/m/Y" }} - {{ fecha_fin|date:"d/m/Y" }}
+            </p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th class="jornada">Jornada</th>
+                <th class="horario">Horario</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th class="razon">Razón</th>
+                <th class="justificacion">Justificación</th>
+                <th class="columna-extra">Medio día <br> 12:00-1:00p.m. <br> (25%)</th>
+                <th class="columna-extra">Diurna <br> 5pm-7pm (L-V) <br> 7am-1pm (Sab) <br> (25%)</th>
+                <th class="columna-extra">Nocturna <br> 7:01pm-12am (L-V) <br> 1:01pm-7pm (Sab) <br> (50%)</th>
+                <th class="columna-extra">Nocturna <br> 12:01pm-5am (L-V) <br> 7:01pm-12m (Sab) <br> (75%)</th>
+                <th class="columna-extra">Domingo y <br> días feriados <br> (100%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in registros %}
+            <tr>
+                <td>{{ r.fecha|date:'d/m/Y' }}</td>
+                <td>{{ r.jornada }}</td>
+                <td>{{ r.horario }}</td>
+                <td>{{ r.entrada_real|default:"-" }}</td>
+                <td>{{ r.salida_real|default:"-" }}</td>
+                <td class="razon"></td>
+                <td class="justificacion"></td>
+                <td class="columna-extra"></td>
+                <td class="columna-extra"></td>
+                <td class="columna-extra"></td>
+                <td class="columna-extra"></td>
+                <td class="columna-extra"></td>
+            </tr>
+            {% endfor %}
+            <!-- ✅ Fila TOTAL HORAS perfectamente alineada -->
+            <tr class="total-horas">
+                <td colspan="7" style="text-align: right; font-weight: bold; border: none;">Total horas:</td>
+                <td style="border-top: 2px solid #000;">&nbsp;</td>
+                <td style="border-top: 2px solid #000;">&nbsp;</td>
+                <td style="border-top: 2px solid #000;">&nbsp;</td>
+                <td style="border-top: 2px solid #000;">&nbsp;</td>
+                <td style="border-top: 2px solid #000;">&nbsp;</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 60px;">
+        <div style="display: flex; justify-content: space-between;">
+            <div style="width: 45%; text-align: center;">
+                ___________________________<br>
+                <strong>Revisado por RRHH</strong>
+            </div>
+            <div style="width: 45%; text-align: center;">
+                ___________________________<br>
+                <strong>Jefe Inmediato</strong>
+            </div>
+        </div>
+    </div>    
+</body>
+</html>

@@ -1,0 +1,179 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Talento Humano | Users {% endblock %}
+{% block content %}
+{% load static %}
+<div>
+    <div class="row mb-4" data-aos="zoom-in">
+        <a class="btn btn-light col-auto" href="{% url 'home_rrhh' %}">
+            <i class='bx bx-arrow-back' style="margin-right: 7px;"></i>
+            Volver
+        </a>
+    </div>
+    <div class="row" data-aos="zoom-in">
+        <div class="col">
+            <h3 class="mb-3">Usuarios en Biométrico</h3>
+        </div>
+        <div class="col-auto d-flex justify-content-end">
+            <form method="get" action="{% url 'listar_usuarios' %}">
+                <input type="search" class="form-control" name="search" placeholder="Buscar por ID o nombre" value="{{ search_query }}">
+            </form>
+        </div>
+        <div class="col-auto d-flex justify-content-end">
+            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">Crear Usuario</button>
+        </div>
+    </div>
+
+    <table class="table table-hover table-sm" data-aos="zoom-in">
+        <thead>
+            <tr>
+                <td>#</td>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Código</th>
+                <th>N. Tarjeta</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ usuario.user_id }}</td>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.password }}</td>
+                    <td>{{ usuario.card }}</td>
+                    <td>
+                        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditar{{ usuario.id }}">
+                            <i class='bx bx-edit'></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar{{ usuario.id }}">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Modal Editar Usuario -->
+                <div class="modal fade" id="modalEditar{{ usuario.id }}" tabindex="-1" aria-labelledby="editarLabel{{ usuario.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <form method="POST" action="{% url 'editar_usuario' usuario.id %}">
+                            {% csrf_token %}
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Editar Usuario</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <label>ID:</label>
+                                    <input type="text" class="form-control" value="{{ usuario.user_id }}" disabled>
+                                    <label>Nombre:</label>
+                                    <input type="text" class="form-control" name="nombre" value="{{ usuario.nombre }}" required>
+                                    <label>Password:</label>
+                                    <input type="text" class="form-control" name="password" value="{{ usuario.password }}">
+                                    <label>Tarjeta:</label>
+                                    <input type="text" class="form-control" name="card" value="{{ usuario.card }}">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal Eliminar Usuario -->
+                <div class="modal fade" id="modalEliminar{{ usuario.id }}" tabindex="-1" aria-labelledby="eliminarLabel{{ usuario.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <form method="POST" action="{% url 'eliminar_usuario' usuario.id %}">
+                            {% csrf_token %}
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    ¿Estás seguro que deseas eliminar al usuario <strong>{{ usuario.nombre }}</strong> (ID: {{ usuario.user_id }})?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No hay usuarios registrados.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <!-- Modal Crear Usuario -->
+        <div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="crearUsuarioLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <form method="POST" action="{% url 'agregar_usuario' %}">
+                    {% csrf_token %}
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Crear Nuevo Usuario</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label>ID (número de empleado):</label>
+                            <input type="number" class="form-control" name="user_id" required>
+                            <label>Nombre:</label>
+                            <input type="text" class="form-control" name="nombre" required>
+                            <label>Password:</label>
+                            <input type="text" class="form-control" name="password">
+                            <label>Tarjeta:</label>
+                            <input type="text" class="form-control" name="card">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Crear</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </table>
+
+
+    <!-- Paginación -->
+    <nav aria-label="Paginación de usuarios" data-aos="zoom-in">
+        <ul class="pagination justify-content-center">
+    
+            {% if usuarios.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ usuarios.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">&laquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+            {% endif %}
+    
+            {% for num in usuarios.paginator.page_range %}
+                {% if num == 1 or num == usuarios.paginator.num_pages or num >= usuarios.number|add:"-2" and num <= usuarios.number|add:"2" %}
+                    {% if usuarios.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% elif num == usuarios.number|add:"-3" or num == usuarios.number|add:"3" %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+    
+            {% if usuarios.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ usuarios.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">&raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+            {% endif %}
+    
+        </ul>
+    </nav>    
+</div>
+{% endblock %}

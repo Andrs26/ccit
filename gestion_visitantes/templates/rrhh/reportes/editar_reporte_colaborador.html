@@ -1,0 +1,128 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Editar Reporte de Horas {% endblock %}
+{% block content %}
+<style>
+    /* Tabla más limpia */
+    .reporte-asistencia th, .reporte-asistencia td {
+        white-space: nowrap;
+        text-align: center;
+        vertical-align: middle;
+        padding: 4px 6px;
+        font-size: 13px;
+    }
+    
+    /* Input con solo borde inferior azul */
+    .reporte-asistencia input.campo {
+        border: none;
+        border-bottom: 1px solid #18314f84;
+        border-radius: 5px;
+        background: transparent;
+        width: 100%;
+        font-size: 13px;
+        padding: 2px 4px;
+        text-align: center;
+    }
+    
+    .reporte-asistencia input.campo:focus {
+        outline: none;
+        border-bottom: 2px solid #2e67ad;
+    }
+
+    .table-reporte {
+        min-width: 1000px;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .table-reporte th,
+    .table-reporte td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+
+    .table-reporte input[type="text"] {
+        width: 100%;
+        border: none;
+        border-bottom: 2px solid #18314f;
+        background: transparent;
+        font-size: 13px;
+        padding: 4px 6px;
+        resize: none;
+    }
+
+    .table-reporte input[type="text"]:focus {
+        outline: none;
+        border-color: #18314f;
+    }
+
+    .reporte-asistencia .campo-largo {
+        min-width: 320px;
+    }
+    
+    .reporte-asistencia .campo-largo-razon {
+        min-width: 180px;
+    }
+    
+    .reporte-asistencia .campo-columnas {
+        min-width: 150px;
+    }
+
+    .scroll-horizontal {
+        overflow-x: auto;
+    }
+    </style>
+    
+<div class="container">
+    <h3 class="mb-4">Asistencias - {{ colaborador.nombre_completo }}</h3>
+
+    <div class="scroll-horizontal">
+        <form method="post" action="">
+            {% csrf_token %}
+            <input type="hidden" name="fecha_inicio" value="{{ fecha_inicio }}">
+            <input type="hidden" name="fecha_fin" value="{{ fecha_fin }}">
+            
+            <table class="table table-bordered reporte-asistencia">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Jornada</th>
+                        <th>Horario</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Razón</th>  
+                        <th>Justificación</th>
+                        <th class="col-auto">Medio día <br> 12:00-1:00p.m. <br> (25%)</th>
+                        <th class="col-auto">Diurna <br> 5pm-7pm (L-V) <br> 7am-1pm (Sab) <br> (25%)</th>
+                        <th class="col-auto">Nocturna <br> 7:01pm-12am (L-V) <br> 1:01pm-7pm (Sab) <br> (50%)</th>
+                        <th class="col-auto">Nocturna <br> 12:01pm-5am (L-V) <br> 7:01pm-12m (Sab) <br> (75%)</th>
+                        <th class="col-auto">Domingo y días feriados <br> (100%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in registros %}
+                    <tr>
+                        <td>{{ r.fecha|date:'d-m-Y' }}</td>
+                        <td>{{ r.jornada }}</td>
+                        <td>{{ r.horario }}</td>
+                        <td>{{ r.entrada }}</td>
+                        <td>{{ r.salida }}</td>
+                        <td><input type="text" class="campo campo-largo-razon" name="razon_{{ r.id }}" value="{{ r.razon|default_if_none:'' }}"></td>
+                        <td><input type="text" class="campo campo-largo" name="justificacion_{{ r.id }}" value="{{ r.justificacion|default_if_none:'' }}"></td>
+                        <td><input type="text" class="campo campo-columnas" name="col1_{{ r.id }}" value="{{ r.columna_1|default_if_none:'' }}"></td>
+                        <td><input type="text" class="campo campo-columnas" name="col2_{{ r.id }}" value="{{ r.columna_2|default_if_none:'' }}"></td>
+                        <td><input type="text" class="campo campo-columnas" name="col3_{{ r.id }}" value="{{ r.columna_3|default_if_none:'' }}"></td>
+                        <td><input type="text" class="campo campo-columnas" name="col4_{{ r.id }}" value="{{ r.columna_4|default_if_none:'' }}"></td>
+                        <td><input type="text" class="campo campo-columnas" name="col5_{{ r.id }}" value="{{ r.columna_5|default_if_none:'' }}"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-end">
+                <button class="btn btn-success">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

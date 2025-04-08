@@ -1,0 +1,66 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Nuevo Colaborador {% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <div class="d-flex justify-content-start mb-2">
+            <a class="btn btn-light" href="{% url 'listar_colaboradores' %}">
+                <i class='bx bx-arrow-back' style="margin-right: 7px;"></i>
+                Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-6">
+            <h3>Nuevo Colaborador</h3>
+        </div>
+        <div class="col-6 d-flex justify-content-end">
+            <button type="submit" class="btn btn-success">Guardar colaborador</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <label>Nombre completo:</label>
+            <input type="text" name="nombre_completo" class="form-control" required>
+            <label>Identificación:</label>
+            <input type="text" name="identificacion" class="form-control" required>
+            <label>Código empleado:</label>
+            <input type="text" name="codigo_empleado" class="form-control" required>
+            <label>Correo:</label>
+            <input type="email" name="correo" class="form-control">
+            <label>Teléfono:</label>
+            <input type="text" name="telefono" class="form-control">
+            <label>Usuario del colaborador:</label>
+            <select name="usuario_sistema" class="form-select mb-2">
+                <option value="">-- Seleccionar --</option>
+                {% for user in usuarios %}
+                    <option value="{{ user.id }}">{{ user.fist_name }} {{ user.last_name }} ({{user.username}})</option>
+                {% endfor %}
+            </select>
+            <label>Usuario aprobador (jefe):</label>
+            <select name="aprobador" class="form-select mb-2">
+                <option value="">-- Seleccionar --</option>
+                {% for user in usuarios %}
+                    <option value="{{ user.id }}">{{ user.fist_name }} {{ user.last_name }} ({{user.username}})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label>Puesto:</label>
+            <input type="text" name="puesto" class="form-control">
+            <label>Departamento:</label>
+            <input type="text" name="departamento" class="form-control">
+            <label>Fecha ingreso:</label>
+            <input type="date" name="fecha_ingreso" class="form-control">
+            <label>Dirección:</label>
+            <textarea name="direccion" class="form-control" rows="3"></textarea>
+            <label>Foto:</label>
+            <input type="file" name="foto" class="form-control">
+        </div>
+    </div>
+</form>
+{% endblock %}

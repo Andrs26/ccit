@@ -1,0 +1,60 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Talento Humano | Users {% endblock %}
+{% block content %}
+{% load static %}
+<h2>🔍 Datos Crudos del Reloj</h2>
+
+{% if error %}
+  <p style="color:red;">❌ Error: {{ error }}</p>
+{% endif %}
+
+<h3>👤 Usuarios</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      {% if usuarios %}
+        {% for key in usuarios.0.keys %}
+          <th>{{ key }}</th>
+        {% endfor %}
+      {% else %}
+        <th colspan="100%">Sin usuarios</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for usuario in usuarios %}
+      <tr>
+        {% for value in usuario.values %}
+          <td>{{ value }}</td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<br>
+
+<h3>🕒 Asistencias</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      {% if asistencias %}
+        {% for key in asistencias.0.keys %}
+          <th>{{ key }}</th>
+        {% endfor %}
+      {% else %}
+        <th colspan="100%">Sin asistencias</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for asistencia in asistencias %}
+      <tr>
+        {% for value in asistencia.values %}
+          <td>{{ value }}</td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

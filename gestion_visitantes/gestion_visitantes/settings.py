@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'lista_negra',
     'pertenencias',
     'colaboradores',
+    'biometrico',
 
     # Aplicacion para Server
     'sslserver',

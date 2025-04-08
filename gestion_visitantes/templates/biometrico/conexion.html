@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conexión al Reloj</title>
+</head>
+<body>
+    <h1>Estado de conexión</h1>
+    <p>{{ resultado.estado }}</p>
+
+    {% if resultado.usuarios %}
+        <h2>Usuarios registrados: {{ resultado.cantidad }}</h2>
+        <ul>
+            {% for usuario in resultado.usuarios %}
+                <li>{{ usuario.user_id }} - {{ usuario.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

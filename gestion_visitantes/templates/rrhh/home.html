@@ -1,0 +1,109 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Talento Humano {% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    .card-visita-dentro {
+        box-shadow: 0px 0px 10px 2px #18314f86;
+        transition: all 0.3s ease-in-out;
+    }
+    .card-visita-dentro:hover {
+        box-shadow: 0px 0px 20px 2px #18314f86;
+        transform: translateY(-15px);
+    }
+
+    .card-visita-dentro:hover > :not(:hover) {
+        opacity: 1;
+    }
+</style>
+
+<div>
+    <div class="mb-3 row d-flex justify-content-between" data-aos="zoom-in">
+        <div class="col-auto">
+            <h4>Hola {{request.user.first_name}} {{request.user.last_name}}, ¿Qué hacemos hoy?</h4>
+        </div>
+    </div>
+
+    <div class="row p-3">
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
+            <a href="{% url 'listar_colaboradores' %}">
+                <div class="card hover-img card-visita-dentro">
+                    <div class="card-body p-3 text-center border-bottom">
+                        <img src="{% static '/img/home/gestion.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                        <h4 class="card-title mb-1">Colaboradores</h4>
+                        <div class=" mb-1 row">
+                            <span class="fs-2">
+                                Gestión completa del expediente.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
+            <a href="{% url 'listar_asistencias' %}">
+                <div class="card hover-img card-visita-dentro">
+                    <div class="card-body p-3 text-center border-bottom">
+                        <img src="{% static '/img/home/biometrico.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                        <h4 class="card-title mb-1">Asistencias</h4>
+                        <div class=" mb-1 row">
+                            <span class="fs-2">
+                                Gestión completa de las asistencias.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
+            <a href="{% url 'reporte_colaboradores' %}">
+                <div class="card hover-img card-visita-dentro">
+                    <div class="card-body p-3 text-center border-bottom">
+                        <img src="{% static '/img/home/reporte_horas.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                        <h4 class="card-title mb-1">Reporte de Horas</h4>
+                        <div class=" mb-1 row">
+                            <span class="fs-2">
+                                Gestión completa de las asistencias.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
+            <a href="{% url 'listar_usuarios' %}">
+                <div class="card hover-img card-visita-dentro">
+                    <div class="card-body p-3 text-center border-bottom">
+                        <img src="{% static '/img/home/reloj_biometrico.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                        <h4 class="card-title mb-1">Usuarios (Biométrico)</h4>
+                        <div class=" mb-1 row">
+                            <span class="fs-2">
+                                Gestión completa de usuarios.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
+            <a>
+                <div class="card hover-img card-visita-dentro">
+                    <div class="card-body p-3 text-center border-bottom">
+                        <img src="{% static '/img/home/accion_de_personal.png' %}" alt="matdash-img" class="rounded-circle mb-3" width="80" height="80">
+                        <h4 class="card-title mb-1">Acciones de Personal</h4>
+                        <div class=" mb-1 row">
+                            <span class="fs-2">
+                                Gestión completa de acciones.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

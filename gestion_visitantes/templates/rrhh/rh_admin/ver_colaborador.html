@@ -1,0 +1,117 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Colaborador {% endblock %}
+{% block content %}
+{% load static %}
+<div class="container mt-1">
+    <div class="row">
+        <div class="col">
+            <div class="d-flex justify-content-start mb-2">
+                <a class="btn btn-light" href="{% url 'listar_colaboradores' %}">
+                    <i class='bx bx-arrow-back' style="margin-right: 7px;"></i>
+                    Volver
+                </a>
+            </div>
+        </div>
+        <div class="col">
+            <div class="d-flex justify-content-end">
+                <a class="btn btn-light" href="{% url 'editar_colaborador' colaborador.id %}">
+                    <i class='bx bxs-edit-alt' style="margin-right: 7px;"></i>
+                    Editar colaborador
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Foto redonda y nombre -->
+    <div class="text-center mb-5">
+        {% if colaborador.foto %}
+            <img src="{{ colaborador.foto.url }}" class="rounded-circle shadow" width="150" height="150" alt="Foto del colaborador">
+        {% else %}
+            <img src="{% static 'img/default-user.png' %}" class="rounded-circle shadow" width="150" height="150" alt="Foto por defecto">
+        {% endif %}
+        <h2 class="mt-3">{{ colaborador.nombre_completo }}</h2>
+    </div>
+
+    <!-- Info general -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6">
+            <ul class="list-group">
+                <li class="list-group-item"><strong>DNI:</strong> {{ colaborador.identificacion }}</li>
+                <li class="list-group-item"><strong>Código de Empleado:</strong> {{ colaborador.codigo_empleado }}</li>
+                <li class="list-group-item"><strong>Puesto:</strong> {{ colaborador.puesto }}</li>
+                <li class="list-group-item"><strong>Departamento:</strong> {{ colaborador.departamento }}</li>
+                <li class="list-group-item"><strong>Fecha de Ingreso:</strong> {{ colaborador.fecha_ingreso }}</li>
+                <li class="list-group-item"><strong>Estado:</strong>
+                    {% if colaborador.activo %}
+                        <span class="badge bg-success">Activo</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactivo</span>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+        
+        <div class="col-md-6">
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Correo:</strong> {{ colaborador.correo }}</li>
+                <li class="list-group-item"><strong>Teléfono:</strong> {{ colaborador.telefono }}</li>
+                <li class="list-group-item"><strong>Dirección:</strong> {{ colaborador.direccion }}</li>
+                <li class="list-group-item"></li>
+                <li class="list-group-item"><strong>Usuario del sistema:</strong> {{ colaborador.usuario_sistema.username }} - {{ colaborador.usuario_sistema.first_name }} {{ colaborador.usuario_sistema.last_name }}</li>
+                <li class="list-group-item"><strong>Usuario aprobador:</strong> {{ colaborador.aprobador.username }} - {{ colaborador.aprobador.first_name }} {{ colaborador.aprobador.last_name }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="tabsColaborador" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="asistencias-tab" data-bs-toggle="tab" data-bs-target="#asistencias" type="button" role="tab">Asistencias</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="vacaciones-tab" data-bs-toggle="tab" data-bs-target="#vacaciones" type="button" role="tab">Vacaciones</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="permisos-tab" data-bs-toggle="tab" data-bs-target="#permisos" type="button" role="tab">Permisos</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="incapacidades-tab" data-bs-toggle="tab" data-bs-target="#incapacidades" type="button" role="tab">Incapacidades</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="documentos-tab" data-bs-toggle="tab" data-bs-target="#documentos" type="button" role="tab">Documentos</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="otras-tab" data-bs-toggle="tab" data-bs-target="#otras" type="button" role="tab">Otras Solicitudes</button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="tabsColaboradorContent">
+        <div class="tab-pane fade show active" id="asistencias" role="tabpanel">
+            <p>Aquí se mostrarán las asistencias del colaborador.</p>
+        </div>
+        <div class="tab-pane fade" id="vacaciones" role="tabpanel">
+            <p>Aquí se mostrarán las vacaciones del colaborador.</p>
+        </div>
+        <div class="tab-pane fade" id="permisos" role="tabpanel">
+            <p>Aquí se mostrarán los permisos.</p>
+        </div>
+        <div class="tab-pane fade" id="incapacidades" role="tabpanel">
+            <p>Aquí se mostrarán las incapacidades.</p>
+        </div>
+        <div class="tab-pane fade" id="documentos" role="tabpanel">
+            <ul class="list-group">
+                {% for doc in colaborador.documentos.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ doc.nombre }}
+                        <a href="{{ doc.archivo.url }}" class="btn btn-sm btn-outline-primary" target="_blank">Ver</a>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No hay documentos disponibles.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="otras" role="tabpanel">
+            <p>Aquí se mostrarán otras solicitudes como ascensos, traslados, etc.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

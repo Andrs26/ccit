@@ -1,0 +1,112 @@
+{% extends 'layout/layout.html' %}
+{% block title %} Talento Humano | Colaboradores {% endblock %}
+{% block content %}
+{% load static %}
+<div class="container mt-3">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">
+                <div class="d-flex justify-content-start mb-2">
+                    <a class="btn btn-light" href="{% url 'ver_colaborador' colaborador.id %}">
+                        <i class='bx bx-arrow-back' style="margin-right: 7px;"></i>
+                        Volver
+                    </a>
+                </div>
+            </div>
+            <div class="col">
+                <div class="d-flex justify-content-end mb-2">
+                    <button class="btn btn-success" type="submit">
+                        <i class='bx bx-save' style="margin-right: 7px;"></i>
+                        Guardar cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Foto redonda editable -->
+        <div class="text-center mb-5">
+            {% if colaborador.foto %}
+                <img src="{{ colaborador.foto.url }}" class="rounded-circle shadow mb-3" width="150" height="150" alt="Foto del colaborador">
+            {% else %}
+                <img src="{% static 'img/default-user.png' %}" class="rounded-circle shadow mb-3" width="150" height="150" alt="Foto por defecto">
+            {% endif %}
+            <div class="mb-3">
+                <input type="file" name="foto" class="form-control w-auto d-inline-block" accept="image/*">
+            </div>
+        </div>
+
+        <!-- <div class="mb-3 form-check form-switch d-flex justify-content-center">
+            <input class="form-check-input" type="checkbox" name="activo" style="margin-right: 10px;" id="activoSwitch" {% if colaborador.activo %}checked{% endif %}>
+            <label class="form-check-label" for="activoSwitch"><strong>Activo</strong></label>
+        </div> -->
+        
+        <!-- Datos personales -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label><strong>Nombre completo:</strong></label>
+                    <input type="text" name="nombre_completo" value="{{ colaborador.nombre_completo }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label><strong>DNI:</strong></label>
+                    <input type="text" name="identificacion" value="{{ colaborador.identificacion }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label><strong>Código de Empleado:</strong></label>
+                    <input type="text" name="codigo_empleado" value="{{ colaborador.codigo_empleado }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label><strong>Puesto:</strong></label>
+                    <input type="text" name="puesto" value="{{ colaborador.puesto }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label><strong>Departamento:</strong></label>
+                    <input type="text" name="departamento" value="{{ colaborador.departamento }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label><strong>Fecha de Ingreso:</strong></label>
+                    <input type="date" name="fecha_ingreso" value="{{ colaborador.fecha_ingreso|date:'Y-m-d' }}" class="form-control">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label><strong>Correo:</strong></label>
+                    <input type="email" name="correo" value="{{ colaborador.correo }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label><strong>Teléfono:</strong></label>
+                    <input type="text" name="telefono" value="{{ colaborador.telefono }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label><strong>Dirección:</strong></label>
+                    <textarea name="direccion" class="form-control" rows="2">{{ colaborador.direccion }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label><strong>Usuario del sistema:</strong></label>
+                    <select name="usuario_sistema" class="form-select">
+                        <option value="" {% if not colaborador.usuario_sistema %}selected{% endif %}>---</option>
+                        {% for user in usuarios %}
+                            <option value="{{ user.id }}" {% if colaborador.usuario_sistema and colaborador.usuario_sistema.id == user.id %}selected{% endif %}>
+                                {{ user.username }} - {{ user.first_name }} {{ user.last_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label><strong>Usuario aprobador:</strong></label>
+                    <select name="aprobador" class="form-select">
+                        <option value="" {% if not colaborador.aprobador %}selected{% endif %}>---</option>
+                        {% for user in usuarios %}
+                            <option value="{{ user.id }}" {% if colaborador.aprobador and colaborador.aprobador.id == user.id %}selected{% endif %}>
+                                {{ user.username }} - {{ user.first_name }} {{ user.last_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
