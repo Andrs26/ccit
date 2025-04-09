@@ -245,6 +245,48 @@
                     {% endfor %}
 
                     {% for grupo in user_grupos %}
+                        {% if grupo.name == "rrhh_it" %}    
+                            <li>
+                                <span class="sidebar-divider lg"></span>
+                            </li>
+                            <li class="nav-small-cap">
+                                <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+                                <span class="hide-menu">GESTIÓN DE ASISTENCIAS</span>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link {% active 'home_rrhh' %}" href="{% url 'home_rrhh' %}" aria-expanded="false">
+                                    <iconify-icon icon="material-symbols:home-rounded"></iconify-icon>
+                                    <span class="hide-menu">Inicio</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link {% active 'listar_colaboradores' %}" href="{% url 'listar_colaboradores' %}" aria-expanded="false">
+                                    <iconify-icon icon="f7:person-2-fill"></iconify-icon>
+                                    <span class="hide-menu">Colaboradores</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link {% active 'listar_asistencias' %}" href="{% url 'listar_asistencias' %}" aria-expanded="false">
+                                    <iconify-icon icon="iconamoon:clock-fill"></iconify-icon>
+                                    <span class="hide-menu">Asistencias</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link {% active 'reporte_colaboradores' %}" href="{% url 'reporte_colaboradores' %}" aria-expanded="false">
+                                    <iconify-icon icon="mage:file-2-fill"></iconify-icon>
+                                    <span class="hide-menu">Reporte de Horas</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link {% active 'listar_usuarios' %}" href="{% url 'listar_usuarios' %}" aria-expanded="false">
+                                    <iconify-icon icon="ion:id-card"></iconify-icon>
+                                    <span class="hide-menu">Usuarios (Biométrico)</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for grupo in user_grupos %}
                         {% if grupo.name == "visitas_it_group" or grupo.name == "super_admin" %}
                             <li>
                                 <span class="sidebar-divider lg"></span>
