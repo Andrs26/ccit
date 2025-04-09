@@ -512,8 +512,8 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
             'fecha': fecha_actual,
             'jornada': 'FIN DE SEMANA' if es_fin_de_semana else 'Normal',
             'horario': '08:00 a 17:00' if not es_fin_de_semana else '',
-            'entrada_real': asistencia['entrada_real'] if asistencia and not es_fin_de_semana else None,
-            'salida_real': asistencia['salida_real'] if asistencia and not es_fin_de_semana else None,
+            'entrada_real': asistencia['entrada_real'] if asistencia else None,
+            'salida_real': asistencia['salida_real'] if asistencia else None,
             'razon': '', 'justificacion': '',
             'columna_1': '', 'columna_2': '', 'columna_3': '',
             'columna_4': '', 'columna_5': ''
@@ -596,3 +596,66 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
         response = HttpResponse(f.read(), content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename="reporte_{colaborador.codigo_empleado}.pdf"'
         return response
+    
+from django.utils.translation import gettext_lazy as _
+
+DIAS_SEMANA = [
+    (0, _('Lunes')),
+    (1, _('Martes')),
+    (2, _('Miércoles')),
+    (3, _('Jueves')),
+    (4, _('Viernes')),
+    (5, _('Sábado')),
+    (6, _('Domingo')),
+]
+
+def listar_horarios(request):
+    horarios = HorarioLaboral.objects.prefetch_related('dias').all()
+    return render(request, 'parametros/horarios_laborales.html', {
+        'horarios': horarios,
+        'dias_semana': DIAS_SEMANA
+    })
+
+def crear_horario(request):
+    nombre = request.POST.get('nombre')
+    if not nombre:
+        messages.error(request, "El nombre es obligatorio.")
+        return redirect('listar_horarios')
+
+    horario = HorarioLaboral.objects.create(nombre=nombre)
+
+    for dia, _ in DIAS_SEMANA:
+        entrada = request.POST.get(f'entrada_{dia}')
+        salida = request.POST.get(f'salida_{dia}')
+        if entrada and salida:
+            HorarioDia.objects.create(
+                horario=horario,
+                dia=dia,
+                hora_entrada=entrada,
+                hora_salida=salida
+            )
+
+    messages.success(request, "✅ Horario creado correctamente.")
+    return redirect('horarios_laborales')
+
+def editar_horario(request, horario_id):
+    horario = get_object_or_404(HorarioLaboral, id=horario_id)
+    horario.nombre = request.POST.get('nombre', horario.nombre)
+    horario.save()
+
+    for dia, _ in DIAS_SEMANA:
+        entrada = request.POST.get(f'entrada_{dia}')
+        salida = request.POST.get(f'salida_{dia}')
+        dia_obj, _ = HorarioDia.objects.get_or_create(horario=horario, dia=dia)
+        dia_obj.hora_entrada = entrada
+        dia_obj.hora_salida = salida
+        dia_obj.save()
+
+    messages.success(request, "✅ Horario actualizado correctamente.")
+    return redirect('horarios_laborales')
+
+def eliminar_horario(request, horario_id):
+    horario = get_object_or_404(HorarioLaboral, id=horario_id)
+    horario.delete()
+    messages.success(request, "✅ Horario eliminado correctamente.")
+    return redirect('horarios_laborales')

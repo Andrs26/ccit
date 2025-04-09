@@ -2,6 +2,12 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 # Create your models here.
+class HorarioLaboral(models.Model):
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
+    
 class UsuarioReloj(models.Model):
     uid = models.IntegerField()
     user_id = models.CharField(max_length=20, unique=True)
@@ -30,8 +36,7 @@ User = get_user_model()
 class Colaborador(models.Model):
     usuario_sistema = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='colaborador_biometrico')
     aprobador = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='colaborador_visitantes')
-
-    codigo_empleado = models.CharField(max_length=10, unique=True)  # 🔥 NUEVO
+    codigo_empleado = models.CharField(max_length=10, unique=True)
     identificacion = models.CharField(max_length=20, unique=True)
     nombre_completo = models.CharField(max_length=200)
     correo = models.EmailField(blank=True, null=True)
@@ -42,6 +47,7 @@ class Colaborador(models.Model):
     fecha_ingreso = models.DateField(null=True, blank=True)
     foto = models.ImageField(upload_to='fotos_colaboradores/', null=True, blank=True)
     activo = models.BooleanField(default=True)
+    horario = models.ForeignKey(HorarioLaboral, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.nombre_completo
@@ -74,3 +80,27 @@ class ReporteAsistenciaColaborador(models.Model):
 
     class Meta:
         unique_together = ('colaborador', 'fecha')
+
+DIAS_SEMANA = [
+    ('mon', 'Lunes'),
+    ('tue', 'Martes'),
+    ('wed', 'Miércoles'),
+    ('thu', 'Jueves'),
+    ('fri', 'Viernes'),
+    ('sat', 'Sábado'),
+    ('sun', 'Domingo'),
+]
+
+class HorarioDia(models.Model):
+    horario = models.ForeignKey(HorarioLaboral, related_name='dias', on_delete=models.CASCADE)
+    dia = models.CharField(choices=DIAS_SEMANA, max_length=3)
+    hora_entrada = models.TimeField()
+    hora_salida = models.TimeField()
+
+    class Meta:
+        unique_together = ('horario', 'dia')
+        ordering = ['horario', 'dia']
+    
+    def __str__(self):
+        return f"{self.get_dia_display()} ({self.hora_entrada} - {self.hora_salida})"
+

@@ -10,9 +10,11 @@ urlpatterns = [
     path('talento/usuarios/agregar/', views.agregar_usuario, name='agregar_usuario'),
     path('talento/usuarios/editar/<int:usuario_id>/', views.editar_usuario, name='editar_usuario'),
     path('talento/usuarios/eliminar/<int:usuario_id>/', views.eliminar_usuario, name='eliminar_usuario'),
+
     #* -------------------------------------------------------------------------------------------------------- Asistencias
     path('asistencias/sincronizar/', views.sincronizar_datos_ajax, name='sincronizar_datos'),
     path('talento/asistencias/', views.listar_asistencias, name='listar_asistencias'),
+
     #* -------------------------------------------------------------------------------------------------------- RH ADMIN
     path('talento/admin/colaboradores/', views.listar_colaboradores, name='listar_colaboradores'),
     path('talento/admin/colaboradores/<int:colaborador_id>/', views.ver_colaborador, name='ver_colaborador'),
@@ -22,4 +24,11 @@ urlpatterns = [
     path('reporte-asistencias/', views.listar_colaboradores_reporte, name="reporte_colaboradores"),
     path('reporte-asistencias/<int:colaborador_id>/editar/', views.editar_reporte_colaborador, name="editar_reporte_colaborador"),
     path('talento/admin/reporte_colaborador/pdf/<int:colaborador_id>/', views.generar_pdf_reporte_colaborador, name='pdf_reporte_colaborador'),
+
+    #* -------------------------------------------------------------------------------------------------------- RH ADMIN - PARAMETROS
+    path('talento/admin/horarios_laborales/', views.listar_horarios, name='horarios_laborales'),
+    path('talento/admin/horarios_laborales/crear/', views.crear_horario, name='crear_horario'),
+    path('talento/admin/horarios_laborales/editar/<int:horario_id>/', views.editar_horario, name='editar_horario'),
+    path('talento/admin/horarios_laborales/eliminar/<int:horario_id>/', views.eliminar_horario, name='eliminar_horario'),
+    
 ]
