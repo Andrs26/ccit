@@ -24,6 +24,8 @@
     </div>
 
     <div class="row p-3">
+        {% for grupo in user_grupos %}
+        {% if grupo.name != "rrhh_admin" %}
         <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
             <a {% if is_visitas_recepcion_group %} href="{% url 'inicio_recepcion' %}" {% else %} href="{% url 'colaboradores_home' %}" {% endif %}>
                 <div class="card hover-img card-visita-dentro">
@@ -40,6 +42,8 @@
                 </div>
             </a>
         </div>
+        {% endif %}
+        {% endfor %}
 
         <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" data-aos="zoom-in">
             <a href="{% url 'home_rrhh' %}">

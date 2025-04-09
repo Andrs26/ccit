@@ -245,7 +245,7 @@
                     {% endfor %}
 
                     {% for grupo in user_grupos %}
-                        {% if grupo.name == "rrhh_it" %}    
+                        {% if grupo.name == "rrhh_it" or grupo.name == "rrhh_admin" %}
                             <li>
                                 <span class="sidebar-divider lg"></span>
                             </li>
