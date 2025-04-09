@@ -476,7 +476,10 @@ import tempfile
 import datetime
 from datetime import datetime, timedelta
 from django.db.models import Min, Max
-
+import os
+import tempfile
+from django.conf import settings
+from django.http import FileResponse
 
 def generar_pdf_reporte_colaborador(request, colaborador_id):
     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
@@ -489,7 +492,6 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
     except Exception:
         return HttpResponse("Fechas inválidas", status=400)
 
-    # 1. Obtener marcajes reales
     marcajes = RegistroAsistencia.objects.filter(
         usuario__user_id=colaborador.codigo_empleado,
         fecha__range=(inicio, fin)
@@ -499,33 +501,24 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
     )
 
     asistencias_por_fecha = {m['fecha']: m for m in marcajes}
-
-    # 2. Construir lista de fechas completas
     registros = []
     delta = (fin - inicio).days
 
     for i in range(delta + 1):
         fecha_actual = inicio + timedelta(days=i)
         asistencia = asistencias_por_fecha.get(fecha_actual)
-
-        es_fin_de_semana = fecha_actual.weekday() in [5, 6]  # 5 = sábado, 6 = domingo
-
+        es_fin_de_semana = fecha_actual.weekday() in [5, 6]
         registros.append({
             'fecha': fecha_actual,
             'jornada': 'FIN DE SEMANA' if es_fin_de_semana else 'Normal',
             'horario': '08:00 a 17:00' if not es_fin_de_semana else '',
             'entrada_real': asistencia['entrada_real'] if asistencia and not es_fin_de_semana else None,
             'salida_real': asistencia['salida_real'] if asistencia and not es_fin_de_semana else None,
-            'razon': '',
-            'justificacion': '',
-            'columna_1': '',
-            'columna_2': '',
-            'columna_3': '',
-            'columna_4': '',
-            'columna_5': '',
+            'razon': '', 'justificacion': '',
+            'columna_1': '', 'columna_2': '', 'columna_3': '',
+            'columna_4': '', 'columna_5': ''
         })
 
-    # 3. Renderizar PDF
     html_string = render_to_string("rrhh/pdf/reporte_colaborador_pdf.html", {
         'colaborador': colaborador,
         'registros': registros,
@@ -535,11 +528,14 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
         'logo_url': request.build_absolute_uri('/static/img/logo_ccit.png'),
     })
 
-    # Generar PDF
-    with tempfile.NamedTemporaryFile(delete=True) as tmpfile:
-        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(
-            target=tmpfile.name,
-            stylesheets=[CSS(string='''
+    # ✔️ Ruta temporal personalizada
+    temp_dir = os.path.join(settings.BASE_DIR, "temp_pdfs")
+    os.makedirs(temp_dir, exist_ok=True)
+    temp_path = os.path.join(temp_dir, f"reporte_{colaborador.codigo_empleado}.pdf")
+
+    HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(
+        target=temp_path,
+        stylesheets=[CSS(string='''
                 @page {
                     size: letter landscape;
                     margin: 4cm 0.2cm 0.2cm 0.2cm;
@@ -593,9 +589,10 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
                 tr.total-horas {
                     page-break-inside: avoid;
                 }
-            ''')]
-        )
-        tmpfile.seek(0)
-        response = HttpResponse(tmpfile.read(), content_type='application/pdf')
+        ''')]
+    )
+
+    with open(temp_path, "rb") as f:
+        response = HttpResponse(f.read(), content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename="reporte_{colaborador.codigo_empleado}.pdf"'
         return response
