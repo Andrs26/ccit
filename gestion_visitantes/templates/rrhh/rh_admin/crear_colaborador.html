@@ -38,14 +38,14 @@
             <select name="usuario_sistema" class="form-select mb-2">
                 <option value="">-- Seleccionar --</option>
                 {% for user in usuarios %}
-                    <option value="{{ user.id }}">{{ user.fist_name }} {{ user.last_name }} ({{user.username}})</option>
+                    <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }} ({{user.username}})</option>
                 {% endfor %}
             </select>
             <label>Usuario aprobador (jefe):</label>
             <select name="aprobador" class="form-select mb-2">
                 <option value="">-- Seleccionar --</option>
                 {% for user in usuarios %}
-                    <option value="{{ user.id }}">{{ user.fist_name }} {{ user.last_name }} ({{user.username}})</option>
+                    <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }} ({{user.username}})</option>
                 {% endfor %}
             </select>
         </div>
@@ -58,6 +58,15 @@
             <input type="date" name="fecha_ingreso" class="form-control">
             <label>Dirección:</label>
             <textarea name="direccion" class="form-control" rows="3"></textarea>
+            <label>Horario:</label>
+            <select name="horario" class="form-select">
+                <option value="">-- Seleccione --</option>
+                {% for h in horarios %}
+                    <option value="{{ h.id }}" {% if colaborador.horario.id == h.id %}selected{% endif %}>
+                        {{ h.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
             <label>Foto:</label>
             <input type="file" name="foto" class="form-control">
         </div>

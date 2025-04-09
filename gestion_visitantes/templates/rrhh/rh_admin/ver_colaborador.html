@@ -2,6 +2,11 @@
 {% block title %} Colaborador {% endblock %}
 {% block content %}
 {% load static %}
+<style>
+    .card-horario{
+        box-shadow: none;
+    }
+</style>
 <div class="container mt-1">
     <div class="row">
         <div class="col">
@@ -61,6 +66,35 @@
             </ul>
         </div>
     </div>
+
+    {% if colaborador.horario %}
+    <div class="row">
+        <div class="col-md-12">
+            <h5><i class="bx bx-time-five me-2"></i>Horario Laboral Asignado</h5>
+            <div class="card card-horario">
+                <div class="card-body">
+                    <p><strong>Nombre del horario:</strong> {{ colaborador.horario.nombre }}</p>
+                    <ul class="list-group list-group-flush">
+                        {% for dia in colaborador.horario.dias.all %}
+                            <li class="list-group-item">
+                                <strong>
+                                    {% if dia.get_dia_display == '0' %} Lunes: {% endif %}
+                                    {% if dia.get_dia_display == '1' %} Martes: {% endif %}
+                                    {% if dia.get_dia_display == '2' %} Miércoles: {% endif %}
+                                    {% if dia.get_dia_display == '3' %} Jueves: {% endif %}
+                                    {% if dia.get_dia_display == '4' %} Viernes: {% endif %}
+                                    {% if dia.get_dia_display == '5' %} Sábado: {% endif %}
+                                    {% if dia.get_dia_display == '6' %} Domingo: {% endif %}
+                                </strong> {{ dia.hora_entrada|default:"—" }} - {{ dia.hora_salida|default:"—" }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 
     <!-- Tabs -->
     <ul class="nav nav-tabs" id="tabsColaborador" role="tablist">

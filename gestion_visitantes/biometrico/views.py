@@ -307,6 +307,7 @@ def ver_colaborador(request, colaborador_id):
 
 def crear_colaborador(request):
     usuarios = User.objects.all()
+    horarios = HorarioLaboral.objects.all()
     
     if request.method == "POST":
         colaborador = Colaborador(
@@ -321,18 +322,21 @@ def crear_colaborador(request):
             telefono=request.POST.get('telefono'),
             direccion=request.POST.get('direccion'),
             fecha_ingreso=request.POST.get('fecha_ingreso'),
-            foto=request.FILES.get('foto')
+            foto=request.FILES.get('foto'),
+            horario_id=request.POST.get('horario') or None
         )
         colaborador.save()
         return redirect('listar_colaboradores')
 
     return render(request, 'rrhh/rh_admin/crear_colaborador.html', {
-        'usuarios': usuarios
+        'usuarios': usuarios,
+        'horarios': horarios,
     })
 
 def editar_colaborador(request, colaborador_id):
     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
     usuarios = User.objects.all()
+    horarios = HorarioLaboral.objects.all()
 
     if request.method == 'POST':
         colaborador.nombre_completo = request.POST.get('nombre_completo')
@@ -344,12 +348,14 @@ def editar_colaborador(request, colaborador_id):
         colaborador.correo = request.POST.get('correo')
         colaborador.telefono = request.POST.get('telefono')
         colaborador.direccion = request.POST.get('direccion')
-        colaborador.activo = bool(request.POST.get('activo'))
         
         user_id = request.POST.get('usuario_sistema')
         aprobador_id = request.POST.get('aprobador')
         colaborador.usuario_sistema = User.objects.filter(id=user_id).first() if user_id else None
         colaborador.aprobador = User.objects.filter(id=aprobador_id).first() if aprobador_id else None
+
+        horario_id = request.POST.get('horario')
+        colaborador.horario = HorarioLaboral.objects.filter(id=horario_id).first() if horario_id else None
 
         if 'foto' in request.FILES:
             colaborador.foto = request.FILES['foto']
@@ -359,7 +365,8 @@ def editar_colaborador(request, colaborador_id):
 
     return render(request, 'rrhh/rh_admin/editar_colaborador.html', {
         'colaborador': colaborador,
-        'usuarios': usuarios
+        'usuarios': usuarios,
+        'horarios': horarios,
     })
 
 def cambiar_estado_colaborador(request, colaborador_id):
