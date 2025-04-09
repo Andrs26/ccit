@@ -49,10 +49,14 @@ INSTALLED_APPS = [
     'pertenencias',
     'colaboradores',
     'biometrico',
+    'logs',
 
     # Aplicacion para Server
     'sslserver',
     'django_extensions',
+
+    # Aplicación Celery para automatizar tareas
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

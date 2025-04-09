@@ -325,6 +325,12 @@
                                     <span class="hide-menu">Acciones</span>
                                 </a>
                             </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link {% active 'listar_servicios' %}" href="{% url 'listar_servicios' %}" aria-expanded="false">
+                                    <iconify-icon icon="typcn:warning"></iconify-icon>
+                                    <span class="hide-menu">Estado de servicios</span>
+                                </a>
+                            </li>
                         {% endif %}
                     {% endfor %}
                     <li>

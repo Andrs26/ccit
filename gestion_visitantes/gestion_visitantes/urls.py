@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from usuarios import views
+from logs import views as logs
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -35,6 +36,10 @@ urlpatterns = [
     path('', include('visitantes.urls')),
     path('', include('colaboradores.urls')),
     path('', include('biometrico.urls')),
+    path('servicios/', logs.listar_servicios, name='listar_servicios'),
+    path('servicios/crear/', logs.crear_servicio, name='crear_servicio'),
+    path('servicios/editar/<int:pk>/', logs.editar_servicio, name='editar_servicio'),
+    path('servicios/eliminar/<int:pk>/', logs.eliminar_servicio, name='eliminar_servicio'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
