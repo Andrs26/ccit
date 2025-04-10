@@ -69,6 +69,7 @@
                             {% endfor %}
                         </div>
                         <div class="modal-footer">
+                            <button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                         </div>
                     </div>
@@ -90,7 +91,7 @@
                             ¿Estás seguro de eliminar el horario <strong>{{ horario.nombre }}</strong>?
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-danger">Eliminar</button>
                         </div>
                     </div>
@@ -127,8 +128,8 @@
                         {% endfor %}
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Crear</button>
+                        <button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Crear Horario</button>
                     </div>
                 </div>
             </form>
