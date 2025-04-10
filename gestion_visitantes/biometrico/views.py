@@ -488,6 +488,16 @@ import tempfile
 from django.conf import settings
 from django.http import FileResponse
 
+WEEKDAY_TO_DIA = {
+    0: 'mon',
+    1: 'tue',
+    2: 'wed',
+    3: 'thu',
+    4: 'fri',
+    5: 'sat',
+    6: 'sun'
+}
+
 def generar_pdf_reporte_colaborador(request, colaborador_id):
     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
     fecha_inicio = request.GET.get('fecha_inicio')
@@ -499,6 +509,7 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
     except Exception:
         return HttpResponse("Fechas inválidas", status=400)
 
+    # Obtener marcajes de entrada y salida
     marcajes = RegistroAsistencia.objects.filter(
         usuario__user_id=colaborador.codigo_empleado,
         fecha__range=(inicio, fin)
@@ -506,19 +517,42 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
         entrada_real=Min('hora'),
         salida_real=Max('hora')
     )
-
     asistencias_por_fecha = {m['fecha']: m for m in marcajes}
+
+    # Mapear weekday (0-6) a string tipo 'mon', 'tue'...
+    WEEKDAY_TO_DIA = {
+        0: '0', 1: '1', 2: '2',
+        3: '3', 4: '4', 5: '5', 6: '6'
+    }
+
+
+    dias_horario = {}
+    tiene_horario = False
+    if colaborador.horario:
+        dias_horario = {
+            d.dia: (d.hora_entrada.strftime("%H:%M"), d.hora_salida.strftime("%H:%M"))
+            for d in colaborador.horario.dias.all()
+        }
+        tiene_horario = bool(dias_horario)
+
     registros = []
     delta = (fin - inicio).days
-
     for i in range(delta + 1):
         fecha_actual = inicio + timedelta(days=i)
         asistencia = asistencias_por_fecha.get(fecha_actual)
-        es_fin_de_semana = fecha_actual.weekday() in [5, 6]
+        dia_semana = fecha_actual.weekday()
+        dia_codigo = WEEKDAY_TO_DIA[dia_semana]
+        es_fin_de_semana = dia_semana in [5, 6]
+
+        horario_str = ''
+        if tiene_horario and dia_codigo in dias_horario:
+            hora_entrada, hora_salida = dias_horario[dia_codigo]
+            horario_str = f"{hora_entrada} a {hora_salida}"
+
         registros.append({
             'fecha': fecha_actual,
             'jornada': 'FIN DE SEMANA' if es_fin_de_semana else 'Normal',
-            'horario': '08:00 a 17:00' if not es_fin_de_semana else '',
+            'horario': horario_str,
             'entrada_real': asistencia['entrada_real'] if asistencia else None,
             'salida_real': asistencia['salida_real'] if asistencia else None,
             'razon': '', 'justificacion': '',
@@ -533,9 +567,9 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
         'fecha_fin': fin,
         'fecha_generado': datetime.now().strftime("%d/%m/%Y"),
         'logo_url': request.build_absolute_uri('/static/img/logo_ccit.png'),
+        'tiene_horario': tiene_horario
     })
 
-    # ✔️ Ruta temporal personalizada
     temp_dir = os.path.join(settings.BASE_DIR, "temp_pdfs")
     os.makedirs(temp_dir, exist_ok=True)
     temp_path = os.path.join(temp_dir, f"reporte_{colaborador.codigo_empleado}.pdf")
@@ -543,59 +577,58 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
     HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(
         target=temp_path,
         stylesheets=[CSS(string='''
-                @page {
-                    size: letter landscape;
-                    margin: 4cm 0.2cm 0.2cm 0.2cm;
-                    @top-center {
-                        content: element(header);
-                    }
+            @page {
+                size: letter landscape;
+                margin: 4cm 0.2cm 0.2cm 0.2cm;
+                @top-center {
+                    content: element(header);
                 }
-                #encabezado {
-                    display: block;
-                    margin-bottom: 10px;
-                }
-                body {
-                    font-family: Arial, sans-serif;
-                    font-size: 10px;
-                }
-                table {
-                    border-collapse: collapse;
-                    width: 100%;
-                    table-layout: auto;
-                }
-                th, td {
-                    border: 1px solid #ccc;
-                    padding: 1px;
-                    text-align: center;
-                    vertical-align: middle;
-                    word-wrap: break-word;
-                }
-                th {
-                    background-color: #eee;
-                }
-                td.jornada {
-                    width: 5%;
-                }
-                td.horario {
-                    width: 3%;
-                }
-                td.razon {
-                    width: 8%;
-                }
-                td.justificacion {
-                    width: 15%;
-                }
-                tfoot td {
-                    font-size: 10px;
-                }
-
-                tfoot tr:first-child td {
-                    border-top: 2px solid #000;
-                    height: 20px;
-                }
-                tr.total-horas {
-                    page-break-inside: avoid;
-                }
+            }
+            #encabezado {
+                display: block;
+                margin-bottom: 10px;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 10px;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                table-layout: auto;
+            }
+            th, td {
+                border: 1px solid #ccc;
+                padding: 1px;
+                text-align: center;
+                vertical-align: middle;
+                word-wrap: break-word;
+            }
+            th {
+                background-color: #eee;
+            }
+            td.jornada {
+                width: 5%;
+            }
+            td.horario {
+                width: 3%;
+            }
+            td.razon {
+                width: 8%;
+            }
+            td.justificacion {
+                width: 15%;
+            }
+            tfoot td {
+                font-size: 10px;
+            }
+            tfoot tr:first-child td {
+                border-top: 2px solid #000;
+                height: 20px;
+            }
+            tr.total-horas {
+                page-break-inside: avoid;
+            }
         ''')]
     )
 
@@ -603,7 +636,7 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
         response = HttpResponse(f.read(), content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename="reporte_{colaborador.codigo_empleado}.pdf"'
         return response
-    
+
 from django.utils.translation import gettext_lazy as _
 
 DIAS_SEMANA = [

@@ -41,13 +41,10 @@ def sincronizar_usuarios():
         return 0
 
 
+from collections import defaultdict
+
 def sincronizar_asistencias():
     zk = ZK('192.168.2.107', port=4370, timeout=5)
-    status_map = {
-        0: "Entrada",
-        1: "Salida",
-        2: "Salida (extra)"
-    }
     auth_map = {
         0: "PIN",
         1: "Huella",
@@ -63,45 +60,54 @@ def sincronizar_asistencias():
         conn.disable_device()
 
         asistencias = conn.get_attendance()
-
-        # ✅ Verificamos los user_id válidos
         user_ids_existentes = set(UsuarioReloj.objects.values_list('user_id', flat=True))
 
-        # ✅ Obtener el último registro guardado localmente
         ultimo_registro = RegistroAsistencia.objects.order_by('-fecha', '-hora').first()
-        ultima_fecha_hora = None
-        if ultimo_registro:
-            ultima_fecha_hora = datetime.combine(ultimo_registro.fecha, ultimo_registro.hora)
+        ultima_fecha_hora = datetime.combine(ultimo_registro.fecha, ultimo_registro.hora) if ultimo_registro else None
 
-        # ✅ Recorremos los registros nuevos
-        guardados = 0
+        # Agrupar registros por (user_id, fecha)
+        registros_por_usuario_fecha = defaultdict(list)
         for r in asistencias:
+            fecha_hora = r.timestamp
             user_id = str(r.user_id)
 
-            # ✅ Evita error FK
             if user_id not in user_ids_existentes:
                 continue
-
-            fecha_hora = r.timestamp
-
-            # ✅ Ignorar registros antiguos o iguales al último
             if ultima_fecha_hora and fecha_hora <= ultima_fecha_hora:
                 continue
 
-            RegistroAsistencia.objects.create(
-            usuario_id=user_id,
-            fecha=fecha_hora.date(),
-            hora=fecha_hora.time(),
-            tipo_evento=status_map.get(r.status, f"Desconocido ({r.status})"),
-            metodo_autenticacion=auth_map.get(r.punch, "Desconocido")
-)
+            registros_por_usuario_fecha[(user_id, fecha_hora.date())].append({
+                'hora': fecha_hora.time(),
+                'punch': r.punch
+            })
 
-            guardados += 1
+        guardados = 0
+
+        for (user_id, fecha), registros in registros_por_usuario_fecha.items():
+            registros_ordenados = sorted(registros, key=lambda x: x['hora'])
+
+            for i, reg in enumerate(registros_ordenados):
+                if i == 0:
+                    tipo_evento = "Entrada"
+                elif i == len(registros_ordenados) - 1:
+                    tipo_evento = "Salida"
+                else:
+                    tipo_evento = "Extra"
+
+                RegistroAsistencia.objects.create(
+                    usuario_id=user_id,
+                    fecha=fecha,
+                    hora=reg['hora'],
+                    tipo_evento=tipo_evento,
+                    metodo_autenticacion=auth_map.get(reg['punch'], "Desconocido")
+                )
+                guardados += 1
 
         conn.enable_device()
         conn.disconnect()
         print("✅ Asistencias sincronizadas correctamente.")
         return guardados
+
     except Exception as e:
         print(f"❌ Error al sincronizar asistencias: {e}")
         return 0
