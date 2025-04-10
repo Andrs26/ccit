@@ -2,6 +2,7 @@
 {% block title %} Horarios de Trabajo {% endblock %}
 {% block content %}
 {% load static %}
+{% load custom_tags %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>Horarios Laborales</h3>
     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear">Agregar Horario</button>
@@ -53,26 +54,21 @@
                         <div class="modal-body">
                             <label>Nombre:</label>
                             <input type="text" class="form-control mb-3" name="nombre" value="{{ horario.nombre }}" required>
-                            {% for dia in horario.dias.all %}
+                            {% for dia_codigo, dia_nombre in dias_semana %}
+                                {% with horario.dias.all|get_dia:dia_codigo as dia_existente %}
                                 <div class="row mb-2">
-                                    <div class="col-md-4">
-                                        <strong>
-                                            {% if dia.get_dia_display == '0' %} Lunes: {% endif %}
-                                            {% if dia.get_dia_display == '1' %} Martes: {% endif %}
-                                            {% if dia.get_dia_display == '2' %} Miércoles: {% endif %}
-                                            {% if dia.get_dia_display == '3' %} Jueves: {% endif %}
-                                            {% if dia.get_dia_display == '4' %} Viernes: {% endif %}
-                                            {% if dia.get_dia_display == '5' %} Sábado: {% endif %}
-                                            {% if dia.get_dia_display == '6' %} Domingo: {% endif %}
-                                        </strong>
+                                    <div class="col-md-4"><strong>{{ dia_nombre }}</strong></div>
+                                    <div class="col">
+                                        <input type="time" class="form-control" name="entrada_{{ dia_codigo }}" value="{{ dia_existente.hora_entrada|default:'' }}">
                                     </div>
-                                    <div class="col"><input type="time" class="form-control" name="entrada_{{ dia.dia }}" value="{{ dia.hora_entrada }}"></div>
-                                    <div class="col"><input type="time" class="form-control" name="salida_{{ dia.dia }}" value="{{ dia.hora_salida }}"></div>
+                                    <div class="col">
+                                        <input type="time" class="form-control" name="salida_{{ dia_codigo }}" value="{{ dia_existente.hora_salida|default:'' }}">
+                                    </div>
                                 </div>
+                                {% endwith %}
                             {% endfor %}
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                         </div>
                     </div>

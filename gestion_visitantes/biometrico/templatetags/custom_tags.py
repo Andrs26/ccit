@@ -4,3 +4,7 @@ register = template.Library()
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+@register.filter
+def get_dia(dias_qs, dia_codigo):
+    return dias_qs.filter(dia=dia_codigo).first()
