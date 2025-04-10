@@ -103,4 +103,15 @@ class HorarioDia(models.Model):
     
     def __str__(self):
         return f"{self.get_dia_display()} ({self.hora_entrada} - {self.hora_salida})"
+    
+class HistorialHorario(models.Model):
+    colaborador = models.ForeignKey(Colaborador, on_delete=models.CASCADE)
+    horario = models.ForeignKey(HorarioLaboral, on_delete=models.CASCADE)
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField(null=True, blank=True)  # Puede ser null si sigue activo
 
+    class Meta:
+        ordering = ['colaborador', 'fecha_inicio']
+
+    def __str__(self):
+        return f"{self.colaborador} - {self.horario.nombre} ({self.fecha_inicio} - {self.fecha_fin or 'Actual'})"

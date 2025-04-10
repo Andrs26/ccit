@@ -23,15 +23,7 @@
             <td>
                 <ul class="mb-0">
                     {% for dia in horario.dias.all %}
-                        <li><strong>
-                            {% if dia.get_dia_display == '0' %} Lunes: {% endif %}
-                            {% if dia.get_dia_display == '1' %} Martes: {% endif %}
-                            {% if dia.get_dia_display == '2' %} Miércoles: {% endif %}
-                            {% if dia.get_dia_display == '3' %} Jueves: {% endif %}
-                            {% if dia.get_dia_display == '4' %} Viernes: {% endif %}
-                            {% if dia.get_dia_display == '5' %} Sábado: {% endif %}
-                            {% if dia.get_dia_display == '6' %} Domingo: {% endif %}
-                        </strong> {{ dia.hora_entrada }} - {{ dia.hora_salida }}</li>
+                        <li><strong>{{ dia.dia|nombre_dia }}</strong> {{ dia.hora_entrada }} - {{ dia.hora_salida }}</li>
                     {% endfor %}
                 </ul>
             </td>
@@ -55,16 +47,16 @@
                             <label>Nombre:</label>
                             <input type="text" class="form-control mb-3" name="nombre" value="{{ horario.nombre }}" required>
                             {% for dia_codigo, dia_nombre in dias_semana %}
-                                {% with horario.dias.all|get_dia:dia_codigo as dia_existente %}
-                                <div class="row mb-2">
-                                    <div class="col-md-4"><strong>{{ dia_nombre }}</strong></div>
-                                    <div class="col">
-                                        <input type="time" class="form-control" name="entrada_{{ dia_codigo }}" value="{{ dia_existente.hora_entrada|default:'' }}">
+                                {% with dia_existente=horario.dias.all|get_dia:dia_codigo %}
+                                    <div class="row mb-2">
+                                        <div class="col-md-4"><strong>{{ dia_nombre }}</strong></div>
+                                        <div class="col">
+                                            <input type="time" class="form-control" name="entrada_{{ dia_codigo }}" value="{{ dia_existente.hora_entrada|default:'' }}">
+                                        </div>
+                                        <div class="col">
+                                            <input type="time" class="form-control" name="salida_{{ dia_codigo }}" value="{{ dia_existente.hora_salida|default:'' }}">
+                                        </div>
                                     </div>
-                                    <div class="col">
-                                        <input type="time" class="form-control" name="salida_{{ dia_codigo }}" value="{{ dia_existente.hora_salida|default:'' }}">
-                                    </div>
-                                </div>
                                 {% endwith %}
                             {% endfor %}
                         </div>

@@ -326,7 +326,14 @@ def crear_colaborador(request):
             horario_id=request.POST.get('horario') or None
         )
         colaborador.save()
-        return redirect('listar_colaboradores')
+        # ✅ Crear historial de horario si hay horario asignado
+        if colaborador.horario:
+            HistorialHorario.objects.create(
+                colaborador=colaborador,
+                horario=colaborador.horario,
+                fecha_inicio=timezone.now().date()
+            )
+            return redirect('listar_colaboradores')
 
     return render(request, 'rrhh/rh_admin/crear_colaborador.html', {
         'usuarios': usuarios,
@@ -339,6 +346,31 @@ def editar_colaborador(request, colaborador_id):
     horarios = HorarioLaboral.objects.all()
 
     if request.method == 'POST':
+        # 🟡 Detectar nuevo horario
+        nuevo_horario_id = request.POST.get('horario')
+        nuevo_horario = HorarioLaboral.objects.filter(id=nuevo_horario_id).first() if nuevo_horario_id else None
+
+        # 🟢 Si cambió el horario, guardar en el historial
+        if colaborador.horario != nuevo_horario:
+            # Cierra historial anterior (si existe y no está cerrado)
+            historial_anterior = HistorialHorario.objects.filter(
+                colaborador=colaborador,
+                fecha_fin__isnull=True
+            ).order_by('-fecha_inicio').first()
+
+            if historial_anterior:
+                historial_anterior.fecha_fin = timezone.now().date() - timedelta(days=1)
+                historial_anterior.save()
+
+            # Crea nuevo historial
+            if nuevo_horario:
+                HistorialHorario.objects.create(
+                    colaborador=colaborador,
+                    horario=nuevo_horario,
+                    fecha_inicio=timezone.now().date()
+                )
+
+        # 🔄 Actualizar campos del colaborador
         colaborador.nombre_completo = request.POST.get('nombre_completo')
         colaborador.identificacion = request.POST.get('identificacion')
         colaborador.codigo_empleado = request.POST.get('codigo_empleado')
@@ -348,19 +380,18 @@ def editar_colaborador(request, colaborador_id):
         colaborador.correo = request.POST.get('correo')
         colaborador.telefono = request.POST.get('telefono')
         colaborador.direccion = request.POST.get('direccion')
-        
+
         user_id = request.POST.get('usuario_sistema')
         aprobador_id = request.POST.get('aprobador')
         colaborador.usuario_sistema = User.objects.filter(id=user_id).first() if user_id else None
         colaborador.aprobador = User.objects.filter(id=aprobador_id).first() if aprobador_id else None
-
-        horario_id = request.POST.get('horario')
-        colaborador.horario = HorarioLaboral.objects.filter(id=horario_id).first() if horario_id else None
+        colaborador.horario = nuevo_horario
 
         if 'foto' in request.FILES:
             colaborador.foto = request.FILES['foto']
 
         colaborador.save()
+        messages.success(request, "✅ Colaborador actualizado correctamente.")
         return redirect('ver_colaborador', colaborador_id=colaborador.id)
 
     return render(request, 'rrhh/rh_admin/editar_colaborador.html', {
@@ -488,6 +519,28 @@ import tempfile
 from django.conf import settings
 from django.http import FileResponse
 
+def obtener_horario_para_fecha(colaborador, fecha):
+    """
+    Devuelve el objeto HorarioLaboral activo para un colaborador en una fecha específica,
+    basado en su historial.
+    """
+    return (
+        HistorialHorario.objects.filter(
+            colaborador=colaborador,
+            fecha_inicio__lte=fecha
+        )
+        .filter(models.Q(fecha_fin__isnull=True) | models.Q(fecha_fin__gte=fecha))
+        .order_by('-fecha_inicio')  # Por si hay solapamientos
+        .first()
+        .horario
+        if HistorialHorario.objects.filter(
+            colaborador=colaborador,
+            fecha_inicio__lte=fecha
+        )
+        .filter(models.Q(fecha_fin__isnull=True) | models.Q(fecha_fin__gte=fecha))
+        .exists() else None
+    )
+
 WEEKDAY_TO_DIA = {
     0: 'mon',
     1: 'tue',
@@ -509,7 +562,6 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
     except Exception:
         return HttpResponse("Fechas inválidas", status=400)
 
-    # Obtener marcajes de entrada y salida
     marcajes = RegistroAsistencia.objects.filter(
         usuario__user_id=colaborador.codigo_empleado,
         fecha__range=(inicio, fin)
@@ -521,33 +573,22 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
 
     # Mapear weekday (0-6) a string tipo 'mon', 'tue'...
     WEEKDAY_TO_DIA = {
-        0: '0', 1: '1', 2: '2',
-        3: '3', 4: '4', 5: '5', 6: '6'
+        0: 'mon', 1: 'tue', 2: 'wed',
+        3: 'thu', 4: 'fri', 5: 'sat', 6: 'sun'
     }
-
-
-    dias_horario = {}
-    tiene_horario = False
-    if colaborador.horario:
-        dias_horario = {
-            d.dia: (d.hora_entrada.strftime("%H:%M"), d.hora_salida.strftime("%H:%M"))
-            for d in colaborador.horario.dias.all()
-        }
-        tiene_horario = bool(dias_horario)
 
     registros = []
     delta = (fin - inicio).days
     for i in range(delta + 1):
         fecha_actual = inicio + timedelta(days=i)
         asistencia = asistencias_por_fecha.get(fecha_actual)
-        dia_semana = fecha_actual.weekday()
-        dia_codigo = WEEKDAY_TO_DIA[dia_semana]
-        es_fin_de_semana = dia_semana in [5, 6]
+        dia_str = WEEKDAY_TO_DIA[fecha_actual.weekday()]
+        es_fin_de_semana = fecha_actual.weekday() in [5, 6]
 
-        horario_str = ''
-        if tiene_horario and dia_codigo in dias_horario:
-            hora_entrada, hora_salida = dias_horario[dia_codigo]
-            horario_str = f"{hora_entrada} a {hora_salida}"
+        # Obtener horario histórico si existe
+        horario = obtener_horario_para_fecha(colaborador, fecha_actual)
+        horario_dia = horario.dias.filter(dia=dia_str).first() if horario else None
+        horario_str = f"{horario_dia.hora_entrada.strftime('%H:%M')} a {horario_dia.hora_salida.strftime('%H:%M')}" if horario_dia else ''
 
         registros.append({
             'fecha': fecha_actual,
@@ -567,7 +608,6 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
         'fecha_fin': fin,
         'fecha_generado': datetime.now().strftime("%d/%m/%Y"),
         'logo_url': request.build_absolute_uri('/static/img/logo_ccit.png'),
-        'tiene_horario': tiene_horario
     })
 
     temp_dir = os.path.join(settings.BASE_DIR, "temp_pdfs")
