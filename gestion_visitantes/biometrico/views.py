@@ -686,10 +686,15 @@ def editar_horario(request, horario_id):
     for dia, _ in DIAS_SEMANA:
         entrada = request.POST.get(f'entrada_{dia}')
         salida = request.POST.get(f'salida_{dia}')
-        dia_obj, _ = HorarioDia.objects.get_or_create(horario=horario, dia=dia)
-        dia_obj.hora_entrada = entrada
-        dia_obj.hora_salida = salida
-        dia_obj.save()
+
+        if entrada and salida:
+            dia_obj, _ = HorarioDia.objects.get_or_create(horario=horario, dia=dia)
+            dia_obj.hora_entrada = entrada
+            dia_obj.hora_salida = salida
+            dia_obj.save()
+        else:
+            # ❌ Si uno de los dos está vacío y el día existe, lo eliminamos
+            HorarioDia.objects.filter(horario=horario, dia=dia).delete()
 
     messages.success(request, "✅ Horario actualizado correctamente.")
     return redirect('horarios_laborales')
