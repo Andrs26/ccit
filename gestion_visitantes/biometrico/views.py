@@ -414,6 +414,41 @@ def cambiar_estado_colaborador(request, colaborador_id):
             return JsonResponse({'status': 'error', 'mensaje': 'Colaborador no encontrado'})
     return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
 
+from django.template.loader import render_to_string
+from django.http import JsonResponse
+from datetime import datetime
+from django.db.models import Min, Max, Count
+from django.utils.dateparse import parse_date
+import locale
+import calendar
+
+# Opcional: establecer el locale para nombres de días en español (solo si no se muestran en español por defecto)
+locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+
+def obtener_asistencias_ajax(request, colaborador_id):
+    fecha_inicio = parse_date(request.GET.get("fecha_inicio"))
+    fecha_fin = parse_date(request.GET.get("fecha_fin"))
+
+    asistencias = RegistroAsistencia.objects.filter(
+        usuario__user_id=colaborador_id,
+        fecha__range=(fecha_inicio, fecha_fin)
+    ).values("fecha").annotate(
+        entrada=Min("hora"),
+        salida=Max("hora"),
+        total=Count("hora")
+    ).order_by("-fecha")
+
+    data = [
+        {
+            "fecha": a["fecha"].strftime("%d/%m/%Y"),
+            "dia": calendar.day_name[a["fecha"].weekday()].capitalize(),
+            "entrada": a["entrada"].strftime("%H:%M") if a["entrada"] else "–",
+            "salida": a["salida"].strftime("%H:%M") if a["total"] > 1 else "–"
+        }
+        for a in asistencias
+    ]
+    return JsonResponse({"asistencias": data})
+
 def expediente_colaborador(request, colaborador_id):
     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
     documentos = colaborador.documentos.all().order_by('-fecha_subida')

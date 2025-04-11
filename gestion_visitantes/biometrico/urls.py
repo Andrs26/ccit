@@ -24,6 +24,7 @@ urlpatterns = [
     path('reporte-asistencias/', views.listar_colaboradores_reporte, name="reporte_colaboradores"),
     path('reporte-asistencias/<int:colaborador_id>/editar/', views.editar_reporte_colaborador, name="editar_reporte_colaborador"),
     path('talento/admin/reporte_colaborador/pdf/<int:colaborador_id>/', views.generar_pdf_reporte_colaborador, name='pdf_reporte_colaborador'),
+    path('colaborador/<int:colaborador_id>/asistencias/', views.obtener_asistencias_ajax, name='asistencias_ajax'),
 
     #* -------------------------------------------------------------------------------------------------------- RH ADMIN - PARAMETROS
     path('talento/admin/horarios_laborales/', views.listar_horarios, name='horarios_laborales'),
