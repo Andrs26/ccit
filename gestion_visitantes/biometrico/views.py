@@ -424,6 +424,15 @@ import calendar
 
 # Opcional: establecer el locale para nombres de días en español (solo si no se muestran en español por defecto)
 locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+DIAS_SEMANA_ES = {
+    0: "Lunes",
+    1: "Martes",
+    2: "Miércoles",
+    3: "Jueves",
+    4: "Viernes",
+    5: "Sábado",
+    6: "Domingo"
+}
 
 def obtener_asistencias_ajax(request, colaborador_id):
     fecha_inicio = parse_date(request.GET.get("fecha_inicio"))
@@ -441,7 +450,7 @@ def obtener_asistencias_ajax(request, colaborador_id):
     data = [
         {
             "fecha": a["fecha"].strftime("%d/%m/%Y"),
-            "dia": calendar.day_name[a["fecha"].weekday()].capitalize(),
+            "dia": DIAS_SEMANA_ES[a["fecha"].weekday()],
             "entrada": a["entrada"].strftime("%H:%M") if a["entrada"] else "–",
             "salida": a["salida"].strftime("%H:%M") if a["total"] > 1 else "–"
         }
@@ -613,20 +622,31 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
         fecha_actual = inicio + timedelta(days=i)
         asistencia = asistencias_por_fecha.get(fecha_actual)
         dia_str = WEEKDAY_TO_DIA[fecha_actual.weekday()]
-        es_fin_de_semana = fecha_actual.weekday() in [5, 6]
+        dia_semana = fecha_actual.weekday()
 
         horario_str = ''
-
+        jornada_str = ''
         horario = obtener_horario_para_fecha(colaborador, fecha_actual)
 
         if horario:
             horario_dia = horario.dias.filter(dia=dia_str).first()
             if horario_dia:
                 horario_str = f"{horario_dia.hora_entrada.strftime('%H:%M')} a {horario_dia.hora_salida.strftime('%H:%M')}"
+                jornada_str = horario.nombre
+            else:
+                if dia_semana in [5, 6]:  # sábado o domingo
+                    jornada_str = "FIN DE SEMANA"
+                else:
+                    jornada_str = ""
+        else:
+            if dia_semana in [5, 6]:
+                jornada_str = "FIN DE SEMANA"
+            else:
+                jornada_str = ""
 
         registros.append({
             'fecha': fecha_actual,
-            'jornada': 'FIN DE SEMANA' if es_fin_de_semana else 'Normal',
+            'jornada': jornada_str,
             'horario': horario_str,
             'entrada_real': asistencia['entrada_real'] if asistencia else None,
             'salida_real': asistencia['salida_real'] if asistencia else None,
