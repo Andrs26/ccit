@@ -68,7 +68,7 @@ def login_view(request):
             user_profile, created = UserProfile.objects.get_or_create(user=user)
 
             if user.last_login is None or user_profile.pin is None or user_profile.pin == '':
-                messages.warning(request, "Debes cambiar tu contraseña y establecer un PIN antes de continuar.")
+                messages.info(request, "Debes cambiar tu contraseña y establecer un PIN antes de continuar.")
                 login(request, user)  # Autenticamos para que pueda acceder al cambio de contraseña
                 return redirect('change_password_reset', user_id=user.id)
 
