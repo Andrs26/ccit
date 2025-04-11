@@ -30,5 +30,8 @@ urlpatterns = [
     path('talento/admin/horarios_laborales/crear/', views.crear_horario, name='crear_horario'),
     path('talento/admin/horarios_laborales/editar/<int:horario_id>/', views.editar_horario, name='editar_horario'),
     path('talento/admin/horarios_laborales/eliminar/<int:horario_id>/', views.eliminar_horario, name='eliminar_horario'),
+    path('colaborador/<int:colaborador_id>/agregar-historial/', views.agregar_historial_horario, name='agregar_historial_horario'),
+    path('colaborador/editar-historial/<int:historial_id>/', views.editar_historial_horario, name='editar_historial_horario'),
+    path('colaborador/eliminar-historial/<int:historial_id>/', views.eliminar_historial_horario, name='eliminar_historial_horario'),
     
 ]

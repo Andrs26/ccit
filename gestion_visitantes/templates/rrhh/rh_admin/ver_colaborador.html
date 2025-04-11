@@ -116,6 +116,9 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="otras-tab" data-bs-toggle="tab" data-bs-target="#otras" type="button" role="tab">Otras Solicitudes</button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="historial-tab" data-bs-toggle="tab" data-bs-target="#historial" type="button" role="tab">Historial de Horarios</button>
+        </li>        
     </ul>
 
     <div class="tab-content mt-3" id="tabsColaboradorContent">
@@ -146,6 +149,102 @@
         <div class="tab-pane fade" id="otras" role="tabpanel">
             <p>Aquí se mostrarán otras solicitudes como ascensos, traslados, etc.</p>
         </div>
+        <div class="tab-pane fade" id="historial" role="tabpanel">
+            <div class="d-flex justify-content-between mb-2">
+                <h5>Historial de Horarios</h5>
+                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgregarHistorial">Agregar</button>
+            </div>
+        
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Horario</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in historial_horarios %}
+                    <tr>
+                        <td>{{ h.horario.nombre }}</td>
+                        <td>{{ h.fecha_inicio }}</td>
+                        <td>{{ h.fecha_fin|default:"—" }}</td>
+                        <td>
+                            <!-- Botón editar -->
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarHistorial{{ h.id }}">Editar</button>
+        
+                            <!-- Botón eliminar -->
+                            <form method="post" action="{% url 'eliminar_historial_horario' h.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+        
+                    <!-- Modal editar -->
+                    <div class="modal fade" id="modalEditarHistorial{{ h.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <form method="post" action="{% url 'editar_historial_horario' h.id %}">
+                                {% csrf_token %}
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Editar Historial</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <label>Horario:</label>
+                                        <select name="horario_id" class="form-select mb-2">
+                                            {% for horario in horarios %}
+                                                <option value="{{ horario.id }}" {% if horario.id == h.horario.id %}selected{% endif %}>{{ horario.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <label>Fecha Inicio:</label>
+                                        <input type="date" name="fecha_inicio" class="form-control mb-2" value="{{ h.fecha_inicio }}">
+                                        <label>Fecha Fin (opcional):</label>
+                                        <input type="date" name="fecha_fin" class="form-control" value="{{ h.fecha_fin }}">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Guardar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>        
     </div>
+    <div class="modal fade" id="modalAgregarHistorial" tabindex="-1">
+        <div class="modal-dialog">
+            <form method="post" action="{% url 'agregar_historial_horario' colaborador.id %}">
+                {% csrf_token %}
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Agregar Historial de Horario</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label>Horario:</label>
+                        <select name="horario_id" class="form-select mb-2">
+                            {% for horario in horarios %}
+                                <option value="{{ horario.id }}">{{ horario.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>Fecha Inicio:</label>
+                        <input type="date" name="fecha_inicio" class="form-control mb-2" required>
+                        <label>Fecha Fin (opcional):</label>
+                        <input type="date" name="fecha_fin" class="form-control">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>    
 </div>
 {% endblock %}

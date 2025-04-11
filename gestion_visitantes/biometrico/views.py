@@ -300,9 +300,12 @@ def listar_colaboradores(request):
 
 def ver_colaborador(request, colaborador_id):
     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
+    historial_horarios = HistorialHorario.objects.filter(colaborador=colaborador).select_related('horario').order_by('-fecha_inicio')
 
     return render(request, 'rrhh/rh_admin/ver_colaborador.html', {
-        'colaborador': colaborador
+        'colaborador': colaborador,
+        'historial_horarios': historial_horarios,
+        'horarios': HorarioLaboral.objects.all(),  # Para el modal de creación/edición
     })
 
 def crear_colaborador(request):
@@ -519,37 +522,33 @@ import tempfile
 from django.conf import settings
 from django.http import FileResponse
 
+WEEKDAY_TO_DIA = {
+    0: '0', 1: '1', 2: '2',
+    3: '3', 4: '4', 5: '5', 6: '6'
+}
+
 def obtener_horario_para_fecha(colaborador, fecha):
     """
-    Devuelve el objeto HorarioLaboral activo para un colaborador en una fecha específica,
-    basado en su historial.
+    Devuelve el horario válido según el historial en la fecha dada.
+    Si no hay historial en esa fecha o el horario no incluye ese día, retorna None.
     """
-    return (
-        HistorialHorario.objects.filter(
+    dia_str = WEEKDAY_TO_DIA[fecha.weekday()]
+
+    historial = (
+        HistorialHorario.objects
+        .filter(
             colaborador=colaborador,
             fecha_inicio__lte=fecha
         )
         .filter(models.Q(fecha_fin__isnull=True) | models.Q(fecha_fin__gte=fecha))
-        .order_by('-fecha_inicio')  # Por si hay solapamientos
+        .order_by('-fecha_inicio')
         .first()
-        .horario
-        if HistorialHorario.objects.filter(
-            colaborador=colaborador,
-            fecha_inicio__lte=fecha
-        )
-        .filter(models.Q(fecha_fin__isnull=True) | models.Q(fecha_fin__gte=fecha))
-        .exists() else None
     )
 
-WEEKDAY_TO_DIA = {
-    0: 'mon',
-    1: 'tue',
-    2: 'wed',
-    3: 'thu',
-    4: 'fri',
-    5: 'sat',
-    6: 'sun'
-}
+    if historial and historial.horario.dias.filter(dia=dia_str).exists():
+        return historial.horario
+
+    return None
 
 def generar_pdf_reporte_colaborador(request, colaborador_id):
     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
@@ -562,6 +561,7 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
     except Exception:
         return HttpResponse("Fechas inválidas", status=400)
 
+    # Obtener marcajes
     marcajes = RegistroAsistencia.objects.filter(
         usuario__user_id=colaborador.codigo_empleado,
         fecha__range=(inicio, fin)
@@ -571,24 +571,23 @@ def generar_pdf_reporte_colaborador(request, colaborador_id):
     )
     asistencias_por_fecha = {m['fecha']: m for m in marcajes}
 
-    # Mapear weekday (0-6) a string tipo 'mon', 'tue'...
-    WEEKDAY_TO_DIA = {
-        0: 'mon', 1: 'tue', 2: 'wed',
-        3: 'thu', 4: 'fri', 5: 'sat', 6: 'sun'
-    }
-
     registros = []
     delta = (fin - inicio).days
+
     for i in range(delta + 1):
         fecha_actual = inicio + timedelta(days=i)
         asistencia = asistencias_por_fecha.get(fecha_actual)
         dia_str = WEEKDAY_TO_DIA[fecha_actual.weekday()]
         es_fin_de_semana = fecha_actual.weekday() in [5, 6]
 
-        # Obtener horario histórico si existe
+        horario_str = ''
+
         horario = obtener_horario_para_fecha(colaborador, fecha_actual)
-        horario_dia = horario.dias.filter(dia=dia_str).first() if horario else None
-        horario_str = f"{horario_dia.hora_entrada.strftime('%H:%M')} a {horario_dia.hora_salida.strftime('%H:%M')}" if horario_dia else ''
+
+        if horario:
+            horario_dia = horario.dias.filter(dia=dia_str).first()
+            if horario_dia:
+                horario_str = f"{horario_dia.hora_entrada.strftime('%H:%M')} a {horario_dia.hora_salida.strftime('%H:%M')}"
 
         registros.append({
             'fecha': fecha_actual,
@@ -751,3 +750,47 @@ def eliminar_horario(request, horario_id):
     horario.delete()
     messages.success(request, "✅ Horario eliminado correctamente.")
     return redirect('horarios_laborales')
+
+
+def agregar_historial_horario(request, colaborador_id):
+    colaborador = get_object_or_404(Colaborador, id=colaborador_id)
+    if request.method == 'POST':
+        horario_id = request.POST.get('horario_id')
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin') or None
+
+        if horario_id and fecha_inicio:
+            HistorialHorario.objects.create(
+                colaborador=colaborador,
+                horario_id=horario_id,
+                fecha_inicio=fecha_inicio,
+                fecha_fin=fecha_fin
+            )
+            messages.success(request, "✅ Historial de horario agregado.")
+        else:
+            messages.error(request, "⚠️ Datos incompletos.")
+    return redirect('ver_colaborador', colaborador_id=colaborador.id)
+
+def editar_historial_horario(request, historial_id):
+    historial = get_object_or_404(HistorialHorario, id=historial_id)
+    if request.method == 'POST':
+        horario_id = request.POST.get('horario_id')
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin') or None
+
+        if horario_id and fecha_inicio:
+            historial.horario_id = horario_id
+            historial.fecha_inicio = fecha_inicio
+            historial.fecha_fin = fecha_fin
+            historial.save()
+            messages.success(request, "✅ Historial actualizado correctamente.")
+        else:
+            messages.error(request, "⚠️ Datos incompletos.")
+    return redirect('ver_colaborador', colaborador_id=historial.colaborador.id)
+
+def eliminar_historial_horario(request, historial_id):
+    historial = get_object_or_404(HistorialHorario, id=historial_id)
+    colaborador_id = historial.colaborador.id
+    historial.delete()
+    messages.success(request, "✅ Historial eliminado.")
+    return redirect('ver_colaborador', colaborador_id=colaborador_id)
