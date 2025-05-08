@@ -345,7 +345,7 @@ def crear_colaborador(request):
 
 def editar_colaborador(request, colaborador_id):
     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
-    usuarios = User.objects.all()
+    usuarios = User.objects.order_by('first_name').filter(is_active=1)
     horarios = HorarioLaboral.objects.all()
 
     if request.method == 'POST':
@@ -406,7 +406,7 @@ def editar_colaborador(request, colaborador_id):
 def eliminar_colaborador(request, colaborador_id):
     colaborador = Colaborador.objects.get(id=colaborador_id)
     colaborador.delete()
-    
+
     messages.warning(request, "✅ Colaborador eliminado correctamente.")
     return redirect('listar_colaboradores')
 
