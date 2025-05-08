@@ -45,7 +45,7 @@
                 </div>
 
                 <div class="card-body p-3">
-                    <h3 class="border-bottom text-center mb-3">{{ c.usuario_sistema.first_name }} {{ c.usuario_sistema.last_name }}</h3>
+                    <h3 class="border-bottom text-center mb-3">{{ c.usuario_sistema.first_name|title }} {{ c.usuario_sistema.last_name|title }}</h3>
                     <div class="row mb-4">
                         <p class="card-text">
                             <strong>Cod. Empleado:</strong> {{ c.codigo_empleado }}<br>
