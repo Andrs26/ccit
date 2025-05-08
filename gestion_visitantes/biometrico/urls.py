@@ -20,6 +20,7 @@ urlpatterns = [
     path('talento/admin/colaboradores/<int:colaborador_id>/', views.ver_colaborador, name='ver_colaborador'),
     path('talento/admin/colaboradores/crear', views.crear_colaborador, name='crear_colaborador'),
     path('talento/admin/colaboradores/editar/<int:colaborador_id>/', views.editar_colaborador, name='editar_colaborador'),
+    path('talento/admin/colaboradores/eliminar/<int:colaborador_id>/', views.eliminar_colaborador, name='eliminar_colaborador'),
     path('talento/admin/colaboradores/cambiar_estado/<int:colaborador_id>/', views.cambiar_estado_colaborador, name='cambiar_estado_colaborador'),
     path('reporte-asistencias/', views.listar_colaboradores_reporte, name="reporte_colaboradores"),
     path('reporte-asistencias/<int:colaborador_id>/editar/', views.editar_reporte_colaborador, name="editar_reporte_colaborador"),

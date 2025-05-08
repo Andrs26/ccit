@@ -234,7 +234,7 @@ def listar_asistencias(request):
     # Agrupar por usuario + fecha con entrada y salida
     agrupadas_qs = asistencias.values('usuario__user_id', 'usuario__nombre', 'fecha')\
         .annotate(entrada=Min('hora'), salida=Max('hora'))\
-        .order_by('fecha', 'usuario__nombre')
+        .order_by('fecha', 'entrada')
 
     agrupadas = []
     detalles_asistencias = {}
@@ -402,6 +402,13 @@ def editar_colaborador(request, colaborador_id):
         'usuarios': usuarios,
         'horarios': horarios,
     })
+
+def eliminar_colaborador(request, colaborador_id):
+    colaborador = Colaborador.objects.get(id=colaborador_id)
+    colaborador.delete()
+    
+    messages.warning(request, "✅ Colaborador eliminado correctamente.")
+    return redirect('listar_colaboradores')
 
 def cambiar_estado_colaborador(request, colaborador_id):
     if request.method == 'POST':
